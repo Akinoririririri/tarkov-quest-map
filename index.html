@@ -29,7 +29,9 @@
   details.sect>summary::before{content:"\25B6";display:inline-block;margin-right:7px;font-size:9px;transition:transform .12s;color:var(--dim)}
   details.sect[open]>summary::before{transform:rotate(90deg)}
   details.sect .inner{padding:0 14px 10px;display:flex;flex-direction:column;gap:8px}
-  #sidebar h1{font-size:15px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line);color:var(--accent2);letter-spacing:.04em}
+  #titlebar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+  #titlebar h1{font-size:15px;margin:0;padding:0;border:0;color:var(--accent2);letter-spacing:.04em}
+  #langToggle{font-size:11px;padding:3px 9px;flex:0 0 auto}
   .bar{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
   .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px}
@@ -136,70 +138,73 @@
 <div id="app">
   <!-- ===== サイドバー ===== -->
   <aside id="sidebar">
-    <h1>タルコフ クエストマップ</h1>
+    <div id="titlebar">
+      <h1 id="appTitle" data-i18n="appTitle">タルコフ クエストマップ</h1>
+      <button id="langToggle" title="Language / 言語">EN</button>
+    </div>
 
     <div class="bar">
       <div class="row">
-        <button id="refresh" class="primary">データ更新</button>
+        <button id="refresh" class="primary" data-i18n="refresh">データ更新</button>
         <span id="datainfo" class="muted"></span>
       </div>
       <div class="row">
-        <select id="traderSel"><option value="">▼ トレーダー（すべて）</option></select>
-        <select id="mapSel"><option value="">▼ マップ（すべて）</option></select>
+        <select id="traderSel"><option value="" data-i18n="traderAll">▼ トレーダー（すべて）</option></select>
+        <select id="mapSel"><option value="" data-i18n="mapAll">▼ マップ（すべて）</option></select>
       </div>
       <div class="row">
-        <input type="search" id="search" placeholder="クエスト名で検索…" />
+        <input type="search" id="search" placeholder="クエスト名で検索…" data-i18n-placeholder="searchPlaceholder" />
       </div>
       <div class="row">
-        <button id="selnone">選択解除</button>
-        <label class="chk"><input type="checkbox" id="kappaonly" /> Kappaのみ ★</label>
+        <button id="selnone" data-i18n="clearSel">選択解除</button>
+        <label class="chk"><input type="checkbox" id="kappaonly" /> <span data-i18n="kappaOnly">Kappaのみ ★</span></label>
       </div>
       <div class="row">
-        <label class="chk">Lv <input type="number" id="lvlin" min="1" max="79" value="15" /></label>
-        <label class="chk"><input type="checkbox" id="showdone" /> 完了も表示</label>
+        <label class="chk"><span data-i18n="lvLabel">Lv</span> <input type="number" id="lvlin" min="1" max="79" value="15" /></label>
+        <label class="chk"><input type="checkbox" id="showdone" /> <span data-i18n="showDone">完了も表示</span></label>
       </div>
       <div class="row"><span id="selinfo" class="muted">0 クエスト選択中</span></div>
       <div class="row"><span id="progline"></span></div>
     </div>
 
     <details class="sect" id="layersSect">
-      <summary>表示レイヤー・共有</summary>
+      <summary data-i18n="layersSection">表示レイヤー・共有</summary>
       <div class="inner">
       <div class="row">
-        <label class="chk"><input type="checkbox" id="opt_transit" /> トランジット（マップ間移動）</label>
+        <label class="chk"><input type="checkbox" id="opt_transit" /> <span data-i18n="optTransit">トランジット（マップ間移動）</span></label>
       </div>
-      <div class="row"><span class="muted">※脱出地点は下の「脱出地点」欄で選択</span></div>
+      <div class="row"><span class="muted" data-i18n="hintExitBelow">※脱出地点は下の「脱出地点」欄で選択</span></div>
       <div class="row">
-        <label class="chk"><input type="checkbox" id="opt_hazard" /> <span class="sq" style="background:#d9534f;border-color:#fff9"></span> 危険地帯</label>
-        <label class="chk"><input type="checkbox" id="opt_lock" /> 施錠ドア</label>
-        <label class="chk"><input type="checkbox" id="opt_switch" /> スイッチ</label>
-      </div>
-      <div class="row">
-        <label class="chk"><input type="checkbox" id="opt_boss" /> <span class="dot" style="background:#a06cd0"></span> ボス</label>
-        <label class="chk"><input type="checkbox" id="opt_spawn" /> スポーン</label>
-        <label class="chk"><input type="checkbox" id="opt_icons" checked /> アイコン</label>
+        <label class="chk"><input type="checkbox" id="opt_hazard" /> <span class="sq" style="background:#d9534f;border-color:#fff9"></span> <span data-i18n="optHazard">危険地帯</span></label>
+        <label class="chk"><input type="checkbox" id="opt_lock" /> <span data-i18n="optLock">施錠ドア</span></label>
+        <label class="chk"><input type="checkbox" id="opt_switch" /> <span data-i18n="optSwitch">スイッチ</span></label>
       </div>
       <div class="row">
-        <label class="chk"><input type="checkbox" id="opt_route" /> 巡回ルート番号（①②③…）</label>
+        <label class="chk"><input type="checkbox" id="opt_boss" /> <span class="dot" style="background:#a06cd0"></span> <span data-i18n="optBoss">ボス</span></label>
+        <label class="chk"><input type="checkbox" id="opt_spawn" /> <span data-i18n="optSpawn">スポーン</span></label>
+        <label class="chk"><input type="checkbox" id="opt_icons" checked /> <span data-i18n="optIcons">アイコン</span></label>
       </div>
       <div class="row">
-        <button id="sharemake">共有リンク作成</button>
-        <button id="shareload">コード読込</button>
+        <label class="chk"><input type="checkbox" id="opt_route" /> <span data-i18n="optRoute">巡回ルート番号（①②③…）</span></label>
+      </div>
+      <div class="row">
+        <button id="sharemake" data-i18n="shareCreateBtn">共有リンク作成</button>
+        <button id="shareload" data-i18n="shareLoadBtn">コード読込</button>
       </div>
       </div>
     </details>
 
     <details class="sect" id="exitSect" open>
-      <summary>脱出地点</summary>
+      <summary data-i18n="exitSection">脱出地点</summary>
       <div class="inner">
-        <div class="row"><span class="muted">今回の出撃タイプを選択</span></div>
+        <div class="row"><span class="muted" data-i18n="hintFactionSelect">今回の出撃タイプを選択</span></div>
         <div class="row" id="exFac">
           <label class="chk"><input type="radio" name="exfac" value="pmc" checked /> <span class="dot" style="background:var(--ok)"></span> PMC</label>
           <label class="chk"><input type="radio" name="exfac" value="scav" /> <span class="dot" style="background:var(--scav)"></span> Scav</label>
         </div>
         <div class="row">
-          <button id="exAll">全部表示</button>
-          <button id="exNone">全部隠す</button>
+          <button id="exAll" data-i18n="showAll">全部表示</button>
+          <button id="exNone" data-i18n="hideAll">全部隠す</button>
         </div>
         <div class="row"><span class="muted" id="exHint">チェックした脱出地点だけ地図に表示します</span></div>
         <div id="exList"></div>
@@ -217,33 +222,33 @@
     <div id="mapwrap">
       <div id="map"></div>
       <div id="brightctl">
-        <span>明るさ</span>
-        <input type="range" id="bright" min="0.4" max="1.6" step="0.05" value="1" title="マップの明るさ" />
-        <span>コントラスト</span>
-        <input type="range" id="contrast" min="0.6" max="1.6" step="0.05" value="1" title="マップのコントラスト" />
-        <button id="brightreset">リセット</button>
+        <span data-i18n="brightness">明るさ</span>
+        <input type="range" id="bright" min="0.4" max="1.6" step="0.05" value="1" title="マップの明るさ" data-i18n-title="brightnessTitle" />
+        <span data-i18n="contrast">コントラスト</span>
+        <input type="range" id="contrast" min="0.6" max="1.6" step="0.05" value="1" title="マップのコントラスト" data-i18n-title="contrastTitle" />
+        <button id="brightreset" data-i18n="reset">リセット</button>
       </div>
       <div id="raidtimer">
         <span class="clock" id="raidclock">--:--</span>
-        <button id="raidstart">レイド開始</button>
+        <button id="raidstart" data-i18n="raidStart">レイド開始</button>
       </div>
       <div id="mapnote" class="hidden"></div>
       <div id="legend"></div>
       <div id="nocoord" class="hidden"></div>
       <div id="overlay">
-        <div id="ovtext">データを読み込んでいます…</div>
+        <div id="ovtext" data-i18n="loadingInitial">データを読み込んでいます…</div>
       </div>
       <div id="guide" class="hidden">
         <div class="card">
-          <h3>はじめての方へ</h3>
+          <h3 data-i18n="guideTitle">はじめての方へ</h3>
           <ol>
-            <li>左上の <b>トレーダー</b> か <b>マップ</b> で絞り込み、今回やるクエストにチェック。</li>
-            <li>上部のタブでマップを切り替え。地図上のピンにマウスを乗せると目標の説明が出ます。</li>
-            <li>左の <b>脱出地点</b> 欄で出撃タイプ(PMC/Scav)を選び、今回使う脱出地点にチェック → その地点だけ地図に出ます（緑=PMC / 青=Scav / 橙=共有）。</li>
-            <li>このウィンドウをサブディスプレイへ移動し、<b>F11</b> で全画面にすると見やすいです。</li>
-            <li>ワイプ後や新クエスト追加時は左上の <b>データ更新</b> を押してください。</li>
+            <li data-i18n-html="guideStep1">左上の <b>トレーダー</b> か <b>マップ</b> で絞り込み、今回やるクエストにチェック。</li>
+            <li data-i18n-html="guideStep2">上部のタブでマップを切り替え。地図上のピンにマウスを乗せると目標の説明が出ます。</li>
+            <li data-i18n-html="guideStep3">左の <b>脱出地点</b> 欄で出撃タイプ(PMC/Scav)を選び、今回使う脱出地点にチェック → その地点だけ地図に出ます（緑=PMC / 青=Scav / 橙=共有）。</li>
+            <li data-i18n-html="guideStep4">このウィンドウをサブディスプレイへ移動し、<b>F11</b> で全画面にすると見やすいです。</li>
+            <li data-i18n-html="guideStep5">ワイプ後や新クエスト追加時は左上の <b>データ更新</b> を押してください。</li>
           </ol>
-          <button id="guideclose" class="primary">はじめる</button>
+          <button id="guideclose" class="primary" data-i18n="guideStart">はじめる</button>
         </div>
       </div>
     </div>
@@ -267,6 +272,205 @@
    n=normalizedName, t=transform[scaleX,marginX,scaleZ,marginZ],
    r=coordinateRotation(度), b=bounds, sb=svgBounds(任意),
    svg=SVGパス, lyr=表示するSVGレイヤーID, tile=タイルURL(SVGが無い時) */
+/* ---------- 多言語対応 (i18n) ---------- */
+let LANG = localStorage.getItem("eft_qm_lang") || "ja";
+const STR = {
+  ja: {
+    appTitle:"タルコフ クエストマップ", langToggleLabel:"EN",
+    refresh:"データ更新", traderAll:"▼ トレーダー（すべて）", mapAll:"▼ マップ（すべて）",
+    followCurrentMap:"【表示中のマップに追従】", searchPlaceholder:"クエスト名で検索…",
+    clearSel:"選択解除", kappaOnly:"Kappaのみ ★", lvLabel:"Lv", showDone:"完了も表示",
+    layersSection:"表示レイヤー・共有", optTransit:"トランジット（マップ間移動）",
+    hintExitBelow:"※脱出地点は下の「脱出地点」欄で選択", optHazard:"危険地帯", optLock:"施錠ドア",
+    optSwitch:"スイッチ", optBoss:"ボス", optSpawn:"スポーン", optIcons:"アイコン",
+    optRoute:"巡回ルート番号（①②③…）", shareCreateBtn:"共有リンク作成", shareLoadBtn:"コード読込",
+    exitSection:"脱出地点", hintFactionSelect:"今回の出撃タイプを選択", showAll:"全部表示", hideAll:"全部隠す",
+    exitHint:(shown,total)=>`${shown} / ${total} 地点を表示中`, noExitData:"このマップの脱出データがありません",
+    brightness:"明るさ", brightnessTitle:"マップの明るさ", contrast:"コントラスト", contrastTitle:"マップのコントラスト",
+    reset:"リセット", raidStart:"レイド開始",
+    guideTitle:"はじめての方へ",
+    guideStep1:"左上の <b>トレーダー</b> か <b>マップ</b> で絞り込み、今回やるクエストにチェック。",
+    guideStep2:"上部のタブでマップを切り替え。地図上のピンにマウスを乗せると目標の説明が出ます。",
+    guideStep3:"左の <b>脱出地点</b> 欄で出撃タイプ(PMC/Scav)を選び、今回使う脱出地点にチェック → その地点だけ地図に出ます（緑=PMC / 青=Scav / 橙=共有）。",
+    guideStep4:"このウィンドウをサブディスプレイへ移動し、<b>F11</b> で全画面にすると見やすいです。",
+    guideStep5:"ワイプ後や新クエスト追加時は左上の <b>データ更新</b> を押してください。",
+    guideStart:"はじめる", loadingInitial:"データを読み込んでいます…",
+    multipleOrNone:"複数/なし", doneBadge:"✓済(自分)", markDoneTitle:"完了マーク",
+    searchPrefix:mn=>`検索: ${mn}`, searchResults:"検索結果", noMatch:"該当なし", selectedHeader:"選択中",
+    filterHint:"上の「トレーダー」または「マップ」で絞り込むと、クエストが名前（ABC）順で出ます。クエスト名の直接検索も可。",
+    availableNow:"▶ 今すぐ受注できる", noQuestsToShow:"表示できるクエストがありません（絞り込み条件を確認）",
+    labelSep:" ／ ",
+    selCount:n=>`${n} クエスト選択中`,
+    progressDone:(dn,total)=>`完了 <b>${dn}</b>/${total}`,
+    progressKappa:(kapDn,kapAll)=>` ・ Kappa必須 <b>${kapDn}</b>/${kapAll}`,
+    progressLK:(lkDn,lkAll)=>` ・ Lightkeeper <b>${lkDn}</b>/${lkAll}`,
+    unknownName:"(名称不明)", kindPMC:"PMC", kindScav:"Scav", kindShared:"共有", sharedGlyph:"共",
+    extractPopup:(name,kind,fac)=>`<b>脱出: ${name}</b><br>区分: ${kind}（今回: ${fac==="scav"?"Scav":"PMC"}出撃）`,
+    transitLabel:"トランジット", transitPopup:desc=>`<b>トランジット</b><br>${desc}`,
+    hazardSniper:"スナイパースカフの射線内", hazardMinefield:"地雷原", hazardOther:"危険地帯",
+    dangerousAreaPopup:jp=>`<b>${jp}</b><br><span style="color:#888">この範囲は危険</span>`,
+    lockedDoor:"施錠ドア", lockType:"種類", needsPower:"※要 電源", lockGlyph:"鍵", routeLabel:"ルート", floorLabel:"階:",
+    lockPopup:(type,power)=>`<b>施錠ドア</b><br>種類: ${type}${power?"<br>※要 電源":""}`,
+    switchLabel:"スイッチ", switchPopup:name=>`<b>スイッチ</b><br><span style="color:#555">${name}</span>`,
+    spawnChanceApprox:pct=>`出現率 約${pct}%`,
+    spawnPoint:"スポーン地点", sideOther:s=>s,
+    optionalTag:" (任意)", conditionsLabel:"条件: ",
+    noCoordHeader:"このマップ・座標データなし (Wiki確認)",
+    noQuestSelected:"クエスト未選択",
+    legendSniper:"スナイパー射線", legendMinefield:"地雷原", legendOtherHazard:"その他危険",
+    legendLockedDoor:"施錠ドア", legendSwitch:"スイッチ", legendBoss:"ボス出現",
+    legendPmcSpawn:"PMCスポーン", legendScavSpawn:"Scavスポーン", legendRoute:"— — 巡回ルート(番号順)",
+    legendToggle:open=>`凡例 ${open?"▲":"▼"}`,
+    legendExitLine:fac=>`脱出（今回: <b>${fac==="scav"?"Scav":"PMC"}</b>出撃）: <span class="dot" style="background:var(--ok)"></span>PMC&nbsp; <span class="dot" style="background:var(--scav)"></span>Scav&nbsp; <span class="dot" style="background:var(--shared)"></span>共有 — 「脱出地点」欄でチェックした地点のみ表示`,
+    legendMarkerLine:'<span class="dot" style="background:#888"></span>丸=クエスト目標(記号A/B..)　📌=自分のメモ(右クリックで追加)',
+    legendHazardLine:"破線で囲った範囲=危険地帯。範囲内に入ると危険",
+    legendColorLine:"地図の色（tarkov.dev提供）: 濃い灰=建物内 / 斜線=階段・スロープ / 水色=水場 / 破線=マップ境界",
+    prereqLabel:"前提: ", nextLabel:"次: ", andMore:" ほか",
+    shareCopiedAlert:"共有リンクをコピーしました。フレンドに送ってください。",
+    sharePromptCopy:"この共有リンクをコピーしてフレンドに送ってください:",
+    sharePromptLoad:"共有コード（#s= より後）または共有リンクを貼り付け:",
+    shareLoadedAlert:"共有データを読み込みました。",
+    shareLoadFailedAlert:msg=>`読み込み失敗: ${msg}`,
+    prepHeader:mjp=>`レイド前チェック — ${mjp}`,
+    prepEmpty:"このマップで持ち込む鍵・回収アイテムはありません（座標ピンのみ）。",
+    prepKeys:"🔑 持ち込む鍵", prepBring:"📤 持ち込み（設置・マーカー用）", prepCollect:"📥 現地で回収",
+    pinPromptAdd:"このピンのメモ（例: スナイパー注意 / 休憩ポイント）",
+    pinPromptEdit:"メモを編集",
+    pinPopupMemo:"メモ", pinPopupEmpty:"<span style='color:#888'>(なし)</span>",
+    pinEdit:"編集", pinDelete:"削除",
+    mapLoading:jp=>`${jp} を読み込み中…`,
+    mapAttribution:'地図: <a href="https://tarkov.dev" target="_blank">tarkov.dev</a> (CC BY-NC-SA)',
+    fetchingFirst:"json.tarkov.dev から最新データを取得中…（初回は少し時間がかかります）",
+    fetchingData:"json.tarkov.dev から最新データを取得中…",
+    fetchFailed:msg=>`<div class="err">データ取得に失敗しました。<br>${msg}<br><br>ネット接続を確認し「データ更新」を押してください。</div>`,
+    fetchFailedAlert:msg=>`取得失敗: ${msg}`,
+    staleData:"⚠ 古い: ", updatedData:"更新: ",
+    leafletLoadError:'<div class="err">地図ライブラリ(Leaflet)の読み込みに失敗しました。<br>インターネット接続を確認してページを再読み込みしてください。</div>',
+    noTaskData:"タスクデータが空です",
+    bodyHead:"頭部", bodyThorax:"胸部", bodyStomach:"腹部", bodyLeftArm:"左腕", bodyRightArm:"右腕", bodyLeftLeg:"左脚", bodyRightLeg:"右脚",
+    condShoot:parts=>parts.join("・") + "を撃つ",
+    condDistIn:v=>`${v}m以内から`, condDistOut:v=>`${v}m以上離れて`,
+    condWeaponOnly:n=>`指定武器のみ(${n}種)`, condWearing:"指定装備を着用", condNotWearing:"指定装備を外す",
+    condTimeRange:(a,b)=>`${a}時〜${b}時`, condKillCount:n=>`キル×${n}`,
+    attrErgo:"エルゴ", attrAccuracy:"精度(MOA)", attrDurability:"耐久", attrRecoilV:"縦リコイル",
+    attrRecoilH:"横リコイル", attrWeight:"重量", attrEffDist:"有効射程", attrMagCap:"装弾数", attrMuzzleV:"初速",
+    objVisit:"到達・訪問", objFindItem:"アイテム発見", objFindQuestItem:"クエストアイテム回収",
+    objGiveItem:"アイテム納品", objGiveQuestItem:"クエストアイテム納品", objPlantItem:"アイテム設置",
+    objPlantQuestItem:"クエストアイテム設置", objMark:"マーカー設置", objShoot:"排除(キル)",
+    objExtract:"指定地点から脱出", objBuildWeapon:"武器を組む", objUseItem:"アイテム使用",
+    objSellItem:"フリマ出品", objExperience:"特定状況の達成", objSkill:"スキル到達",
+    objTraderLevel:"トレーダーLL", objTraderStanding:"トレーダー信頼度",
+    objTaskStatus:"他クエストの状態", objDialogue:"会話", objGlobalVariable:"進行フラグ",
+  },
+  en: {
+    appTitle:"EFT Quest Map", langToggleLabel:"日本語",
+    refresh:"Refresh data", traderAll:"▼ Trader (all)", mapAll:"▼ Map (all)",
+    followCurrentMap:"[Follow current map tab]", searchPlaceholder:"Search quest name…",
+    clearSel:"Clear selection", kappaOnly:"Kappa only ★", lvLabel:"Lv", showDone:"Show completed",
+    layersSection:"Display layers / Share", optTransit:"Transit (between maps)",
+    hintExitBelow:"※ Pick extracts in the “Extracts” section below", optHazard:"Hazard areas", optLock:"Locked doors",
+    optSwitch:"Switches", optBoss:"Bosses", optSpawn:"Spawns", optIcons:"Icons",
+    optRoute:"Route numbering (①②③…)", shareCreateBtn:"Create share link", shareLoadBtn:"Load code",
+    exitSection:"Extracts", hintFactionSelect:"Select this raid's spawn type", showAll:"Show all", hideAll:"Hide all",
+    exitHint:(shown,total)=>`Showing ${shown} / ${total} extracts`, noExitData:"No extract data for this map",
+    brightness:"Brightness", brightnessTitle:"Map brightness", contrast:"Contrast", contrastTitle:"Map contrast",
+    reset:"Reset", raidStart:"Start raid",
+    guideTitle:"New here?",
+    guideStep1:"Filter by <b>Trader</b> or <b>Map</b> at top-left, then check the quests you're running this raid.",
+    guideStep2:"Switch maps with the tabs above. Hover a pin on the map to see the objective description.",
+    guideStep3:"In the <b>Extracts</b> section on the left, pick your spawn type (PMC/Scav) and check the extracts you'll use → only those show on the map (green=PMC / blue=Scav / orange=shared).",
+    guideStep4:"Move this window to your second monitor and press <b>F11</b> for fullscreen — easiest to read that way.",
+    guideStep5:"After a wipe or new quests, press <b>Refresh data</b> at the top-left.",
+    guideStart:"Get started", loadingInitial:"Loading data…",
+    multipleOrNone:"Multiple / none", doneBadge:"✓ done (you)", markDoneTitle:"Mark complete",
+    searchPrefix:mn=>`Search: ${mn}`, searchResults:"Search results", noMatch:"No matches", selectedHeader:"Selected",
+    filterHint:"Filter by “Trader” or “Map” above to list quests alphabetically. You can also search by quest name directly.",
+    availableNow:"▶ Available now", noQuestsToShow:"No quests to show (check your filters)",
+    labelSep:" / ",
+    selCount:n=>`${n} quest${n===1?"":"s"} selected`,
+    progressDone:(dn,total)=>`Done <b>${dn}</b>/${total}`,
+    progressKappa:(kapDn,kapAll)=>` ・ Kappa required <b>${kapDn}</b>/${kapAll}`,
+    progressLK:(lkDn,lkAll)=>` ・ Lightkeeper <b>${lkDn}</b>/${lkAll}`,
+    unknownName:"(unknown)", kindPMC:"PMC", kindScav:"Scav", kindShared:"Shared", sharedGlyph:"Sh",
+    extractPopup:(name,kind,fac)=>`<b>Extract: ${name}</b><br>Type: ${kind} (this raid: ${fac==="scav"?"Scav":"PMC"})`,
+    transitLabel:"Transit", transitPopup:desc=>`<b>Transit</b><br>${desc}`,
+    hazardSniper:"Sniper scav line of fire", hazardMinefield:"Minefield", hazardOther:"Hazard area",
+    dangerousAreaPopup:label=>`<b>${label}</b><br><span style="color:#888">This area is dangerous</span>`,
+    lockedDoor:"Locked door", lockType:"Type", needsPower:"※ Needs power", lockGlyph:"L", routeLabel:"Route", floorLabel:"Floor:",
+    lockPopup:(type,power)=>`<b>Locked door</b><br>Type: ${type}${power?"<br>※ Needs power":""}`,
+    switchLabel:"Switch", switchPopup:name=>`<b>Switch</b><br><span style="color:#555">${name}</span>`,
+    spawnChanceApprox:pct=>`Spawn chance ~${pct}%`,
+    spawnPoint:"Spawn point", sideOther:s=>s,
+    optionalTag:" (optional)", conditionsLabel:"Conditions: ",
+    noCoordHeader:"No coordinates for this map (check Wiki)",
+    noQuestSelected:"No quests selected",
+    legendSniper:"Sniper line of fire", legendMinefield:"Minefield", legendOtherHazard:"Other hazard",
+    legendLockedDoor:"Locked door", legendSwitch:"Switch", legendBoss:"Boss spawn",
+    legendPmcSpawn:"PMC spawn", legendScavSpawn:"Scav spawn", legendRoute:"— — Route (numbered order)",
+    legendToggle:open=>`Legend ${open?"▲":"▼"}`,
+    legendExitLine:fac=>`Extracts (this raid: <b>${fac==="scav"?"Scav":"PMC"}</b>): <span class="dot" style="background:var(--ok)"></span>PMC&nbsp; <span class="dot" style="background:var(--scav)"></span>Scav&nbsp; <span class="dot" style="background:var(--shared)"></span>Shared — only extracts checked in “Extracts” show`,
+    legendMarkerLine:'<span class="dot" style="background:#888"></span>Circle=quest objective (letter A/B..)　📌=your note (right-click to add)',
+    legendHazardLine:"Dashed outline=hazard area. Entering it is dangerous",
+    legendColorLine:"Map colors (from tarkov.dev): dark gray=indoors / hatching=stairs・ramp / light blue=water / dashed=map boundary",
+    prereqLabel:"Requires: ", nextLabel:"Next: ", andMore:" more",
+    shareCopiedAlert:"Share link copied. Send it to your friend.",
+    sharePromptCopy:"Copy this share link and send it to your friend:",
+    sharePromptLoad:"Paste the share code (after #s=) or the full link:",
+    shareLoadedAlert:"Share data loaded.",
+    shareLoadFailedAlert:msg=>`Load failed: ${msg}`,
+    prepHeader:mjp=>`Pre-raid checklist — ${mjp}`,
+    prepEmpty:"No keys or pickup items needed on this map (pins only).",
+    prepKeys:"🔑 Keys to bring", prepBring:"📤 To bring (plant/mark)", prepCollect:"📥 Find on site",
+    pinPromptAdd:"Note for this pin (e.g. sniper danger / rest point)",
+    pinPromptEdit:"Edit note",
+    pinPopupMemo:"Note", pinPopupEmpty:"<span style='color:#888'>(none)</span>",
+    pinEdit:"Edit", pinDelete:"Delete",
+    mapLoading:jp=>`Loading ${jp}…`,
+    mapAttribution:'Map: <a href="https://tarkov.dev" target="_blank">tarkov.dev</a> (CC BY-NC-SA)',
+    fetchingFirst:"Fetching latest data from json.tarkov.dev… (first load takes a bit)",
+    fetchingData:"Fetching latest data from json.tarkov.dev…",
+    fetchFailed:msg=>`<div class="err">Failed to fetch data.<br>${msg}<br><br>Check your connection and press “Refresh data”.</div>`,
+    fetchFailedAlert:msg=>`Fetch failed: ${msg}`,
+    staleData:"⚠ Stale: ", updatedData:"Updated: ",
+    leafletLoadError:'<div class="err">Failed to load the map library (Leaflet).<br>Check your internet connection and reload the page.</div>',
+    noTaskData:"Task data is empty",
+    bodyHead:"Head", bodyThorax:"Thorax", bodyStomach:"Stomach", bodyLeftArm:"Left Arm", bodyRightArm:"Right Arm", bodyLeftLeg:"Left Leg", bodyRightLeg:"Right Leg",
+    condShoot:parts=>"Hit " + parts.join("/"),
+    condDistIn:v=>`within ${v}m`, condDistOut:v=>`beyond ${v}m`,
+    condWeaponOnly:n=>`specific weapons only (${n})`, condWearing:"must wear specific gear", condNotWearing:"must remove specific gear",
+    condTimeRange:(a,b)=>`${a}:00–${b}:00`, condKillCount:n=>`Kills×${n}`,
+    attrErgo:"Ergo", attrAccuracy:"Accuracy (MOA)", attrDurability:"Durability", attrRecoilV:"Vert. recoil",
+    attrRecoilH:"Horiz. recoil", attrWeight:"Weight", attrEffDist:"Eff. range", attrMagCap:"Mag capacity", attrMuzzleV:"Muzzle velocity",
+    objVisit:"Visit location", objFindItem:"Find item", objFindQuestItem:"Find quest item",
+    objGiveItem:"Hand over item", objGiveQuestItem:"Hand over quest item", objPlantItem:"Plant item",
+    objPlantQuestItem:"Plant quest item", objMark:"Place marker", objShoot:"Eliminate (kill)",
+    objExtract:"Extract from location", objBuildWeapon:"Build weapon", objUseItem:"Use item",
+    objSellItem:"List on flea market", objExperience:"Achieve condition", objSkill:"Reach skill level",
+    objTraderLevel:"Trader loyalty level", objTraderStanding:"Trader standing",
+    objTaskStatus:"Other quest status", objDialogue:"Dialogue", objGlobalVariable:"Progress flag",
+  },
+};
+function T(key, ...args){
+  const v = (STR[LANG] && STR[LANG][key] !== undefined) ? STR[LANG][key] : STR.ja[key];
+  return typeof v === "function" ? v(...args) : v;
+}
+function applyStaticI18n(){
+  document.documentElement.lang = LANG;
+  document.title = T("appTitle");
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = T(el.getAttribute("data-i18n")); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = T(el.getAttribute("data-i18n-html")); });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => { el.placeholder = T(el.getAttribute("data-i18n-placeholder")); });
+  document.querySelectorAll("[data-i18n-title]").forEach(el => { el.title = T(el.getAttribute("data-i18n-title")); });
+  const lt = document.getElementById("langToggle");
+  if(lt) lt.textContent = T("langToggleLabel");
+}
+applyStaticI18n();
+document.getElementById("langToggle").onclick = () => {
+  LANG = (LANG === "ja") ? "en" : "ja";
+  try{ localStorage.setItem("eft_qm_lang", LANG); }catch(e){}
+  location.reload();
+};
+
 const NINF = -1e9, PINF = 1e9;
 const MAPS = [
   {n:"streets-of-tarkov", jp:"Streets of Tarkov", t:[0.38,0,0.38,0], r:180, b:[[323,-295],[-280,532]],
@@ -357,8 +561,8 @@ const canonMap = m => m ? (MAP_ALIAS[m] || m) : m;
    ピン位置(座標変換)には影響しない。tarkov.dev が新しい絵を公開したらここを消す。 */
 const MAP_ART_NOTE = {
   lighthouse: {
-    text: "この地図の絵は 1.1.5.0 ライトハウス改修前のレイアウトです（tarkov.dev 未更新）。クエスト座標データ自体は最新。",
-    linkText: "最新レイアウト参考(reemr.se)",
+    ja: { text: "この地図の絵は 1.1.5.0 ライトハウス改修前のレイアウトです（tarkov.dev 未更新）。クエスト座標データ自体は最新。", linkText: "最新レイアウト参考(reemr.se)" },
+    en: { text: "This map's art is still the pre-1.1.5.0 Lighthouse layout (tarkov.dev hasn't updated it yet). Quest coordinate data itself is current.", linkText: "Reference layout (reemr.se)" },
     url: "https://reemr.se/Lighthouse/",
   },
 };
@@ -367,7 +571,8 @@ function showMapNote(mapNN){
   if(!el) return;
   const n = MAP_ART_NOTE[mapNN];
   if(!n){ el.classList.add("hidden"); el.innerHTML = ""; return; }
-  el.innerHTML = n.text + (n.url ? ` <a href="${n.url}" target="_blank" rel="noopener">${n.linkText} ↗</a>` : "");
+  const nl = n[LANG] || n.ja;
+  el.innerHTML = nl.text + (n.url ? ` <a href="${n.url}" target="_blank" rel="noopener">${nl.linkText} ↗</a>` : "");
   el.classList.remove("hidden");
 }
 const MAPBY = Object.fromEntries(MAPS.map(m => [m.n, m]));
@@ -407,17 +612,19 @@ function scaledBounds(b, f){
    GraphQL API (api.tarkov.dev) が長期障害でも、こちらは稼働している。 */
 const JD_BASE = "https://json.tarkov.dev/";
 
-/* 目標タイプ → 日本語ラベル（説明用なので日本語。ゲーム固有名詞ではない） */
-const OBJ_TYPE_JA = {
-  visit:"到達・訪問", findItem:"アイテム発見", findQuestItem:"クエストアイテム回収",
-  giveItem:"アイテム納品", giveQuestItem:"クエストアイテム納品", plantItem:"アイテム設置",
-  plantQuestItem:"クエストアイテム設置", mark:"マーカー設置", shoot:"排除(キル)",
-  extract:"指定地点から脱出", buildWeapon:"武器を組む", useItem:"アイテム使用",
-  sellItem:"フリマ出品", experience:"特定状況の達成", skill:"スキル到達",
-  traderLevel:"トレーダーLL", traderStanding:"トレーダー信頼度",
-  taskStatus:"他クエストの状態", dialogue:"会話", globalVariable:"進行フラグ",
+/* 目標タイプ → 表示ラベル（説明用。ゲーム固有名詞ではないので言語切替対象） */
+const OBJ_TYPE_KEY = {
+  visit:"objVisit", findItem:"objFindItem", findQuestItem:"objFindQuestItem",
+  giveItem:"objGiveItem", giveQuestItem:"objGiveQuestItem", plantItem:"objPlantItem",
+  plantQuestItem:"objPlantQuestItem", mark:"objMark", shoot:"objShoot",
+  extract:"objExtract", buildWeapon:"objBuildWeapon", useItem:"objUseItem",
+  sellItem:"objSellItem", experience:"objExperience", skill:"objSkill",
+  traderLevel:"objTraderLevel", traderStanding:"objTraderStanding",
+  taskStatus:"objTaskStatus", dialogue:"objDialogue", globalVariable:"objGlobalVariable",
 };
-const objTypeJa = t => OBJ_TYPE_JA[t] || t;
+const objTypeJa = t => OBJ_TYPE_KEY[t] ? T(OBJ_TYPE_KEY[t]) : t;
+// 目標の説明文: LANG=ja は日本語優先、LANG=en は英語優先（両方 tarkov.dev から取得済み）
+const objDesc = o => LANG === "ja" ? (o.descriptionJa || o.description || "") : (o.description || o.descriptionJa || "");
 
 /* mob id → ゲーム内表示名（英語） */
 const MOB_NAME = {
@@ -437,7 +644,7 @@ async function jdFetch(path){
   return r.json();
 }
 
-const CACHE_KEY = "eft_qm_cache_v4";   // v4: 1.1.5.0 ライトハウス改修で更新
+const CACHE_KEY = "eft_qm_cache_v4_" + LANG;   // v4: 1.1.5.0 ライトハウス改修で更新／言語別に分離(条件文が言語焼き込みのため)
 const SEL_KEY   = "eft_qm_selected_v1";
 const OPT_KEY   = "eft_qm_opts_v1";
 const MAP_KEY   = "eft_qm_lastmap_v1";
@@ -505,7 +712,7 @@ async function fetchData(){
         position: x.position,
       })),
       hazards: (mp.hazards || []).filter(h => h && h.position).map(h => ({
-        name: has(men, h.name) ? men[h.name] : (h.name || h.hazardType || "危険"),
+        name: has(men, h.name) ? men[h.name] : (h.name || h.hazardType || T("hazardOther")),
         hazardType: h.hazardType || "",
         position: h.position,
         outline: Array.isArray(h.outline) ? h.outline : null,
@@ -514,7 +721,7 @@ async function fetchData(){
         lockType: l.lockType || "", needsPower: !!l.needsPower, position: l.position,
       })),
       switches: (mp.switches || []).filter(s => s && s.position).map(s => ({
-        name: has(men, s.name) ? men[s.name] : (s.name || "スイッチ"),
+        name: has(men, s.name) ? men[s.name] : (s.name || T("switchLabel")),
         position: s.position,
       })),
       bosses: (mp.bosses || []).map(b => {
@@ -554,22 +761,23 @@ async function fetchData(){
       if(o.type === "shoot"){
         const bp = (o.bodyParts || []).map(s => {
           const k = String(s).split("/").pop();
-          return ({ Head:"頭部", Thorax:"胸部", Stomach:"腹部", LeftArm:"左腕", RightArm:"右腕", LeftLeg:"左脚", RightLeg:"右脚" }[k] || k);
+          return ({ Head:T("bodyHead"), Thorax:T("bodyThorax"), Stomach:T("bodyStomach"), LeftArm:T("bodyLeftArm"), RightArm:T("bodyRightArm"), LeftLeg:T("bodyLeftLeg"), RightLeg:T("bodyRightLeg") }[k] || k);
         });
-        if(bp.length) cond.push(bp.join("・") + "を撃つ");
+        if(bp.length) cond.push(T("condShoot", bp));
         const d = o.distance;
-        if(d && d.value) cond.push((d.compareMethod === "<=" ? d.value + "m以内から" : d.value + "m以上離れて"));
-        if(o.usingWeapon && o.usingWeapon.length) cond.push("指定武器のみ(" + o.usingWeapon.length + "種)");
-        if(o.wearing && o.wearing.length) cond.push("指定装備を着用");
-        if(o.notWearing && o.notWearing.length) cond.push("指定装備を外す");
+        if(d && d.value) cond.push(d.compareMethod === "<=" ? T("condDistIn", d.value) : T("condDistOut", d.value));
+        if(o.usingWeapon && o.usingWeapon.length) cond.push(T("condWeaponOnly", o.usingWeapon.length));
+        if(o.wearing && o.wearing.length) cond.push(T("condWearing"));
+        if(o.notWearing && o.notWearing.length) cond.push(T("condNotWearing"));
         if((o.timeFromHour || o.timeUntilHour) && !(o.timeFromHour === 0 && o.timeUntilHour === 0))
-          cond.push(o.timeFromHour + "時〜" + o.timeUntilHour + "時");
-        if(o.shotType === "kill" && o.count > 1) cond.unshift("キル×" + o.count);
+          cond.push(T("condTimeRange", o.timeFromHour, o.timeUntilHour));
+        if(o.shotType === "kill" && o.count > 1) cond.unshift(T("condKillCount", o.count));
       }
       if(o.type === "buildWeapon" && o.buildAttributes){
+        const ATTR_KEY = { ergonomics:"attrErgo", accuracy:"attrAccuracy", durability:"attrDurability", recoilVertical:"attrRecoilV", recoilHorizontal:"attrRecoilH", weight:"attrWeight", effectiveDistance:"attrEffDist", magazineCapacity:"attrMagCap", muzzleVelocity:"attrMuzzleV" };
         for(const a in o.buildAttributes){
           const v = o.buildAttributes[a];
-          if(v && v.value) cond.push(({ ergonomics:"エルゴ", accuracy:"精度(MOA)", durability:"耐久", recoilVertical:"縦リコイル", recoilHorizontal:"横リコイル", weight:"重量", effectiveDistance:"有効射程", magazineCapacity:"装弾数", muzzleVelocity:"初速" }[a] || a) + " " + (v.compareMethod || "") + v.value);
+          if(v && v.value) cond.push((ATTR_KEY[a] ? T(ATTR_KEY[a]) : a) + " " + (v.compareMethod || "") + v.value);
         }
       }
       return {
@@ -611,7 +819,7 @@ async function fetchData(){
     });
   }
 
-  if(!tasks.length) throw new Error("タスクデータが空です");
+  if(!tasks.length) throw new Error(T("noTaskData"));
   return { maps, tasks };
 }
 function loadCache(){
@@ -696,7 +904,7 @@ function exitsForCurrent(){
 function exitGroups(){
   const m = new Map();
   for(const e of exitsForCurrent()){
-    const nm = e.name || "(名称不明)";
+    const nm = e.name || T("unknownName");
     if(!m.has(nm)) m.set(nm, { name:nm, faction:(e.faction||"").toLowerCase()||"shared", items:[] });
     m.get(nm).items.push(e);
   }
@@ -718,9 +926,9 @@ function renderExits(){
   if(!box) return;
   { const r = document.querySelector(`#exFac input[value="${exits.fac}"]`); if(r) r.checked = true; }
   const groups = exitGroups();
-  if(!groups.length){ box.innerHTML = '<div class="exempty">このマップの脱出データがありません</div>'; return; }
+  if(!groups.length){ box.innerHTML = `<div class="exempty">${T("noExitData")}</div>`; return; }
   const tagCol = f => f === "pmc" ? "var(--ok)" : f === "scav" ? "var(--scav)" : "var(--shared)";
-  const tagTxt = f => f === "pmc" ? "PMC" : f === "scav" ? "Scav" : "共有";
+  const tagTxt = f => f === "pmc" ? "PMC" : f === "scav" ? "Scav" : T("kindShared");
   box.innerHTML = groups.map(g =>
     `<label class="exrow">
        <input type="checkbox" data-ex="${g.name.replace(/"/g,"&quot;")}" ${exitVisible(g.name) ? "checked" : ""} />
@@ -728,7 +936,7 @@ function renderExits(){
        <span class="xtag" style="color:${tagCol(g.faction)}">${tagTxt(g.faction)}</span>
      </label>`).join("");
   const shown = groups.filter(g => exitVisible(g.name)).length;
-  document.getElementById("exHint").textContent = `${shown} / ${groups.length} 地点を表示中`;
+  document.getElementById("exHint").textContent = T("exitHint", shown, groups.length);
 }
 
 /* ---------- 表示設定（明るさ / コントラスト） ---------- */
@@ -817,8 +1025,8 @@ function prepTasks(rawTasks){
         }
       }
       if(!placed){
-        const line = (o.descriptionJa || o.description) +
-          ((o.conditions && o.conditions.length) ? `（条件: ${o.conditions.join(" / ")}）` : "");
+        const line = objDesc(o) +
+          ((o.conditions && o.conditions.length) ? `（${T("conditionsLabel")}${o.conditions.join(" / ")}）` : "");
         for(const mn of objMaps){
           if(!mn) continue;
           (noCoord[mn] = noCoord[mn] || []).push(line);
@@ -853,8 +1061,8 @@ function chainHtml(t){
   const prereq = (t.req || []).map(id => NAME_OF[id]).filter(Boolean);
   const next = (NEXT_OF[t.id] || []).map(id => NAME_OF[id]).filter(Boolean);
   let s = "";
-  if(prereq.length) s += `<div style="color:#888;font-size:11px">前提: ${prereq.join(", ")}</div>`;
-  if(next.length)   s += `<div style="color:#888;font-size:11px">次: ${next.slice(0,4).join(", ")}${next.length>4?" ほか":""}</div>`;
+  if(prereq.length) s += `<div style="color:#888;font-size:11px">${T("prereqLabel")}${prereq.join(", ")}</div>`;
+  if(next.length)   s += `<div style="color:#888;font-size:11px">${T("nextLabel")}${next.slice(0,4).join(", ")}${next.length>4?T("andMore"):""}</div>`;
   return s;
 }
 
@@ -900,13 +1108,13 @@ function questRow(t){
   };
   const info = document.createElement("div");
   info.style.flex = "1"; info.style.minWidth = "0";
-  const where = t.mapName ? t.mapName : (t.allMaps.length ? t.allMaps.map(m=>MAPBY[m]?MAPBY[m].jp:m).join(", ") : "複数/なし");
-  const badge = (dn && selected.has(t.id)) ? ` <span style="color:#6db36d">✓済(自分)</span>` : "";
-  info.innerHTML = `<div class="qn">${t.name}${badge}</div><div class="meta">${t.trader} ・ Lv${t.lvl||"-"} ・ ${where}</div>` +
+  const where = t.mapName ? t.mapName : (t.allMaps.length ? t.allMaps.map(m=>MAPBY[m]?MAPBY[m].jp:m).join(", ") : T("multipleOrNone"));
+  const badge = (dn && selected.has(t.id)) ? ` <span style="color:#6db36d">${T("doneBadge")}</span>` : "";
+  info.innerHTML = `<div class="qn">${t.name}${badge}</div><div class="meta">${t.trader} ・ ${T("lvLabel")}${t.lvl||"-"} ・ ${where}</div>` +
     (selected.has(t.id) ? chainHtml(t) : "");
   const doneBtn = document.createElement("button");
   doneBtn.textContent = dn ? "✓" : "○";
-  doneBtn.title = "完了マーク";
+  doneBtn.title = T("markDoneTitle");
   doneBtn.style.cssText = "flex:0 0 auto;padding:1px 6px;font-size:11px;" + (dn ? "background:#3a5a3a;border-color:#6db36d;color:#cfe" : "");
   doneBtn.onclick = (e) => {
     e.preventDefault(); e.stopPropagation();
@@ -949,8 +1157,8 @@ function renderQuestList(){
   // 検索中は全条件を跨いで名前検索（マップ絞り込みは維持）
   if(q){
     const list = TASKS.filter(pass).sort(byName);
-    header(fmap ? `検索: ${MAPBY[fmap]?MAPBY[fmap].jp:fmap}` : "検索結果", list.length);
-    if(!list.length) note("該当なし");
+    header(fmap ? T("searchPrefix", MAPBY[fmap]?MAPBY[fmap].jp:fmap) : T("searchResults"), list.length);
+    if(!list.length) note(T("noMatch"));
     list.forEach(t => box.appendChild(questRow(t)));
     return;
   }
@@ -958,13 +1166,13 @@ function renderQuestList(){
   // 選択中のクエストは常に上部に表示（外せるように）
   const sel = TASKS.filter(t => selected.has(t.id)).sort(byName);
   if(sel.length){
-    header("選択中", sel.length);
+    header(T("selectedHeader"), sel.length);
     sel.forEach(t => box.appendChild(questRow(t)));
   }
 
   // トレーダーもマップも未指定なら促す
   if(!opts.trader && !fmap){
-    note("上の「トレーダー」または「マップ」で絞り込むと、クエストが名前（ABC）順で出ます。クエスト名の直接検索も可。");
+    note(T("filterHint"));
     return;
   }
 
@@ -975,7 +1183,7 @@ function renderQuestList(){
   // 今すぐ受注できる（前提クリア＋レベル達成、未完了、未選択）
   const doable = list.filter(t => !isDone(t.id) && isAvailable(t));
   if(doable.length && (done.size > 0 || plvl > 1)){
-    header("▶ 今すぐ受注できる", doable.length);
+    header(T("availableNow"), doable.length);
     const dw = document.createElement("div");
     dw.className = "doableWrap";
     doable.forEach(t => dw.appendChild(questRow(t)));
@@ -983,14 +1191,14 @@ function renderQuestList(){
     list = list.filter(t => !doable.includes(t));
   }
 
-  const label = [opts.trader || null, fmap ? (MAPBY[fmap]?MAPBY[fmap].jp:fmap) : null].filter(Boolean).join(" ／ ");
+  const label = [opts.trader || null, fmap ? (MAPBY[fmap]?MAPBY[fmap].jp:fmap) : null].filter(Boolean).join(T("labelSep"));
   header(label, list.length);
-  if(!list.length) note("表示できるクエストがありません（絞り込み条件を確認）");
+  if(!list.length) note(T("noQuestsToShow"));
   list.forEach(t => box.appendChild(questRow(t)));
 }
 
 function updateSelInfo(){
-  document.getElementById("selinfo").textContent = `${selected.size} クエスト選択中`;
+  document.getElementById("selinfo").textContent = T("selCount", selected.size);
 }
 function renderProgress(){
   const el = document.getElementById("progline");
@@ -1001,9 +1209,9 @@ function renderProgress(){
   const kapDn = TASKS.filter(t => t.kappa && isDone(t.id)).length;
   const lkAll = TASKS.filter(t => t.lk).length;
   const lkDn = TASKS.filter(t => t.lk && isDone(t.id)).length;
-  el.innerHTML = `完了 <b>${dn}</b>/${total}` +
-    (kapAll ? ` ・ Kappa必須 <b>${kapDn}</b>/${kapAll}` : "") +
-    (lkAll ? ` ・ Lightkeeper <b>${lkDn}</b>/${lkAll}` : "");
+  el.innerHTML = T("progressDone", dn, total) +
+    (kapAll ? T("progressKappa", kapDn, kapAll) : "") +
+    (lkAll ? T("progressLK", lkDn, lkAll) : "");
 }
 
 function iconQuest(color, label){
@@ -1049,29 +1257,29 @@ function renderMarkers(){
   const fac = exits.fac;
   for(const e of exitsForCurrent()){
     if(!e.position || !onFloor(e.position)) continue;
-    if(!exitVisible(e.name || "(名称不明)")) continue;
+    if(!exitVisible(e.name || T("unknownName"))) continue;
     const f = (e.faction||"").toLowerCase();
     let color, letter, kind;
-    if(f==="pmc"){ color="var(--ok)"; letter="P"; kind="PMC"; }
-    else if(f==="scav"){ color="var(--scav)"; letter="S"; kind="Scav"; }
-    else { color="var(--shared)"; letter="共"; kind="共有"; }
+    if(f==="pmc"){ color="var(--ok)"; letter="P"; kind=T("kindPMC"); }
+    else if(f==="scav"){ color="var(--scav)"; letter="S"; kind=T("kindScav"); }
+    else { color="var(--shared)"; letter=T("sharedGlyph"); kind=T("kindShared"); }
     L.marker(gpos(e.position), { icon:iconExtract(color, letter) })
-      .bindPopup(`<b>脱出: ${e.name||"?"}</b><br>区分: ${kind}（今回: ${fac==="scav"?"Scav":"PMC"}出撃）`)
+      .bindPopup(T("extractPopup", e.name||"?", kind, fac))
       .addTo(extractLayer);
   }
   if(opts.transit){
     for(const tr of (TRANSITS[curMap]||[])){
       if(!tr.position || !onFloor(tr.position)) continue;
       L.marker(gpos(tr.position), { icon:iconExtract("#c58ae0","T") })
-        .bindPopup(`<b>トランジット</b><br>${tr.description||""}`).addTo(extractLayer);
+        .bindPopup(T("transitPopup", tr.description||"")).addTo(extractLayer);
     }
   }
   // --- 危険地帯（種類別に色分け）/ 施錠ドア / スイッチ ---
   if(opts.hazard){
     const HZ = {
-      sniper:   { col:"#e0554f", pin:"⌖", jp:"スナイパースカフの射線内" },
-      minefield:{ col:"#e8b84a", pin:"", jp:"地雷原" },
-      hazard:   { col:"#e07b39", pin:"!", jp:"危険地帯" },
+      sniper:   { col:"#e0554f", pin:"⌖", jp:T("hazardSniper") },
+      minefield:{ col:"#e8b84a", pin:"", jp:T("hazardMinefield") },
+      hazard:   { col:"#e07b39", pin:"!", jp:T("hazardOther") },
     };
     for(const h of (HAZARDS[curMap]||[])){
       if(!onFloor(h.position)) continue;
@@ -1081,7 +1289,7 @@ function renderMarkers(){
           color:cfg.col, weight:1.2, fillColor:cfg.col,
           fillOpacity: h.hazardType==="minefield" ? 0.28 : 0.16,
           dashArray: h.hazardType==="sniper" ? "4 3" : null,
-        }).bindPopup(`<b>${cfg.jp}</b><br><span style="color:#888">この範囲は危険</span>`).addTo(extractLayer);
+        }).bindPopup(T("dangerousAreaPopup", cfg.jp)).addTo(extractLayer);
       }
       if(h.hazardType !== "minefield"){
         L.marker(gpos(h.position), { icon:iconMini(cfg.col, cfg.pin, cfg.jp) })
@@ -1092,15 +1300,15 @@ function renderMarkers(){
   if(opts.lock){
     for(const l of (LOCKS[curMap]||[])){
       if(!onFloor(l.position)) continue;
-      L.marker(gpos(l.position), { icon:iconMini("#c9a227","鍵") })
-        .bindPopup(`<b>施錠ドア</b><br>種類: ${l.lockType||"?"}${l.needsPower ? "<br>※要 電源" : ""}`).addTo(extractLayer);
+      L.marker(gpos(l.position), { icon:iconMini("#c9a227", T("lockGlyph")) })
+        .bindPopup(T("lockPopup", l.lockType||"?", l.needsPower)).addTo(extractLayer);
     }
   }
   if(opts.switch){
     for(const s of (SWITCHES[curMap]||[])){
       if(!onFloor(s.position)) continue;
       L.marker(gpos(s.position), { icon:iconMini("#4aa3c9","S") })
-        .bindPopup(`<b>スイッチ</b><br><span style="color:#555">${s.name||""}</span>`).addTo(extractLayer);
+        .bindPopup(T("switchPopup", s.name||"")).addTo(extractLayer);
     }
   }
   // --- ボス スポーン ---
@@ -1110,7 +1318,7 @@ function renderMarkers(){
       b.positions.forEach((p, pi) => {
         if(!onFloor(p)) return;
         L.circleMarker(gpos(p), { radius:4, color:"#c99df0", weight:1, fillColor:"#a06cd0", fillOpacity:0.75 })
-          .bindPopup(`<b>${b.name}</b><br>出現率 約${pct}%`).addTo(extractLayer);
+          .bindPopup(`<b>${b.name}</b><br>${T("spawnChanceApprox", pct)}`).addTo(extractLayer);
       });
     }
   }
@@ -1119,8 +1327,9 @@ function renderMarkers(){
     for(const s of (SPAWNS[curMap]||[])){
       if(!onFloor(s.position)) continue;
       const col = s.side === "pmc" ? "#e0894a" : (s.side === "scav" ? "#7d8aa0" : "#888");
+      const sideTxt = s.side === "pmc" ? "PMC" : s.side === "scav" ? "Scav" : T("sideOther", s.side);
       L.circleMarker(gpos(s.position), { radius:2.5, color:col, weight:0, fillColor:col, fillOpacity:0.5 })
-        .bindPopup(`<b>スポーン地点</b><br>${s.side === "pmc" ? "PMC" : s.side === "scav" ? "Scav" : s.side}`).addTo(extractLayer);
+        .bindPopup(`<b>${T("spawnPoint")}</b><br>${sideTxt}`).addTo(extractLayer);
     }
   }
 
@@ -1138,9 +1347,9 @@ function renderMarkers(){
       const ll = spreadPos(gpos(m.pos), seen);
       const popup =
         `<b>[${label}] ${t.name}</b><br>` +
-        `<span style="color:#555">${t.trader} ・ ${objTypeJa(m.obj.type)}${m.obj.optional?" (任意)":""}</span><br>` +
-        `${m.obj.descriptionJa || m.obj.description || ""}` +
-        ((m.obj.conditions && m.obj.conditions.length) ? `<br><span style="color:#a06">条件: ${m.obj.conditions.join(" / ")}</span>` : "") +
+        `<span style="color:#555">${t.trader} ・ ${objTypeJa(m.obj.type)}${m.obj.optional?T("optionalTag"):""}</span><br>` +
+        `${objDesc(m.obj)}` +
+        ((m.obj.conditions && m.obj.conditions.length) ? `<br><span style="color:#a06">${T("conditionsLabel")}${m.obj.conditions.join(" / ")}</span>` : "") +
         chainHtml(t) +
         (t.wiki ? `<a href="${t.wiki}" target="_blank" rel="noopener">Wiki ↗</a>` : "");
       questPts.push({ ll, color, label, popup });
@@ -1164,7 +1373,7 @@ function renderMarkers(){
     }
     L.polyline(ordered.map(p => p.ll), { color:"#c7b083", weight:2, opacity:0.8, dashArray:"6 4" }).addTo(markerLayer);
     ordered.forEach((p, i) => {
-      L.marker(p.ll, { icon:iconQuest(p.color, String(i + 1)) }).bindPopup(`<b>ルート ${i+1}</b><br>` + p.popup).addTo(markerLayer);
+      L.marker(p.ll, { icon:iconQuest(p.color, String(i + 1)) }).bindPopup(`<b>${T("routeLabel")} ${i+1}</b><br>` + p.popup).addTo(markerLayer);
     });
   }else{
     for(const p of questPts){
@@ -1175,7 +1384,7 @@ function renderMarkers(){
   // --- 座標データなしパネル ---
   const nc = document.getElementById("nocoord");
   if(noCoordLines.length){
-    nc.innerHTML = `<h4>このマップ・座標データなし (Wiki確認)</h4>` + noCoordLines.join("");
+    nc.innerHTML = `<h4>${T("noCoordHeader")}</h4>` + noCoordLines.join("");
     nc.classList.remove("hidden");
   }else{
     nc.classList.add("hidden");
@@ -1190,30 +1399,30 @@ function renderLegend(){
   selArr.forEach((t,i) => {
     rows.push(`<div class="li"><span class="dot" style="background:${colorForSelIndex(i)}"></span><b style="margin-right:4px">${selLabel(i)}</b>${t.name}</div>`);
   });
-  if(!rows.length) rows.push('<div class="li muted">クエスト未選択</div>');
+  if(!rows.length) rows.push(`<div class="li muted">${T("noQuestSelected")}</div>`);
 
   const active = [];
   if(opts.hazard){
-    active.push('<span class="sq" style="background:#e0554f"></span>スナイパー射線');
-    active.push('<span class="sq" style="background:#e8b84a"></span>地雷原');
-    active.push('<span class="sq" style="background:#e07b39"></span>その他危険');
+    active.push(`<span class="sq" style="background:#e0554f"></span>${T("legendSniper")}`);
+    active.push(`<span class="sq" style="background:#e8b84a"></span>${T("legendMinefield")}`);
+    active.push(`<span class="sq" style="background:#e07b39"></span>${T("legendOtherHazard")}`);
   }
-  if(opts.lock)   active.push('<span class="sq" style="background:#c9a227"></span>施錠ドア');
-  if(opts.switch) active.push('<span class="sq" style="background:#4aa3c9"></span>スイッチ');
-  if(opts.boss)   active.push('<span class="dot" style="background:#a06cd0"></span>ボス出現');
-  if(opts.spawn){ active.push('<span class="dot" style="background:#e0894a"></span>PMCスポーン'); active.push('<span class="dot" style="background:#7d8aa0"></span>Scavスポーン'); }
-  if(opts.route)  active.push('<span style="color:#c7b083">— — 巡回ルート(番号順)</span>');
+  if(opts.lock)   active.push(`<span class="sq" style="background:#c9a227"></span>${T("legendLockedDoor")}`);
+  if(opts.switch) active.push(`<span class="sq" style="background:#4aa3c9"></span>${T("legendSwitch")}`);
+  if(opts.boss)   active.push(`<span class="dot" style="background:#a06cd0"></span>${T("legendBoss")}`);
+  if(opts.spawn){ active.push(`<span class="dot" style="background:#e0894a"></span>${T("legendPmcSpawn")}`); active.push(`<span class="dot" style="background:#7d8aa0"></span>${T("legendScavSpawn")}`); }
+  if(opts.route)  active.push(`<span style="color:#c7b083">${T("legendRoute")}</span>`);
   if(active.length) rows.push('<div class="li" style="border-top:1px solid var(--line);margin-top:4px;padding-top:4px;gap:10px;flex-wrap:wrap">' + active.join("") + '</div>');
 
   // 凡例トグル
-  rows.push(`<div class="li" style="border-top:1px solid var(--line);margin-top:4px;padding-top:4px"><a href="#" id="legtoggle" style="color:var(--accent2)">凡例 ${legendOpen ? "▲" : "▼"}</a></div>`);
+  rows.push(`<div class="li" style="border-top:1px solid var(--line);margin-top:4px;padding-top:4px"><a href="#" id="legtoggle" style="color:var(--accent2)">${T("legendToggle", legendOpen)}</a></div>`);
   if(legendOpen){
     rows.push(
       '<div style="font-size:10px;color:var(--dim);line-height:1.7;margin-top:2px">' +
-      `<div>脱出（今回: <b>${exits.fac==="scav"?"Scav":"PMC"}</b>出撃）: <span class="dot" style="background:var(--ok)"></span>PMC&nbsp; <span class="dot" style="background:var(--scav)"></span>Scav&nbsp; <span class="dot" style="background:var(--shared)"></span>共有 — 「脱出地点」欄でチェックした地点のみ表示</div>` +
-      '<div><span class="dot" style="background:#888"></span>丸=クエスト目標(記号A/B..)　📌=自分のメモ(右クリックで追加)</div>' +
-      '<div>破線で囲った範囲=危険地帯。範囲内に入ると危険</div>' +
-      '<div style="margin-top:3px">地図の色（tarkov.dev提供）: 濃い灰=建物内 / 斜線=階段・スロープ / 水色=水場 / 破線=マップ境界</div>' +
+      `<div>${T("legendExitLine", exits.fac)}</div>` +
+      `<div>${T("legendMarkerLine")}</div>` +
+      `<div>${T("legendHazardLine")}</div>` +
+      `<div style="margin-top:3px">${T("legendColorLine")}</div>` +
       '</div>'
     );
   }
@@ -1249,10 +1458,10 @@ async function shareCreate(){
   try{ history.replaceState(null, "", "#s=" + code); }catch(e){}
   let copied = false;
   try{ await navigator.clipboard.writeText(url); copied = true; }catch(e){}
-  window.prompt(copied ? "共有リンクをコピーしました。フレンドに送ってください。" : "この共有リンクをコピーしてフレンドに送ってください:", url);
+  window.prompt(copied ? T("shareCopiedAlert") : T("sharePromptCopy"), url);
 }
 function sharePrompt(){
-  const inp = window.prompt("共有コード（#s= より後）または共有リンクを貼り付け:");
+  const inp = window.prompt(T("sharePromptLoad"));
   if(!inp) return;
   let code = inp.trim();
   const mm = code.match(/#s=([^\s&]+)/);
@@ -1261,8 +1470,8 @@ function sharePrompt(){
     applyShare(code);
     renderTabs(); renderQuestList(); renderProgress(); updateSelInfo();
     loadMap();
-    alert("共有データを読み込みました。");
-  }catch(e){ alert("読み込み失敗: " + e.message); }
+    alert(T("shareLoadedAlert"));
+  }catch(e){ alert(T("shareLoadFailedAlert", e.message)); }
 }
 
 /* ---------- レイド前チェック（鍵 / 回収 / 持ち込み） ---------- */
@@ -1297,11 +1506,11 @@ function renderPrep(){
   const cm = checks[mn] || {};
   const chk = id => !!cm[id];
 
-  let html = `<div class="phead" id="prephead">レイド前チェック — ${mjp} <span style="color:var(--dim);font-weight:400">(${total})</span> ${prepOpen ? "▲" : "▼"}` +
-             `<button id="prepreset" style="float:right;font-size:10px;padding:1px 6px">リセット</button></div>`;
+  let html = `<div class="phead" id="prephead">${T("prepHeader", mjp)} <span style="color:var(--dim);font-weight:400">(${total})</span> ${prepOpen ? "▲" : "▼"}` +
+             `<button id="prepreset" style="float:right;font-size:10px;padding:1px 6px">${T("reset")}</button></div>`;
   if(prepOpen){
     if(total === 0){
-      html += `<div class="pnote">このマップで持ち込む鍵・回収アイテムはありません（座標ピンのみ）。</div>`;
+      html += `<div class="pnote">${T("prepEmpty")}</div>`;
     }else{
       const grp = (title, m, opt) => {
         if(!m.size) return "";
@@ -1316,9 +1525,9 @@ function renderPrep(){
         }
         return s + `</div>`;
       };
-      html += grp("🔑 持ち込む鍵", keys);
-      html += grp("📤 持ち込み（設置・マーカー用）", bring);
-      html += grp("📥 現地で回収", collect, { fir:true, count:true });
+      html += grp(T("prepKeys"), keys);
+      html += grp(T("prepBring"), bring);
+      html += grp(T("prepCollect"), collect, { fir:true, count:true });
     }
   }
   box.innerHTML = html;
@@ -1347,7 +1556,7 @@ function raidTick(){
     el.textContent = "00:00"; el.className = "clock danger";
     raidTimer = null;
     if(raidTimerIv){ clearInterval(raidTimerIv); raidTimerIv = null; }
-    document.getElementById("raidstart").textContent = "レイド開始";
+    document.getElementById("raidstart").textContent = T("raidStart");
     return;
   }
   const m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
@@ -1363,7 +1572,7 @@ function startRaidTimer(){
   if(raidTimerIv) clearInterval(raidTimerIv);
   raidTimerIv = setInterval(raidTick, 1000);
   raidTick();
-  document.getElementById("raidstart").textContent = "リセット";
+  document.getElementById("raidstart").textContent = T("reset");
 }
 function resetRaidTimer(){
   raidTimer = null;
@@ -1371,13 +1580,13 @@ function resetRaidTimer(){
   const el = document.getElementById("raidclock");
   el.textContent = String(raidDurationFor(curMap)).padStart(2,"0") + ":00";
   el.className = "clock";
-  document.getElementById("raidstart").textContent = "レイド開始";
+  document.getElementById("raidstart").textContent = T("raidStart");
 }
 
 /* ---------- マップ生成 ---------- */
 async function loadMap(){
   const md = MAPBY[curMap];
-  document.getElementById("ovtext").textContent = md.jp + " を読み込み中…";
+  document.getElementById("ovtext").textContent = T("mapLoading", md.jp);
   showOverlay(true);
 
   if(map){ map.remove(); map = null; }
@@ -1387,7 +1596,7 @@ async function loadMap(){
     attributionControl: true,
   });
   map.attributionControl.setPrefix("");
-  map.attributionControl.addAttribution('地図: <a href="https://tarkov.dev" target="_blank">tarkov.dev</a> (CC BY-NC-SA)');
+  map.attributionControl.addAttribution(T("mapAttribution"));
 
   const bounds = toBounds(md.b);
   map.setMaxBounds(scaledBounds(md.b, 1.6));
@@ -1473,7 +1682,7 @@ function setupFloors(md, keep){
   }
 
   bar.classList.remove("hidden");
-  bar.innerHTML = '<span class="flabel">階:</span>';
+  bar.innerHTML = `<span class="flabel">${T("floorLabel")}</span>`;
   md.floors.forEach((f, i) => {
     const btn = document.createElement("button");
     btn.innerHTML = f.jp + (counts[i] ? ` <span class="fb">${counts[i]}</span>` : "");
@@ -1528,21 +1737,21 @@ function renderCustomPins(){
         className:"", iconSize:[18,18], iconAnchor:[9,18],
         html:`<div class="custcompin" title="${(p.text||"").replace(/"/g,"")}">📌</div>` }) })
       .bindPopup(
-        `<b>メモ</b><br>${(p.text||"").replace(/</g,"&lt;") || "<span style='color:#888'>(なし)</span>"}` +
-        `<br><button onclick="editCustomPin(${i})" style="margin-top:6px">編集</button> ` +
-        `<button onclick="delCustomPin(${i})">削除</button>`
+        `<b>${T("pinPopupMemo")}</b><br>${(p.text||"").replace(/</g,"&lt;") || T("pinPopupEmpty")}` +
+        `<br><button onclick="editCustomPin(${i})" style="margin-top:6px">${T("pinEdit")}</button> ` +
+        `<button onclick="delCustomPin(${i})">${T("pinDelete")}</button>`
       ).addTo(customLayer);
   });
 }
 function addCustomPin(latlng){
-  const text = window.prompt("このピンのメモ（例: スナイパー注意 / 休憩ポイント）", "");
+  const text = window.prompt(T("pinPromptAdd"), "");
   if(text === null) return;
   (customPins[curMap] = customPins[curMap] || []).push({ lat: latlng.lat, lng: latlng.lng, text: text.trim() });
   savePins(); renderCustomPins();
 }
 function editCustomPin(i){
   const arr = customPins[curMap] || []; if(!arr[i]) return;
-  const text = window.prompt("メモを編集", arr[i].text || "");
+  const text = window.prompt(T("pinPromptEdit"), arr[i].text || "");
   if(text === null) return;
   arr[i].text = text.trim(); savePins(); renderCustomPins();
 }
@@ -1579,15 +1788,15 @@ function applyData(data){
   // トレーダー選択肢を用意（アルファベット順）
   const sel = document.getElementById("traderSel");
   const traders = [...new Set(TASKS.map(t => t.trader))].sort();
-  sel.innerHTML = '<option value="">▼ トレーダー（すべて）</option>' +
+  sel.innerHTML = `<option value="">${T("traderAll")}</option>` +
     traders.map(tr => `<option value="${tr}">${tr}</option>`).join("");
   if(opts.trader && traders.includes(opts.trader)) sel.value = opts.trader;
   else opts.trader = "";
 
   // マップ選択肢
   const msel = document.getElementById("mapSel");
-  msel.innerHTML = '<option value="">▼ マップ（すべて）</option>' +
-    '<option value="__cur__">【表示中のマップに追従】</option>' +
+  msel.innerHTML = `<option value="">${T("mapAll")}</option>` +
+    `<option value="__cur__">${T("followCurrentMap")}</option>` +
     MAPS.map(m => `<option value="${m.n}">${m.jp}</option>`).join("");
   msel.value = opts.mapFilter || "";
 
@@ -1630,7 +1839,7 @@ async function init(){
   }
   if(!cache || (Date.now() - cache.ts) > CACHE_TTL){
     try{
-      showOverlay(true, "json.tarkov.dev から最新データを取得中…（初回は少し時間がかかります）");
+      showOverlay(true, T("fetchingFirst"));
       const data = await fetchData();
       saveCache(data);
       applyData(data);
@@ -1644,8 +1853,7 @@ async function init(){
           setDataInfo(snapTs, true);
           usedCache = true;
         }else{
-          showOverlay(true, `<div class="err">データ取得に失敗しました。<br>${e.message}<br><br>
-            ネット接続を確認し「データ更新」を押してください。</div>`);
+          showOverlay(true, T("fetchFailed", e.message));
           return;
         }
       }
@@ -1667,18 +1875,18 @@ async function init(){
 function setDataInfo(ts, stale){
   const d = new Date(ts);
   const s = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-  document.getElementById("datainfo").textContent = (stale ? "⚠ 古い: " : "更新: ") + s;
+  document.getElementById("datainfo").textContent = (stale ? T("staleData") : T("updatedData")) + s;
 }
 
 /* ---------- イベント ---------- */
 document.getElementById("refresh").onclick = async () => {
   try{
-    showOverlay(true, "json.tarkov.dev から最新データを取得中…");
+    showOverlay(true, T("fetchingData"));
     const data = await fetchData();
     saveCache(data); applyData(data); setDataInfo(Date.now(), false);
     await loadMap();
   }catch(e){
-    alert("取得失敗: " + e.message);
+    alert(T("fetchFailedAlert", e.message));
   }finally{ showOverlay(false); }
 };
 document.getElementById("search").oninput = () => renderQuestList();
@@ -1739,7 +1947,7 @@ document.getElementById("raidstart").onclick = () => { raidTimer ? resetRaidTime
 
 window.addEventListener("load", () => {
   if(typeof L === "undefined"){
-    showOverlay(true, '<div class="err">地図ライブラリ(Leaflet)の読み込みに失敗しました。<br>インターネット接続を確認してページを再読み込みしてください。</div>');
+    showOverlay(true, T("leafletLoadError"));
     return;
   }
   init();

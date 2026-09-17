@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>タルコフ クエストマップ</title>
+
+<!-- Leaflet (地図ライブラリ) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- 同梱データ (json.tarkov.dev が全滅した時のフォールバック。「データ更新」で最新化) -->
+<script src="data-snapshot.js" onerror="console.warn('data-snapshot.js なし')"></script>
+
+<style>
+  :root{
+    --bg:#1b1b1b; --panel:#242424; --panel2:#2e2e2e; --line:#3a3a3a;
+    --text:#d8d4cc; --dim:#9a948a; --accent:#9a8866; --accent2:#c7b083;
+    --ok:#6db36d; --scav:#5b9bd5; --shared:#e0a24a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:var(--bg);color:var(--text)}
+  #app{display:flex;height:100%;width:100%}
+
+  /* ---------- サイドバー ---------- */
+  #sidebar{width:340px;min-width:340px;height:100%;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+  details.sect{border-bottom:1px solid var(--line);flex:0 0 auto}
+  details.sect>summary{padding:9px 14px;cursor:pointer;font-weight:700;color:var(--accent2);font-size:12px;user-select:none;list-style:none}
+  details.sect>summary::-webkit-details-marker{display:none}
+  details.sect>summary::before{content:"\25B6";display:inline-block;margin-right:7px;font-size:9px;transition:transform .12s;color:var(--dim)}
+  details.sect[open]>summary::before{transform:rotate(90deg)}
+  details.sect .inner{padding:0 14px 10px;display:flex;flex-direction:column;gap:8px}
+  #sidebar h1{font-size:15px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line);color:var(--accent2);letter-spacing:.04em}
+  .bar{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:#1b1b1b;border-color:var(--accent);font-weight:600}
+  input[type=search]{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);padding:6px 8px;font-size:12px}
+  select{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);padding:6px 8px;font-size:12px}
+  .muted{color:var(--dim);font-size:11px}
+  label.chk{display:flex;gap:6px;align-items:center;font-size:12px;cursor:pointer}
+
+  /* レイド前チェック */
+  #prep{border-bottom:1px solid var(--line);background:#1f1f1f;max-height:32%;overflow-y:auto;flex:0 0 auto}
+  #prep .phead{padding:7px 14px;font-size:12px;font-weight:700;color:var(--accent2);cursor:pointer;user-select:none;position:sticky;top:0;background:#1f1f1f}
+  #prep .pgrp{padding:2px 0 6px}
+  #prep .pgt{padding:3px 14px;font-size:11px;color:var(--dim);font-weight:700}
+  #prep .pitem{display:flex;gap:7px;align-items:center;padding:3px 14px;font-size:12px}
+  #prep .pitem img{width:20px;height:20px;object-fit:contain;flex:0 0 auto;background:#000;border-radius:3px}
+  #prep .pitem .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #prep .pitem .fir{color:#6db36d;font-size:9px;border:1px solid #6db36d;border-radius:3px;padding:0 3px}
+  #prep .pitem.done .nm{text-decoration:line-through;color:var(--dim)}
+  #prep .pnote{padding:6px 14px;font-size:11px;color:var(--dim)}
+
+  #questlist{flex:1 1 auto;min-height:300px;overflow-y:auto;padding:4px 0}
+  .trader{padding:8px 14px 4px;color:var(--accent2);font-size:12px;font-weight:700;position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);cursor:pointer;user-select:none}
+  .trader .count{color:var(--dim);font-weight:400}
+  .doableWrap{max-height:52vh;min-height:140px;overflow-y:auto;resize:vertical;border-bottom:2px solid var(--accent);background:#20211d}
+  #exList{max-height:34vh;overflow-y:auto;margin-top:2px;border:1px solid var(--line);border-radius:4px}
+  #exList .exrow{display:flex;gap:7px;align-items:center;padding:4px 8px;font-size:12px;border-bottom:1px solid #2c2c2c}
+  #exList .exrow:last-child{border-bottom:0}
+  #exList .exrow:hover{background:var(--panel2)}
+  #exList .exrow .xnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #exList .exrow .xtag{font-size:9px;padding:0 4px;border-radius:3px;border:1px solid currentColor}
+  #exList .exempty{padding:8px;color:var(--dim);font-size:11px}
+  #exFac label.chk{font-weight:700}
+  .quest{padding:5px 14px 5px 22px;font-size:12px;display:flex;gap:7px;align-items:flex-start;border-bottom:1px solid #2c2c2c}
+  .quest:hover{background:var(--panel2)}
+  .quest input{margin-top:2px}
+  .quest .meta{color:var(--dim);font-size:10px}
+  .quest.kappa .qn::after{content:" ★";color:var(--accent2)}
+  .quest.qdone{opacity:.5}
+  .quest.qdone .qn{text-decoration:line-through}
+  #lvlin{width:52px;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);padding:4px 6px;font-size:12px}
+  #progline{font-size:11px;color:var(--dim)}
+  #progline b{color:var(--accent2)}
+  .hidden{display:none !important}
+
+  /* ---------- メイン ---------- */
+  #main{flex:1;display:flex;flex-direction:column;min-width:0}
+  #tabs{display:flex;flex-wrap:wrap;gap:3px;padding:8px;background:var(--panel);border-bottom:1px solid var(--line)}
+  #tabs button.active{background:var(--accent);color:#1b1b1b;border-color:var(--accent);font-weight:600}
+  #tabs button .badge{display:inline-block;min-width:16px;padding:0 4px;margin-left:5px;border-radius:8px;background:#000a;color:var(--accent2);font-size:10px}
+  #floorbar{display:flex;gap:4px;align-items:center;padding:6px 8px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:11px}
+  #floorbar .flabel{color:var(--dim);margin-right:4px}
+  #floorbar button{padding:4px 9px;font-size:11px}
+  #floorbar button.active{background:var(--accent2);color:#1b1b1b;border-color:var(--accent2);font-weight:700}
+  #floorbar button .fb{display:inline-block;min-width:14px;margin-left:4px;padding:0 3px;border-radius:7px;background:#000a;color:var(--accent2);font-size:9px}
+  #mapwrap{flex:1;position:relative}
+  #map{position:absolute;inset:0;background:#111;filter:brightness(var(--mapbright,1)) contrast(var(--mapcontrast,1))}
+
+  /* 明るさコントロール */
+  #brightctl{position:absolute;right:10px;top:10px;z-index:600;background:#000c;border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:11px;display:flex;gap:8px;align-items:center}
+  #brightctl input[type=range]{width:80px}
+  #brightctl button{padding:2px 6px;font-size:10px}
+
+  /* レイドタイマー */
+  #raidtimer{position:absolute;left:10px;top:10px;z-index:600;background:#000c;border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12px;display:flex;gap:8px;align-items:center}
+  #raidtimer .clock{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;color:var(--accent2);min-width:52px;text-align:center}
+  #raidtimer .clock.warn{color:#e6b64e}
+  #raidtimer .clock.danger{color:#e6564e}
+  #raidtimer button{padding:3px 8px;font-size:11px}
+
+  /* 初回ガイド */
+  #guide{position:absolute;inset:0;z-index:1100;background:#000b;display:flex;align-items:center;justify-content:center;padding:24px}
+  #guide .card{background:var(--panel);border:1px solid var(--accent);border-radius:10px;max-width:440px;padding:20px 22px;line-height:1.7;font-size:13px}
+  #guide h3{margin:0 0 10px;color:var(--accent2);font-size:15px}
+  #guide ol{margin:0 0 14px;padding-left:20px}
+  #guide li{margin:5px 0}
+  #nocoord{position:absolute;right:10px;bottom:10px;max-width:320px;max-height:40%;overflow-y:auto;background:#000c;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:11px;z-index:600}
+  #nocoord h4{margin:0 0 4px;color:var(--shared);font-size:11px}
+  #nocoord div{margin:2px 0;color:var(--dim)}
+  #mapnote{position:absolute;left:50%;top:10px;transform:translateX(-50%);max-width:min(560px,90%);
+    background:#3a2c12dd;border:1px solid #c7924a;border-radius:6px;padding:6px 12px;font-size:11.5px;
+    color:#f0d9ac;z-index:600;text-align:center;line-height:1.5}
+  #mapnote a{color:#ffe6ad;font-weight:700}
+  #legend{position:absolute;left:10px;bottom:10px;background:#000c;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:11px;z-index:600}
+  #legend .li{display:flex;gap:6px;align-items:center;margin:2px 0}
+  .dot{width:12px;height:12px;border-radius:50%;border:2px solid #fff9;display:inline-block}
+  .sq{width:13px;height:13px;border:2px solid #fff9;display:inline-block;transform:rotate(45deg)}
+
+  #overlay{position:absolute;inset:0;background:#000d;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;z-index:1000;text-align:center;padding:20px}
+  #overlay .err{color:#e08a8a;max-width:520px;font-size:13px;line-height:1.6}
+
+  /* Leaflet マーカー */
+  .qmark{border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #000, 0 1px 4px #000a;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:10px;text-shadow:0 1px 2px #000}
+  .xmark{border:2px solid #fff;box-shadow:0 0 0 1px #000, 0 1px 4px #000a;display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:11px}
+  .minimark{width:13px;height:13px;border-radius:3px;border:1px solid #fff;box-shadow:0 0 0 1px #000;display:flex;align-items:center;justify-content:center;color:#000;font-weight:800;font-size:9px}
+  .custcompin{font-size:17px;line-height:1;filter:drop-shadow(0 1px 2px #000);cursor:pointer}
+  .leaflet-popup-content{font-size:12px;line-height:1.5}
+  .leaflet-popup-content b{color:#111}
+  .leaflet-container{background:#111}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- ===== サイドバー ===== -->
+  <aside id="sidebar">
+    <h1>タルコフ クエストマップ</h1>
+
+    <div class="bar">
+      <div class="row">
+        <button id="refresh" class="primary">データ更新</button>
+        <span id="datainfo" class="muted"></span>
+      </div>
+      <div class="row">
+        <select id="traderSel"><option value="">▼ トレーダー（すべて）</option></select>
+        <select id="mapSel"><option value="">▼ マップ（すべて）</option></select>
+      </div>
+      <div class="row">
+        <input type="search" id="search" placeholder="クエスト名で検索…" />
+      </div>
+      <div class="row">
+        <button id="selnone">選択解除</button>
+        <label class="chk"><input type="checkbox" id="kappaonly" /> Kappaのみ ★</label>
+      </div>
+      <div class="row">
+        <label class="chk">Lv <input type="number" id="lvlin" min="1" max="79" value="15" /></label>
+        <label class="chk"><input type="checkbox" id="showdone" /> 完了も表示</label>
+      </div>
+      <div class="row"><span id="selinfo" class="muted">0 クエスト選択中</span></div>
+      <div class="row"><span id="progline"></span></div>
+    </div>
+
+    <details class="sect" id="layersSect">
+      <summary>表示レイヤー・共有</summary>
+      <div class="inner">
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="opt_transit" /> トランジット（マップ間移動）</label>
+      </div>
+      <div class="row"><span class="muted">※脱出地点は下の「脱出地点」欄で選択</span></div>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="opt_hazard" /> <span class="sq" style="background:#d9534f;border-color:#fff9"></span> 危険地帯</label>
+        <label class="chk"><input type="checkbox" id="opt_lock" /> 施錠ドア</label>
+        <label class="chk"><input type="checkbox" id="opt_switch" /> スイッチ</label>
+      </div>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="opt_boss" /> <span class="dot" style="background:#a06cd0"></span> ボス</label>
+        <label class="chk"><input type="checkbox" id="opt_spawn" /> スポーン</label>
+        <label class="chk"><input type="checkbox" id="opt_icons" checked /> アイコン</label>
+      </div>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="opt_route" /> 巡回ルート番号（①②③…）</label>
+      </div>
+      <div class="row">
+        <button id="sharemake">共有リンク作成</button>
+        <button id="shareload">コード読込</button>
+      </div>
+      </div>
+    </details>
+
+    <details class="sect" id="exitSect" open>
+      <summary>脱出地点</summary>
+      <div class="inner">
+        <div class="row"><span class="muted">今回の出撃タイプを選択</span></div>
+        <div class="row" id="exFac">
+          <label class="chk"><input type="radio" name="exfac" value="pmc" checked /> <span class="dot" style="background:var(--ok)"></span> PMC</label>
+          <label class="chk"><input type="radio" name="exfac" value="scav" /> <span class="dot" style="background:var(--scav)"></span> Scav</label>
+        </div>
+        <div class="row">
+          <button id="exAll">全部表示</button>
+          <button id="exNone">全部隠す</button>
+        </div>
+        <div class="row"><span class="muted" id="exHint">チェックした脱出地点だけ地図に表示します</span></div>
+        <div id="exList"></div>
+      </div>
+    </details>
+
+    <div id="prep"></div>
+    <div id="questlist"></div>
+  </aside>
+
+  <!-- ===== メイン ===== -->
+  <main id="main">
+    <div id="tabs"></div>
+    <div id="floorbar" class="hidden"></div>
+    <div id="mapwrap">
+      <div id="map"></div>
+      <div id="brightctl">
+        <span>明るさ</span>
+        <input type="range" id="bright" min="0.4" max="1.6" step="0.05" value="1" title="マップの明るさ" />
+        <span>コントラスト</span>
+        <input type="range" id="contrast" min="0.6" max="1.6" step="0.05" value="1" title="マップのコントラスト" />
+        <button id="brightreset">リセット</button>
+      </div>
+      <div id="raidtimer">
+        <span class="clock" id="raidclock">--:--</span>
+        <button id="raidstart">レイド開始</button>
+      </div>
+      <div id="mapnote" class="hidden"></div>
+      <div id="legend"></div>
+      <div id="nocoord" class="hidden"></div>
+      <div id="overlay">
+        <div id="ovtext">データを読み込んでいます…</div>
+      </div>
+      <div id="guide" class="hidden">
+        <div class="card">
+          <h3>はじめての方へ</h3>
+          <ol>
+            <li>左上の <b>トレーダー</b> か <b>マップ</b> で絞り込み、今回やるクエストにチェック。</li>
+            <li>上部のタブでマップを切り替え。地図上のピンにマウスを乗せると目標の説明が出ます。</li>
+            <li>左の <b>脱出地点</b> 欄で出撃タイプ(PMC/Scav)を選び、今回使う脱出地点にチェック → その地点だけ地図に出ます（緑=PMC / 青=Scav / 橙=共有）。</li>
+            <li>このウィンドウをサブディスプレイへ移動し、<b>F11</b> で全画面にすると見やすいです。</li>
+            <li>ワイプ後や新クエスト追加時は左上の <b>データ更新</b> を押してください。</li>
+          </ol>
+          <button id="guideclose" class="primary">はじめる</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   タルコフ クエストマップ  (フェーズ1 / ローカル版)
+
+   データ元 (すべて無料・非商用ライセンス):
+   - クエスト/脱出座標: tarkov.dev GraphQL API (api.tarkov.dev)
+   - マップ画像(SVG):    tarkov.dev  (CC BY-NC-SA 4.0 / 作者: Shebuka ほか)
+   座標投影ロジックは tarkov.dev (the-hideout/tarkov-dev, MIT) を踏襲。
+
+   ゲームには一切アクセスしません(メモリ読取り・注入なし)。
+   ============================================================ */
+
+/* ---------- 埋め込み: 各マップの投影パラメータ ----------
+   tarkov.dev の src/data/maps.json から interactive 版のみ抽出。
+   n=normalizedName, t=transform[scaleX,marginX,scaleZ,marginZ],
+   r=coordinateRotation(度), b=bounds, sb=svgBounds(任意),
+   svg=SVGパス, lyr=表示するSVGレイヤーID, tile=タイルURL(SVGが無い時) */
+const NINF = -1e9, PINF = 1e9;
+const MAPS = [
+  {n:"streets-of-tarkov", jp:"Streets of Tarkov", t:[0.38,0,0.38,0], r:180, b:[[323,-295],[-280,532]],
+   svg:"https://assets.tarkov.dev/maps/svg/StreetsOfTarkov.svg", lyr:"Ground_Level",
+   floors:[
+     {jp:"Underground", svg:"Underground_Level", lo:NINF, hi:-6},
+     {jp:"1F", svg:"Ground_Level", lo:-6, hi:10, base:true},
+     {jp:"2F", svg:"Second_Floor", lo:10, hi:15},
+     {jp:"3F", svg:"Third_Floor", lo:15, hi:20},
+     {jp:"4F", svg:"Fourth_Floor", lo:20, hi:25},
+     {jp:"5F", svg:"Fifth_Floor", lo:25, hi:PINF},
+   ]},
+  {n:"customs", jp:"Customs", t:[0.239,168.65,0.239,136.35], r:180, b:[[698,-307],[-372,237]],
+   svg:"https://assets.tarkov.dev/maps/svg/Customs.svg", lyr:"Ground_Level",
+   floors:[
+     {jp:"Underground", svg:"Underground_Level", lo:NINF, hi:0.5},
+     {jp:"1F", svg:"Ground_Level", lo:0.5, hi:2.7, base:true},
+     {jp:"2F", svg:"Second_Floor", lo:2.7, hi:5.7},
+     {jp:"3F", svg:"Third_Floor", lo:5.7, hi:PINF},
+   ]},
+  {n:"woods", jp:"Woods", t:[0.1855,112.95,0.1855,167.85], r:180, b:[[646,-914],[-761,442]],
+   svg:"https://assets.tarkov.dev/maps/svg/Woods.svg", lyr:"Ground_Level"},
+  {n:"shoreline", jp:"Shoreline", t:[0.16,83.2,0.16,111.1], r:180, b:[[504,-415],[-1056,618]],
+   svg:"https://assets.tarkov.dev/maps/svg/Shoreline.svg", lyr:"Ground_Level",
+   floors:[
+     {jp:"Underground", svg:"Underground_Level", lo:NINF, hi:-5},
+     {jp:"1F", svg:"Ground_Level", lo:-5, hi:-1, base:true},
+     {jp:"2F", svg:"Second_Floor", lo:-1, hi:2},
+     {jp:"3F", svg:"Third_Floor", lo:2, hi:PINF},
+   ]},
+  {n:"interchange", jp:"Interchange", t:[0.265,150.6,0.265,134.6], r:180, b:[[598,-442],[-433,426]],
+   svg:"https://assets.tarkov.dev/maps/svg/Interchange.svg", lyr:"Ground_Level",
+   floors:[
+     {jp:"1F", svg:"Ground_Level", lo:NINF, hi:25, base:true},
+     {jp:"2F", svg:"First_Floor", lo:25, hi:34},
+     {jp:"3F", svg:"Second_Floor", lo:34, hi:PINF},
+   ]},
+  {n:"reserve", jp:"Reserve", t:[0.395,122.0,0.395,137.65], r:180, b:[[289,-293],[-303,244]], sb:[[289,-274],[-303,272]],
+   svg:"https://assets.tarkov.dev/maps/svg/Reserve.svg", lyr:"Ground_Level",
+   floors:[
+     {jp:"Bunkers", svg:"Bunkers", lo:NINF, hi:-7.27},
+     {jp:"Ground", svg:"Ground_Level", lo:-7.27, hi:PINF, base:true},
+   ]},
+  {n:"lighthouse", jp:"Lighthouse", t:[0.2,0,0.2,0], r:180, b:[[515,-998],[-545,725]],
+   svg:"https://assets.tarkov.dev/maps/svg/Lighthouse.svg", lyr:"Ground_Level"},
+  {n:"factory", jp:"Factory", t:[1.629,119.9,1.629,139.3], r:90, b:[[77,-64.5],[-65.5,67.4]],
+   svg:"https://assets.tarkov.dev/maps/svg/Factory.svg", lyr:"Ground_Floor",
+   floors:[
+     {jp:"Tunnels", svg:"Basement", lo:NINF, hi:-1},
+     {jp:"1F", svg:"Ground_Floor", lo:-1, hi:3, base:true},
+     {jp:"2F", svg:"Second_Floor", lo:3, hi:6},
+     {jp:"3F", svg:"Third_Floor", lo:6, hi:PINF},
+   ]},
+  {n:"ground-zero", jp:"Ground Zero", t:[0.524,167.3,0.524,65.1], r:180, b:[[249,-124],[-99,364]],
+   svg:"https://assets.tarkov.dev/maps/svg/GroundZero.svg", lyr:"Ground_Level",
+   tile:"https://assets.tarkov.dev/maps/groundzero/main_summer/{z}/{x}/{y}.png",
+   floors:[
+     {jp:"Garage", svg:"Underground_Level", lo:NINF, hi:21},
+     {jp:"1F", svg:"Ground_Level", lo:21, hi:28, base:true},
+     {jp:"2F", svg:"Second_Floor", lo:28, hi:32.3},
+     {jp:"3F", svg:"Third_Floor", lo:32.3, hi:PINF},
+   ]},
+  {n:"the-lab", jp:"The Lab", t:[0.575,281.2,0.575,193.7], r:270, b:[[-80,-477],[-287,-193]],
+   tile:"https://assets.tarkov.dev/maps/labs_v4/1st/{z}/{x}/{y}.png",
+   floors:[
+     {jp:"Technical", tile:"https://assets.tarkov.dev/maps/labs_v4/technical/{z}/{x}/{y}.png", lo:NINF, hi:-0.9},
+     {jp:"1F", tile:"https://assets.tarkov.dev/maps/labs_v4/1st/{z}/{x}/{y}.png", lo:-0.9, hi:3, base:true},
+     {jp:"2F", tile:"https://assets.tarkov.dev/maps/labs_v4/2nd/{z}/{x}/{y}.png", lo:3, hi:PINF},
+   ]},
+  {n:"the-labyrinth", jp:"The Labyrinth", t:[2.115,85.5,2.115,128.0], r:270, b:[[-52,-37],[53,76]],
+   tile:"https://assets.tarkov.dev/maps/labyrinth/main/{z}/{x}/{y}.png"},
+];
+
+/* 別名: タスク側の map 名を上の 13 マップに寄せる */
+const MAP_ALIAS = {
+  "ground-zero-21":"ground-zero",
+  "ground-zero-tutorial":"ground-zero",
+  "night-factory":"factory",
+  "factory-night":"factory",
+  "streets":"streets-of-tarkov",
+  "labs":"the-lab",
+  "laboratory":"the-lab",
+  "the-lab-dark":"the-lab",
+};
+const canonMap = m => m ? (MAP_ALIAS[m] || m) : m;
+
+/* ゲーム側の改修に地図の絵（SVG）がまだ追従していないマップへの案内。
+   ピン位置(座標変換)には影響しない。tarkov.dev が新しい絵を公開したらここを消す。 */
+const MAP_ART_NOTE = {
+  lighthouse: {
+    text: "この地図の絵は 1.1.5.0 ライトハウス改修前のレイアウトです（tarkov.dev 未更新）。クエスト座標データ自体は最新。",
+    linkText: "最新レイアウト参考(reemr.se)",
+    url: "https://reemr.se/Lighthouse/",
+  },
+};
+function showMapNote(mapNN){
+  const el = document.getElementById("mapnote");
+  if(!el) return;
+  const n = MAP_ART_NOTE[mapNN];
+  if(!n){ el.classList.add("hidden"); el.innerHTML = ""; return; }
+  el.innerHTML = n.text + (n.url ? ` <a href="${n.url}" target="_blank" rel="noopener">${n.linkText} ↗</a>` : "");
+  el.classList.remove("hidden");
+}
+const MAPBY = Object.fromEntries(MAPS.map(m => [m.n, m]));
+
+/* ---------- tarkov.dev の座標投影を再現 ---------- */
+function applyRotation(latLng, rotation){
+  if(!latLng.lng && !latLng.lat) return L.latLng(0,0);
+  if(!rotation) return latLng;
+  const a = rotation*Math.PI/180, cos=Math.cos(a), sin=Math.sin(a);
+  const x=latLng.lng, y=latLng.lat;
+  return L.latLng(x*sin + y*cos, x*cos - y*sin);
+}
+function makeCRS(md){
+  let sx=1, sz=1, mx=0, mz=0;
+  if(md.t){ sx=md.t[0]; sz=md.t[2]*-1; mx=md.t[1]; mz=md.t[3]; }
+  const rot = md.r || 0;
+  return L.extend({}, L.CRS.Simple, {
+    transformation: new L.Transformation(sx, mx, sz, mz),
+    projection: L.extend({}, L.Projection.LonLat, {
+      project:   ll => L.Projection.LonLat.project(applyRotation(ll, rot)),
+      unproject: pt => applyRotation(L.Projection.LonLat.unproject(pt), -rot),
+    }),
+  });
+}
+// ゲーム座標 {x,y,z} → Leaflet 座標
+const gpos = p => L.latLng(p.z, p.x);
+// maps.json の bounds → Leaflet の latLngBounds
+const toBounds = b => L.latLngBounds([b[0][1], b[0][0]], [b[1][1], b[1][0]]);
+function scaledBounds(b, f){
+  const cx=(b[0][0]+b[1][0])/2, cy=(b[0][1]+b[1][1])/2;
+  const w=(b[1][0]-b[0][0])*f, h=(b[1][1]-b[0][1])*f;
+  return toBounds([[cx-w/2, cy-h/2],[cx+w/2, cy+h/2]]);
+}
+
+/* ---------- データ取得: json.tarkov.dev フラットファイル ----------
+   tarkov.dev 本体サイトが実際に使っているフラットJSON。
+   GraphQL API (api.tarkov.dev) が長期障害でも、こちらは稼働している。 */
+const JD_BASE = "https://json.tarkov.dev/";
+
+/* 目標タイプ → 日本語ラベル（説明用なので日本語。ゲーム固有名詞ではない） */
+const OBJ_TYPE_JA = {
+  visit:"到達・訪問", findItem:"アイテム発見", findQuestItem:"クエストアイテム回収",
+  giveItem:"アイテム納品", giveQuestItem:"クエストアイテム納品", plantItem:"アイテム設置",
+  plantQuestItem:"クエストアイテム設置", mark:"マーカー設置", shoot:"排除(キル)",
+  extract:"指定地点から脱出", buildWeapon:"武器を組む", useItem:"アイテム使用",
+  sellItem:"フリマ出品", experience:"特定状況の達成", skill:"スキル到達",
+  traderLevel:"トレーダーLL", traderStanding:"トレーダー信頼度",
+  taskStatus:"他クエストの状態", dialogue:"会話", globalVariable:"進行フラグ",
+};
+const objTypeJa = t => OBJ_TYPE_JA[t] || t;
+
+/* mob id → ゲーム内表示名（英語） */
+const MOB_NAME = {
+  bossBully:"Reshala", bossKilla:"Killa", bossKillaAgro:"Killa", bossTagilla:"Tagilla",
+  bossTagillaAgro:"Tagilla", bossGluhar:"Glukhar", bossSanitar:"Sanitar", bossKojaniy:"Shturman",
+  bossKolontay:"Kollontay", bossBoar:"Kaban", bossBoarSniper:"Kaban's Sniper", bossPartisan:"Partisan",
+  bossZryachiy:"Zryachiy", bossKnight:"The Goons (Knight)", bossBigPipe:"The Goons (Big Pipe)",
+  bossBirdEye:"The Goons (Birdeye)", bossWedge:"Kaban's Guard", bossWedgeLab:"Blackout guard",
+  sectantPriest:"Cultist Priest", sectantWarrior:"Cultist", pmcBot:"Raider",
+  exUsec:"Rogue", exUsecFree:"Rogue", arenaFighterEvent:"Arena Fighter",
+};
+const mobName = id => MOB_NAME[id] || (id || "").replace(/^boss/i, "").replace(/^sectant/i, "Cultist ");
+
+async function jdFetch(path){
+  const r = await fetch(JD_BASE + path, { headers:{ Accept:"application/json" }, cache:"no-cache" });
+  if(!r.ok) throw new Error("json.tarkov.dev/" + path + " HTTP " + r.status);
+  return r.json();
+}
+
+const CACHE_KEY = "eft_qm_cache_v4";   // v4: 1.1.5.0 ライトハウス改修で更新
+const SEL_KEY   = "eft_qm_selected_v1";
+const OPT_KEY   = "eft_qm_opts_v1";
+const MAP_KEY   = "eft_qm_lastmap_v1";
+const VIEW_KEY  = "eft_qm_view_v1";   // 明るさ等の表示設定
+const GUIDE_KEY = "eft_qm_guide_seen_v1";
+const PIN_KEY   = "eft_qm_pins_v1";   // カスタムピン { mapNN: [{lat,lng,text}] }
+const CHECK_KEY = "eft_qm_checks_v1"; // 持ち物チェック { mapNN: { itemId: 1 } }
+const DONE_KEY  = "eft_qm_done_v1";   // 完了クエスト { taskId: 1 }
+const LEVEL_KEY = "eft_qm_level_v1";  // プレイヤーレベル
+const CACHE_TTL = 1000*60*60*24; // 24h
+
+const ITEM_ICON = id => "https://assets.tarkov.dev/" + id + "-icon.webp";
+
+async function fetchData(){
+  const [tasksR, enR, jaR, mapsR, mapsEnR, tradersR, tradersEnR, itemsEnR] = await Promise.all([
+    jdFetch("regular/tasks"),
+    jdFetch("regular/tasks_en"),
+    jdFetch("regular/tasks_ja").catch(() => ({ data:{} })),
+    jdFetch("regular/maps"),
+    jdFetch("regular/maps_en").catch(() => ({ data:{} })),
+    jdFetch("regular/traders"),
+    jdFetch("regular/traders_en").catch(() => ({ data:{} })),
+    jdFetch("regular/items_en").catch(() => ({ data:{} })),
+  ]);
+
+  const en  = (enR && enR.data) || {};
+  const ja  = (jaR && jaR.data) || {};
+  const men = (mapsEnR && mapsEnR.data) || {};
+  const ten = (tradersEnR && tradersEnR.data) || {};
+  const ien = (itemsEnR && itemsEnR.data) || {};
+  const has = (o,k) => k != null && o[k] != null && o[k] !== "";
+  const tEN = k => has(en,k) ? en[k] : k;            // 英語(ゲーム表記)
+  const tJA = k => has(ja,k) ? ja[k] : tEN(k);       // 日本語 → 英語 → キー
+  // アイテム(鍵/クエストアイテム)解決。名前は英語(ゲーム表記)のまま。
+  const itemName  = id => has(ien, id + " Name") ? ien[id + " Name"] : (has(en, id + " Name") ? en[id + " Name"] : id);
+  const itemShort = id => has(ien, id + " ShortName") ? ien[id + " ShortName"] : itemName(id);
+  const mkItem = id => ({ id, name: itemName(id), short: itemShort(id) });
+
+  const rawMaps = (mapsR && mapsR.data && mapsR.data.maps) || {};
+  const mid2nn = {};
+  for(const id in rawMaps) mid2nn[id] = rawMaps[id].normalizedName;
+
+  const rawTraders = (tradersR && tradersR.data) || {};
+  const tid2name = {};
+  for(const id in rawTraders){
+    const nm = rawTraders[id].name;
+    tid2name[id] = has(ten, nm) ? ten[nm] : nm;
+  }
+
+  // --- maps: 脱出 / トランジット / 危険地帯 / 施錠ドア / スイッチ ---
+  const maps = [];
+  for(const id in rawMaps){
+    const mp = rawMaps[id];
+    maps.push({
+      normalizedName: mp.normalizedName,
+      raidDuration: mp.raidDuration || null,
+      players: mp.players || null,
+      extracts: (mp.extracts || []).filter(e => e && e.position).map(e => ({
+        name: has(men, e.name) ? men[e.name] : e.name,
+        faction: e.faction || "",
+        position: e.position,
+      })),
+      transits: (mp.transits || []).filter(x => x && x.position).map(x => ({
+        description: has(men, x.description) ? men[x.description] : x.description,
+        position: x.position,
+      })),
+      hazards: (mp.hazards || []).filter(h => h && h.position).map(h => ({
+        name: has(men, h.name) ? men[h.name] : (h.name || h.hazardType || "危険"),
+        hazardType: h.hazardType || "",
+        position: h.position,
+        outline: Array.isArray(h.outline) ? h.outline : null,
+      })),
+      locks: (mp.locks || []).filter(l => l && l.position).map(l => ({
+        lockType: l.lockType || "", needsPower: !!l.needsPower, position: l.position,
+      })),
+      switches: (mp.switches || []).filter(s => s && s.position).map(s => ({
+        name: has(men, s.name) ? men[s.name] : (s.name || "スイッチ"),
+        position: s.position,
+      })),
+      bosses: (mp.bosses || []).map(b => {
+        const positions = [];
+        for(const loc of (b.spawnLocations || [])) for(const p of (loc.positions || [])) positions.push(p);
+        return { name: mobName(b.mob), chance: b.spawnChance || 0, positions };
+      }).filter(b => b.positions.length),
+      spawns: (mp.spawns || []).filter(s => s && s.position).map(s => ({
+        position: s.position,
+        side: (s.sides && s.sides[0]) || "?",
+      })),
+    });
+  }
+
+  // クエストアイテム解決
+  const rawQI = (tasksR && tasksR.data && tasksR.data.questItems) || {};
+  const qiItem = id => {
+    const qi = rawQI[id];
+    const nk = qi && qi.name;
+    const nm = has(ien, nk) ? ien[nk] : (has(en, nk) ? en[nk] : (id));
+    return { id, name: nm, short: (qi && has(ien, qi.shortName) ? ien[qi.shortName] : nm) };
+  };
+
+  // --- tasks ---
+  const rawTasks = (tasksR && tasksR.data && tasksR.data.tasks) || {};
+  const tasks = [];
+  for(const id in rawTasks){
+    const t = rawTasks[id];
+    const objectives = (t.objectives || []).map(o => {
+      // 目標に紐づくアイテム / 鍵
+      const items = (o.items || []).map(mkItem);
+      const questItem = o.questItem ? qiItem(o.questItem) : null;
+      const reqKeys = [];
+      for(const grp of (o.requiredKeys || [])) for(const kid of (grp || [])) reqKeys.push(mkItem(kid));
+      // 達成条件（shoot / buildWeapon）を日本語で
+      const cond = [];
+      if(o.type === "shoot"){
+        const bp = (o.bodyParts || []).map(s => {
+          const k = String(s).split("/").pop();
+          return ({ Head:"頭部", Thorax:"胸部", Stomach:"腹部", LeftArm:"左腕", RightArm:"右腕", LeftLeg:"左脚", RightLeg:"右脚" }[k] || k);
+        });
+        if(bp.length) cond.push(bp.join("・") + "を撃つ");
+        const d = o.distance;
+        if(d && d.value) cond.push((d.compareMethod === "<=" ? d.value + "m以内から" : d.value + "m以上離れて"));
+        if(o.usingWeapon && o.usingWeapon.length) cond.push("指定武器のみ(" + o.usingWeapon.length + "種)");
+        if(o.wearing && o.wearing.length) cond.push("指定装備を着用");
+        if(o.notWearing && o.notWearing.length) cond.push("指定装備を外す");
+        if((o.timeFromHour || o.timeUntilHour) && !(o.timeFromHour === 0 && o.timeUntilHour === 0))
+          cond.push(o.timeFromHour + "時〜" + o.timeUntilHour + "時");
+        if(o.shotType === "kill" && o.count > 1) cond.unshift("キル×" + o.count);
+      }
+      if(o.type === "buildWeapon" && o.buildAttributes){
+        for(const a in o.buildAttributes){
+          const v = o.buildAttributes[a];
+          if(v && v.value) cond.push(({ ergonomics:"エルゴ", accuracy:"精度(MOA)", durability:"耐久", recoilVertical:"縦リコイル", recoilHorizontal:"横リコイル", weight:"重量", effectiveDistance:"有効射程", magazineCapacity:"装弾数", muzzleVelocity:"初速" }[a] || a) + " " + (v.compareMethod || "") + v.value);
+        }
+      }
+      return {
+        id: o.id,
+        type: o.type,
+        description: tEN(o.description),
+        descriptionJa: tJA(o.description),
+        optional: !!o.optional,
+        count: o.count || 0,
+        foundInRaid: !!o.foundInRaid,
+        conditions: cond,
+        items, questItem, requiredKeys: reqKeys,
+        maps: (o.maps || []).map(mid => ({ normalizedName: mid2nn[mid] })),
+        zones: (o.zones || []).filter(z => z && z.position).map(z => ({
+          map: { normalizedName: mid2nn[z.map] }, position: z.position,
+        })),
+        possibleLocations: (o.possibleLocations || []).map(pl => ({
+          map: { normalizedName: mid2nn[pl.map] },
+          positions: pl.positions || (pl.position ? [pl.position] : []),
+        })),
+      };
+    });
+    // タスク単位の必要な鍵（マップ別）
+    const neededKeys = (t.neededKeys || []).map(nk => ({
+      map: { normalizedName: mid2nn[nk.map] },
+      keys: (nk.keys || []).map(mkItem),
+    }));
+    tasks.push({
+      id: t.id,
+      name: tEN(t.name),
+      kappaRequired: !!t.kappaRequired,
+      lightkeeperRequired: !!t.lightkeeperRequired,
+      minPlayerLevel: t.minPlayerLevel || 0,
+      wikiLink: t.wikiLink || null,
+      trader: { name: tid2name[t.trader] || "?" },
+      map: t.map ? { normalizedName: mid2nn[t.map] } : null,
+      taskRequirements: (t.taskRequirements || []).map(r => ({ id: r.task, status: r.status || ["complete"] })),
+      objectives, neededKeys,
+    });
+  }
+
+  if(!tasks.length) throw new Error("タスクデータが空です");
+  return { maps, tasks };
+}
+function loadCache(){
+  try{
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if(c && c.ts && c.data) return c;
+  }catch(e){}
+  return null;
+}
+function saveCache(data){
+  try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); }
+  catch(e){ console.warn("キャッシュ保存失敗(容量?)", e); }
+}
+
+/* ---------- 状態 ---------- */
+let DATA = null;                 // { maps, tasks }
+let TASKS = [];                  // 整形済みタスク
+let EXTRACTS = {};               // normalizedName -> [{name,faction,position}]
+let TRANSITS = {};               // normalizedName -> [{description,position}]
+let HAZARDS  = {};               // normalizedName -> [{name,hazardType,position}]
+let LOCKS    = {};               // normalizedName -> [{lockType,needsPower,position}]
+let SWITCHES = {};               // normalizedName -> [{name,position}]
+let BOSSES   = {};               // normalizedName -> [{name,chance,positions[]}]
+let SPAWNS   = {};               // normalizedName -> [{position,side}]
+let MAPMETA  = {};               // normalizedName -> {raidDuration,players}
+let selected = new Set(loadSel());// 選択タスクID
+let done = new Set(loadDone());   // 完了タスクID
+let plvl = parseInt(localStorage.getItem(LEVEL_KEY) || "15", 10) || 15;
+let showDone = false;             // 完了クエストも一覧表示
+let opts = loadOpts();
+
+function loadDone(){ try{ return JSON.parse(localStorage.getItem(DONE_KEY)) || []; }catch(e){ return []; } }
+function saveDone(){ try{ localStorage.setItem(DONE_KEY, JSON.stringify([...done])); }catch(e){} }
+const isDone = id => done.has(id);
+// 前提クエスト完了 かつ レベル達成 で受注可能
+function isAvailable(t){
+  if(t.lvl && plvl < t.lvl) return false;
+  return (t.req || []).every(rid => done.has(rid));
+}
+let curMap = localStorage.getItem(MAP_KEY) || "customs";
+let map = null;
+let markerLayer = null;
+let extractLayer = null;
+let customLayer = null;
+let raidTimer = null;           // {end} レイドタイマー
+let customPins = loadPins();    // { mapNN: [{lat,lng,text}] }
+let curFloor = null;            // 現在の階 index（md.floors 内）。null = 階なしマップ
+let svgLayerGroups = {};        // svgLayer id -> <g> 要素
+let floorTileLayer = null;      // タイル式フロアマップ（The Lab 用）の現在レイヤー
+
+// y座標 → 階 index（floors 配列内）
+function floorIndexOf(y, floors){
+  if(y == null || !floors) return floors ? floors.findIndex(f => f.base) : -1;
+  for(let i = 0; i < floors.length; i++){
+    if(y >= floors[i].lo && y < floors[i].hi) return i;
+  }
+  return floors.findIndex(f => f.base);
+}
+
+function loadPins(){ try{ return JSON.parse(localStorage.getItem(PIN_KEY)) || {}; }catch(e){ return {}; } }
+function savePins(){ try{ localStorage.setItem(PIN_KEY, JSON.stringify(customPins)); }catch(e){} }
+
+/* ---------- 脱出地点の選択（出撃タイプ + マップ別に候補チェック） ---------- */
+const EXIT_KEY = "eft_qm_exits_v1";
+// exits.fac: "pmc" | "scav"  /  exits.picks["mapNN|fac"]: {脱出名:1} — キー自体が無ければ「全部表示」
+function exKey(){ return curMap + "|" + exits.fac; }
+function loadExits(){
+  try{ const o = JSON.parse(localStorage.getItem(EXIT_KEY)) || {}; return { fac: o.fac === "scav" ? "scav" : "pmc", picks: o.picks || {} }; }
+  catch(e){ return { fac:"pmc", picks:{} }; }
+}
+let exits = loadExits();
+function saveExits(){ try{ localStorage.setItem(EXIT_KEY, JSON.stringify(exits)); }catch(e){} }
+// 現在マップ・現在の出撃タイプで表示対象になりうる脱出（共有は常に含む）
+function exitsForCurrent(){
+  const fac = exits.fac;
+  return (EXTRACTS[curMap] || []).filter(e => {
+    const f = (e.faction || "").toLowerCase();
+    return f === fac || f === "shared" || f === "";
+  });
+}
+// 名前でまとめる（同名で複数座標のことがある）
+function exitGroups(){
+  const m = new Map();
+  for(const e of exitsForCurrent()){
+    const nm = e.name || "(名称不明)";
+    if(!m.has(nm)) m.set(nm, { name:nm, faction:(e.faction||"").toLowerCase()||"shared", items:[] });
+    m.get(nm).items.push(e);
+  }
+  return [...m.values()].sort((a,b) => a.name.localeCompare(b.name));
+}
+function exitVisible(name){
+  const p = exits.picks[exKey()];
+  return !p || !!p[name];   // 未設定なら全部表示
+}
+function setExitPick(name, on){
+  let p = exits.picks[exKey()];
+  if(!p){ p = {}; exitGroups().forEach(g => p[g.name] = 1); }   // 全表示状態を実体化
+  if(on) p[name] = 1; else delete p[name];
+  exits.picks[exKey()] = p;
+  saveExits();
+}
+function renderExits(){
+  const box = document.getElementById("exList");
+  if(!box) return;
+  { const r = document.querySelector(`#exFac input[value="${exits.fac}"]`); if(r) r.checked = true; }
+  const groups = exitGroups();
+  if(!groups.length){ box.innerHTML = '<div class="exempty">このマップの脱出データがありません</div>'; return; }
+  const tagCol = f => f === "pmc" ? "var(--ok)" : f === "scav" ? "var(--scav)" : "var(--shared)";
+  const tagTxt = f => f === "pmc" ? "PMC" : f === "scav" ? "Scav" : "共有";
+  box.innerHTML = groups.map(g =>
+    `<label class="exrow">
+       <input type="checkbox" data-ex="${g.name.replace(/"/g,"&quot;")}" ${exitVisible(g.name) ? "checked" : ""} />
+       <span class="xnm">${g.name.replace(/</g,"&lt;")}</span>
+       <span class="xtag" style="color:${tagCol(g.faction)}">${tagTxt(g.faction)}</span>
+     </label>`).join("");
+  const shown = groups.filter(g => exitVisible(g.name)).length;
+  document.getElementById("exHint").textContent = `${shown} / ${groups.length} 地点を表示中`;
+}
+
+/* ---------- 表示設定（明るさ / コントラスト） ---------- */
+function loadView(){
+  try{ return Object.assign({ bright:1, contrast:1 }, JSON.parse(localStorage.getItem(VIEW_KEY))||{}); }
+  catch(e){ return { bright:1, contrast:1 }; }
+}
+let view = loadView();
+function applyView(){
+  const m = document.getElementById("map");
+  m.style.setProperty("--mapbright", view.bright);
+  m.style.setProperty("--mapcontrast", view.contrast);
+  const b = document.getElementById("bright"), c = document.getElementById("contrast");
+  if(b) b.value = view.bright;
+  if(c) c.value = view.contrast;
+}
+function saveView(){ try{ localStorage.setItem(VIEW_KEY, JSON.stringify(view)); }catch(e){} }
+
+function loadSel(){ try{ return JSON.parse(localStorage.getItem(SEL_KEY))||[]; }catch(e){ return []; } }
+function saveSel(){ localStorage.setItem(SEL_KEY, JSON.stringify([...selected])); }
+function loadOpts(){
+  const d = { pmc:true, scav:true, shared:true, transit:false, hazard:false, lock:false, switch:false,
+              boss:false, spawn:false, route:false, icons:true, kappaOnly:false, trader:"", mapFilter:"" };
+  try{ return Object.assign(d, JSON.parse(localStorage.getItem(OPT_KEY))||{}); }catch(e){ return d; }
+}
+function saveOpts(){ localStorage.setItem(OPT_KEY, JSON.stringify(opts)); }
+
+// 「レイド前に持ち込む / 現地で回収」の分類
+const COLLECT_TYPES = new Set(["findItem","findQuestItem","giveItem","giveQuestItem"]);
+const BRING_TYPES   = new Set(["plantItem","plantQuestItem","mark"]);
+
+/* ---------- タスク整形: マップ毎の座標を集める ---------- */
+function prepTasks(rawTasks){
+  return rawTasks.map(t => {
+    // マップ名 -> [{pos, obj, kind}]
+    const byMap = {};
+    const noCoord = {}; // マップ名 -> [説明]  (座標データが無い目標)
+    const keysByMap = {};    // マップ名 -> [item]  持ち込む鍵
+    const bringByMap = {};   // マップ名 -> [{item,jp}]  設置・マーカー系
+    const collectByMap = {}; // マップ名 -> [{item,fir,count,jp}]  現地で回収
+    const addUniq = (bag, mn, item, extra) => {
+      mn = canonMap(mn); if(!mn || !item || !item.id) return;
+      const arr = (bag[mn] = bag[mn] || []);
+      if(arr.some(x => x.id === item.id)) return;
+      arr.push(Object.assign({ id:item.id, name:item.name, short:item.short }, extra||{}));
+    };
+    // タスク単位の必要な鍵
+    for(const nk of (t.neededKeys || [])){
+      for(const k of (nk.keys || [])) addUniq(keysByMap, nk.map && nk.map.normalizedName, k);
+    }
+    for(const o of t.objectives){
+      const objMaps = (o.maps||[]).map(m => canonMap(m.normalizedName));
+      let placed = false;
+      const objSeen = new Set();
+      // 目標に必要な鍵 → その目標のマップへ
+      for(const k of (o.requiredKeys || [])) for(const mn of objMaps) addUniq(keysByMap, mn, k);
+      // 回収 / 設置アイテム
+      if(COLLECT_TYPES.has(o.type)){
+        const its = o.questItem ? [o.questItem] : o.items;
+        for(const it of (its || [])) for(const mn of objMaps)
+          addUniq(collectByMap, mn, it, { fir:o.foundInRaid || !!o.questItem, count:o.count||1, jp:objTypeJa(o.type) });
+      }
+      if(BRING_TYPES.has(o.type)){
+        const its = o.questItem ? [o.questItem] : o.items;
+        for(const it of (its || [])) for(const mn of objMaps)
+          addUniq(bringByMap, mn, it, { jp:objTypeJa(o.type) });
+      }
+
+      const pushPos = (mn, p, kind) => {
+        mn = canonMap(mn);
+        if(!mn || !p) return;
+        // 同一マップ別バリアント(Ground Zero / GZ21 等)で重複する座標を除外
+        const dk = mn + "|" + Math.round(p.x) + "," + Math.round(p.z);
+        if(objSeen.has(dk)) return;
+        objSeen.add(dk);
+        (byMap[mn] = byMap[mn] || []).push({ pos:p, obj:o, kind });
+        placed = true;
+      };
+
+      for(const z of (o.zones||[])){
+        if(z && z.position) pushPos(z.map && z.map.normalizedName, z.position, "zone");
+      }
+      for(const pl of (o.possibleLocations||[])){
+        for(const p of (pl.positions||[])){
+          pushPos(pl.map && pl.map.normalizedName, p, "item");
+        }
+      }
+      if(!placed){
+        const line = (o.descriptionJa || o.description) +
+          ((o.conditions && o.conditions.length) ? `（条件: ${o.conditions.join(" / ")}）` : "");
+        for(const mn of objMaps){
+          if(!mn) continue;
+          (noCoord[mn] = noCoord[mn] || []).push(line);
+        }
+      }
+    }
+    return {
+      id:t.id, name:t.name, trader:(t.trader&&t.trader.name)||"?",
+      kappa:!!t.kappaRequired, lk:!!t.lightkeeperRequired, lvl:t.minPlayerLevel||0, wiki:t.wikiLink,
+      req: (t.taskRequirements || []).filter(r => (r.status || []).includes("complete")).map(r => r.id),
+      map: t.map ? canonMap(t.map.normalizedName) : null,
+      mapName: (t.map && MAPBY[canonMap(t.map.normalizedName)]) ? MAPBY[canonMap(t.map.normalizedName)].jp : null,
+      byMap, noCoord, keysByMap, bringByMap, collectByMap,
+      allMaps: [...new Set([...Object.keys(byMap), ...Object.keys(noCoord)])],
+    };
+  });
+}
+
+/* ---------- クエスト連鎖の逆引き ---------- */
+let NAME_OF = {};   // taskId -> name
+let NEXT_OF = {};    // taskId -> [後続タスクid]
+function buildChain(){
+  NAME_OF = {}; NEXT_OF = {};
+  for(const t of TASKS){ NAME_OF[t.id] = t.name; NEXT_OF[t.id] = NEXT_OF[t.id] || []; }
+  for(const t of TASKS){
+    for(const rid of (t.req || [])){
+      (NEXT_OF[rid] = NEXT_OF[rid] || []).push(t.id);
+    }
+  }
+}
+function chainHtml(t){
+  const prereq = (t.req || []).map(id => NAME_OF[id]).filter(Boolean);
+  const next = (NEXT_OF[t.id] || []).map(id => NAME_OF[id]).filter(Boolean);
+  let s = "";
+  if(prereq.length) s += `<div style="color:#888;font-size:11px">前提: ${prereq.join(", ")}</div>`;
+  if(next.length)   s += `<div style="color:#888;font-size:11px">次: ${next.slice(0,4).join(", ")}${next.length>4?" ほか":""}</div>`;
+  return s;
+}
+
+/* ---------- 色 ---------- */
+const PALETTE = ["#e6564e","#4ea3e6","#7ac74f","#e6b64e","#b76ee6","#4ee6c7","#e68a4e","#e64ea3","#8ab0e6","#c7e64e"];
+const colorForSelIndex = i => PALETTE[i % PALETTE.length];
+
+/* ---------- 描画 ---------- */
+function renderTabs(){
+  const wrap = document.getElementById("tabs");
+  wrap.innerHTML = "";
+  // 選択タスクの座標数をマップ別に集計
+  const counts = {};
+  const selArr = [...selected];
+  selArr.forEach(id => {
+    const t = TASKS.find(x => x.id === id); if(!t) return;
+    for(const mn of Object.keys(t.byMap)) counts[mn] = (counts[mn]||0) + t.byMap[mn].length;
+  });
+  for(const md of MAPS){
+    const b = document.createElement("button");
+    b.textContent = md.jp;
+    if(md.n === curMap) b.className = "active";
+    if(counts[md.n]) b.innerHTML += ` <span class="badge">${counts[md.n]}</span>`;
+    b.onclick = () => {
+      curMap = md.n; localStorage.setItem(MAP_KEY, curMap);
+      loadMap(); renderTabs();
+      if(opts.mapFilter === "__cur__") renderQuestList();
+    };
+    wrap.appendChild(b);
+  }
+}
+
+function questRow(t){
+  const dn = isDone(t.id);
+  const row = document.createElement("label");
+  row.className = "quest" + (t.kappa ? " kappa":"") + (dn ? " qdone":"");
+  const cb = document.createElement("input");
+  cb.type = "checkbox"; cb.checked = selected.has(t.id);
+  cb.onchange = () => {
+    cb.checked ? selected.add(t.id) : selected.delete(t.id);
+    saveSel(); renderTabs(); refreshFloors(); renderLegend(); renderPrep(); updateSelInfo();
+    renderQuestList();
+  };
+  const info = document.createElement("div");
+  info.style.flex = "1"; info.style.minWidth = "0";
+  const where = t.mapName ? t.mapName : (t.allMaps.length ? t.allMaps.map(m=>MAPBY[m]?MAPBY[m].jp:m).join(", ") : "複数/なし");
+  const badge = (dn && selected.has(t.id)) ? ` <span style="color:#6db36d">✓済(自分)</span>` : "";
+  info.innerHTML = `<div class="qn">${t.name}${badge}</div><div class="meta">${t.trader} ・ Lv${t.lvl||"-"} ・ ${where}</div>` +
+    (selected.has(t.id) ? chainHtml(t) : "");
+  const doneBtn = document.createElement("button");
+  doneBtn.textContent = dn ? "✓" : "○";
+  doneBtn.title = "完了マーク";
+  doneBtn.style.cssText = "flex:0 0 auto;padding:1px 6px;font-size:11px;" + (dn ? "background:#3a5a3a;border-color:#6db36d;color:#cfe" : "");
+  doneBtn.onclick = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    dn ? done.delete(t.id) : done.add(t.id);
+    saveDone(); renderQuestList(); renderProgress(); refreshFloors(); renderPrep();
+  };
+  row.appendChild(cb); row.appendChild(info); row.appendChild(doneBtn);
+  return row;
+}
+
+// 現在のマップ絞り込み対象 ("" = すべて, "__cur__" = 表示中のマップに追従)
+function effMapFilter(){ return opts.mapFilter === "__cur__" ? curMap : opts.mapFilter; }
+
+function renderQuestList(){
+  const box = document.getElementById("questlist");
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const fmap = effMapFilter();
+  box.innerHTML = "";
+
+  const pass = t => {
+    if(opts.kappaOnly && !t.kappa) return false;
+    if(fmap && !t.allMaps.includes(fmap)) return false;
+    if(q && !t.name.toLowerCase().includes(q)) return false;
+    if(isDone(t.id) && !showDone && !selected.has(t.id)) return false;  // 完了は既定で隠す
+    return true;
+  };
+  const byName = (a,b) => a.name.localeCompare(b.name);
+  const header = (txt, n) => {
+    const h = document.createElement("div");
+    h.className = "trader";
+    h.innerHTML = `${txt} <span class="count">(${n})</span>`;
+    box.appendChild(h);
+  };
+  const note = txt => {
+    const m = document.createElement("div");
+    m.className = "muted"; m.style.padding = "12px 14px"; m.textContent = txt;
+    box.appendChild(m);
+  };
+
+  // 検索中は全条件を跨いで名前検索（マップ絞り込みは維持）
+  if(q){
+    const list = TASKS.filter(pass).sort(byName);
+    header(fmap ? `検索: ${MAPBY[fmap]?MAPBY[fmap].jp:fmap}` : "検索結果", list.length);
+    if(!list.length) note("該当なし");
+    list.forEach(t => box.appendChild(questRow(t)));
+    return;
+  }
+
+  // 選択中のクエストは常に上部に表示（外せるように）
+  const sel = TASKS.filter(t => selected.has(t.id)).sort(byName);
+  if(sel.length){
+    header("選択中", sel.length);
+    sel.forEach(t => box.appendChild(questRow(t)));
+  }
+
+  // トレーダーもマップも未指定なら促す
+  if(!opts.trader && !fmap){
+    note("上の「トレーダー」または「マップ」で絞り込むと、クエストが名前（ABC）順で出ます。クエスト名の直接検索も可。");
+    return;
+  }
+
+  let list = TASKS.filter(t => pass(t) && !selected.has(t.id));
+  if(opts.trader) list = list.filter(t => t.trader === opts.trader);
+  list.sort(byName);
+
+  // 今すぐ受注できる（前提クリア＋レベル達成、未完了、未選択）
+  const doable = list.filter(t => !isDone(t.id) && isAvailable(t));
+  if(doable.length && (done.size > 0 || plvl > 1)){
+    header("▶ 今すぐ受注できる", doable.length);
+    const dw = document.createElement("div");
+    dw.className = "doableWrap";
+    doable.forEach(t => dw.appendChild(questRow(t)));
+    box.appendChild(dw);
+    list = list.filter(t => !doable.includes(t));
+  }
+
+  const label = [opts.trader || null, fmap ? (MAPBY[fmap]?MAPBY[fmap].jp:fmap) : null].filter(Boolean).join(" ／ ");
+  header(label, list.length);
+  if(!list.length) note("表示できるクエストがありません（絞り込み条件を確認）");
+  list.forEach(t => box.appendChild(questRow(t)));
+}
+
+function updateSelInfo(){
+  document.getElementById("selinfo").textContent = `${selected.size} クエスト選択中`;
+}
+function renderProgress(){
+  const el = document.getElementById("progline");
+  if(!el) return;
+  const total = TASKS.length;
+  const dn = [...done].filter(id => TASKS.some(t => t.id === id)).length;
+  const kapAll = TASKS.filter(t => t.kappa).length;
+  const kapDn = TASKS.filter(t => t.kappa && isDone(t.id)).length;
+  const lkAll = TASKS.filter(t => t.lk).length;
+  const lkDn = TASKS.filter(t => t.lk && isDone(t.id)).length;
+  el.innerHTML = `完了 <b>${dn}</b>/${total}` +
+    (kapAll ? ` ・ Kappa必須 <b>${kapDn}</b>/${kapAll}` : "") +
+    (lkAll ? ` ・ Lightkeeper <b>${lkDn}</b>/${lkAll}` : "");
+}
+
+function iconQuest(color, label){
+  return L.divIcon({ className:"", html:`<div class="qmark" style="width:17px;height:17px;background:${color}">${label||""}</div>`,
+    iconSize:[17,17], iconAnchor:[8.5,8.5] });
+}
+function iconExtract(color, letter){
+  return L.divIcon({ className:"", html:`<div class="xmark" style="width:15px;height:15px;background:${color}">${letter||""}</div>`,
+    iconSize:[15,15], iconAnchor:[7,7] });
+}
+function iconMini(color, letter, title){
+  return L.divIcon({ className:"", html:`<div class="minimark" style="background:${color}" title="${(title||"").replace(/"/g,"")}">${letter||""}</div>`,
+    iconSize:[13,13], iconAnchor:[6.5,6.5] });
+}
+// 選択クエストの識別ラベル A, B, ... Z, AA ...
+function selLabel(i){
+  let s = "", n = i + 1;
+  while(n > 0){ const r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); }
+  return s;
+}
+// 重なるマーカーを少しずらす（渦巻き状オフセット）
+function spreadPos(ll, seen){
+  const key = ll.lat.toFixed(1) + "," + ll.lng.toFixed(1);
+  const n = seen.get(key) || 0;
+  seen.set(key, n + 1);
+  if(n === 0) return ll;
+  const ang = n * 2.399963, rad = 1.4 + n * 0.5;
+  return L.latLng(ll.lat + Math.sin(ang) * rad, ll.lng + Math.cos(ang) * rad);
+}
+
+function renderMarkers(){
+  if(!map) return;
+  markerLayer.clearLayers();
+  extractLayer.clearLayers();
+
+  const md = MAPBY[curMap];
+  const onFloor = pos => {
+    if(!md.floors || curFloor == null) return true;
+    return floorIndexOf(pos ? pos.y : null, md.floors) === curFloor;
+  };
+
+  // --- 脱出 / トランジット ---
+  const fac = exits.fac;
+  for(const e of exitsForCurrent()){
+    if(!e.position || !onFloor(e.position)) continue;
+    if(!exitVisible(e.name || "(名称不明)")) continue;
+    const f = (e.faction||"").toLowerCase();
+    let color, letter, kind;
+    if(f==="pmc"){ color="var(--ok)"; letter="P"; kind="PMC"; }
+    else if(f==="scav"){ color="var(--scav)"; letter="S"; kind="Scav"; }
+    else { color="var(--shared)"; letter="共"; kind="共有"; }
+    L.marker(gpos(e.position), { icon:iconExtract(color, letter) })
+      .bindPopup(`<b>脱出: ${e.name||"?"}</b><br>区分: ${kind}（今回: ${fac==="scav"?"Scav":"PMC"}出撃）`)
+      .addTo(extractLayer);
+  }
+  if(opts.transit){
+    for(const tr of (TRANSITS[curMap]||[])){
+      if(!tr.position || !onFloor(tr.position)) continue;
+      L.marker(gpos(tr.position), { icon:iconExtract("#c58ae0","T") })
+        .bindPopup(`<b>トランジット</b><br>${tr.description||""}`).addTo(extractLayer);
+    }
+  }
+  // --- 危険地帯（種類別に色分け）/ 施錠ドア / スイッチ ---
+  if(opts.hazard){
+    const HZ = {
+      sniper:   { col:"#e0554f", pin:"⌖", jp:"スナイパースカフの射線内" },
+      minefield:{ col:"#e8b84a", pin:"", jp:"地雷原" },
+      hazard:   { col:"#e07b39", pin:"!", jp:"危険地帯" },
+    };
+    for(const h of (HAZARDS[curMap]||[])){
+      if(!onFloor(h.position)) continue;
+      const cfg = HZ[h.hazardType] || HZ.hazard;
+      if(h.outline && h.outline.length >= 3){
+        L.polygon(h.outline.map(gpos), {
+          color:cfg.col, weight:1.2, fillColor:cfg.col,
+          fillOpacity: h.hazardType==="minefield" ? 0.28 : 0.16,
+          dashArray: h.hazardType==="sniper" ? "4 3" : null,
+        }).bindPopup(`<b>${cfg.jp}</b><br><span style="color:#888">この範囲は危険</span>`).addTo(extractLayer);
+      }
+      if(h.hazardType !== "minefield"){
+        L.marker(gpos(h.position), { icon:iconMini(cfg.col, cfg.pin, cfg.jp) })
+          .bindPopup(`<b>${cfg.jp}</b>`).addTo(extractLayer);
+      }
+    }
+  }
+  if(opts.lock){
+    for(const l of (LOCKS[curMap]||[])){
+      if(!onFloor(l.position)) continue;
+      L.marker(gpos(l.position), { icon:iconMini("#c9a227","鍵") })
+        .bindPopup(`<b>施錠ドア</b><br>種類: ${l.lockType||"?"}${l.needsPower ? "<br>※要 電源" : ""}`).addTo(extractLayer);
+    }
+  }
+  if(opts.switch){
+    for(const s of (SWITCHES[curMap]||[])){
+      if(!onFloor(s.position)) continue;
+      L.marker(gpos(s.position), { icon:iconMini("#4aa3c9","S") })
+        .bindPopup(`<b>スイッチ</b><br><span style="color:#555">${s.name||""}</span>`).addTo(extractLayer);
+    }
+  }
+  // --- ボス スポーン ---
+  if(opts.boss){
+    for(const b of (BOSSES[curMap]||[])){
+      const pct = Math.round((b.chance||0) * 100);
+      b.positions.forEach((p, pi) => {
+        if(!onFloor(p)) return;
+        L.circleMarker(gpos(p), { radius:4, color:"#c99df0", weight:1, fillColor:"#a06cd0", fillOpacity:0.75 })
+          .bindPopup(`<b>${b.name}</b><br>出現率 約${pct}%`).addTo(extractLayer);
+      });
+    }
+  }
+  // --- プレイヤー / Scav スポーン ---
+  if(opts.spawn){
+    for(const s of (SPAWNS[curMap]||[])){
+      if(!onFloor(s.position)) continue;
+      const col = s.side === "pmc" ? "#e0894a" : (s.side === "scav" ? "#7d8aa0" : "#888");
+      L.circleMarker(gpos(s.position), { radius:2.5, color:col, weight:0, fillColor:col, fillOpacity:0.5 })
+        .bindPopup(`<b>スポーン地点</b><br>${s.side === "pmc" ? "PMC" : s.side === "scav" ? "Scav" : s.side}`).addTo(extractLayer);
+    }
+  }
+
+  // --- クエスト目標 ---
+  const noCoordLines = [];
+  const seen = new Map();
+  const questPts = [];   // ルート用に収集
+  const selArr = [...selected];
+  selArr.forEach((id, idx) => {
+    const t = TASKS.find(x => x.id === id); if(!t) return;
+    const color = colorForSelIndex(idx);
+    const label = selLabel(idx);
+    for(const m of (t.byMap[curMap] || [])){
+      if(!onFloor(m.pos)) continue;
+      const ll = spreadPos(gpos(m.pos), seen);
+      const popup =
+        `<b>[${label}] ${t.name}</b><br>` +
+        `<span style="color:#555">${t.trader} ・ ${objTypeJa(m.obj.type)}${m.obj.optional?" (任意)":""}</span><br>` +
+        `${m.obj.descriptionJa || m.obj.description || ""}` +
+        ((m.obj.conditions && m.obj.conditions.length) ? `<br><span style="color:#a06">条件: ${m.obj.conditions.join(" / ")}</span>` : "") +
+        chainHtml(t) +
+        (t.wiki ? `<a href="${t.wiki}" target="_blank" rel="noopener">Wiki ↗</a>` : "");
+      questPts.push({ ll, color, label, popup });
+    }
+    for(const line of (t.noCoord[curMap] || [])){
+      noCoordLines.push(`<div>• <span style="color:${color}">[${label}] ${t.name}:</span> ${line}</div>`);
+    }
+  });
+
+  if(opts.route && questPts.length >= 2){
+    // 最近傍法でルート順に並べる（始点＝マップ中心に最も近い点）
+    const cen = map.getCenter();
+    const rest = questPts.slice();
+    const ordered = [];
+    let cur = cen;
+    while(rest.length){
+      let bi = 0, bd = Infinity;
+      rest.forEach((p, i) => { const d = map.distance(cur, p.ll); if(d < bd){ bd = d; bi = i; } });
+      const nx = rest.splice(bi, 1)[0];
+      ordered.push(nx); cur = nx.ll;
+    }
+    L.polyline(ordered.map(p => p.ll), { color:"#c7b083", weight:2, opacity:0.8, dashArray:"6 4" }).addTo(markerLayer);
+    ordered.forEach((p, i) => {
+      L.marker(p.ll, { icon:iconQuest(p.color, String(i + 1)) }).bindPopup(`<b>ルート ${i+1}</b><br>` + p.popup).addTo(markerLayer);
+    });
+  }else{
+    for(const p of questPts){
+      L.marker(p.ll, { icon:iconQuest(p.color, p.label) }).bindPopup(p.popup).addTo(markerLayer);
+    }
+  }
+
+  // --- 座標データなしパネル ---
+  const nc = document.getElementById("nocoord");
+  if(noCoordLines.length){
+    nc.innerHTML = `<h4>このマップ・座標データなし (Wiki確認)</h4>` + noCoordLines.join("");
+    nc.classList.remove("hidden");
+  }else{
+    nc.classList.add("hidden");
+  }
+}
+
+let legendOpen = false;
+function renderLegend(){
+  const el = document.getElementById("legend");
+  const rows = [];
+  const selArr = [...selected].map(id => TASKS.find(t=>t.id===id)).filter(Boolean);
+  selArr.forEach((t,i) => {
+    rows.push(`<div class="li"><span class="dot" style="background:${colorForSelIndex(i)}"></span><b style="margin-right:4px">${selLabel(i)}</b>${t.name}</div>`);
+  });
+  if(!rows.length) rows.push('<div class="li muted">クエスト未選択</div>');
+
+  const active = [];
+  if(opts.hazard){
+    active.push('<span class="sq" style="background:#e0554f"></span>スナイパー射線');
+    active.push('<span class="sq" style="background:#e8b84a"></span>地雷原');
+    active.push('<span class="sq" style="background:#e07b39"></span>その他危険');
+  }
+  if(opts.lock)   active.push('<span class="sq" style="background:#c9a227"></span>施錠ドア');
+  if(opts.switch) active.push('<span class="sq" style="background:#4aa3c9"></span>スイッチ');
+  if(opts.boss)   active.push('<span class="dot" style="background:#a06cd0"></span>ボス出現');
+  if(opts.spawn){ active.push('<span class="dot" style="background:#e0894a"></span>PMCスポーン'); active.push('<span class="dot" style="background:#7d8aa0"></span>Scavスポーン'); }
+  if(opts.route)  active.push('<span style="color:#c7b083">— — 巡回ルート(番号順)</span>');
+  if(active.length) rows.push('<div class="li" style="border-top:1px solid var(--line);margin-top:4px;padding-top:4px;gap:10px;flex-wrap:wrap">' + active.join("") + '</div>');
+
+  // 凡例トグル
+  rows.push(`<div class="li" style="border-top:1px solid var(--line);margin-top:4px;padding-top:4px"><a href="#" id="legtoggle" style="color:var(--accent2)">凡例 ${legendOpen ? "▲" : "▼"}</a></div>`);
+  if(legendOpen){
+    rows.push(
+      '<div style="font-size:10px;color:var(--dim);line-height:1.7;margin-top:2px">' +
+      `<div>脱出（今回: <b>${exits.fac==="scav"?"Scav":"PMC"}</b>出撃）: <span class="dot" style="background:var(--ok)"></span>PMC&nbsp; <span class="dot" style="background:var(--scav)"></span>Scav&nbsp; <span class="dot" style="background:var(--shared)"></span>共有 — 「脱出地点」欄でチェックした地点のみ表示</div>` +
+      '<div><span class="dot" style="background:#888"></span>丸=クエスト目標(記号A/B..)　📌=自分のメモ(右クリックで追加)</div>' +
+      '<div>破線で囲った範囲=危険地帯。範囲内に入ると危険</div>' +
+      '<div style="margin-top:3px">地図の色（tarkov.dev提供）: 濃い灰=建物内 / 斜線=階段・スロープ / 水色=水場 / 破線=マップ境界</div>' +
+      '</div>'
+    );
+  }
+  el.innerHTML = rows.join("");
+  const lt = document.getElementById("legtoggle");
+  if(lt) lt.onclick = (e) => { e.preventDefault(); legendOpen = !legendOpen; renderLegend(); };
+}
+
+/* ---------- 共有コード（選択・ピン・完了・レベルをURL/コード化。バックエンド不要） ---------- */
+function b64urlEnc(str){
+  return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function b64urlDec(s){
+  s = s.replace(/-/g,"+").replace(/_/g,"/");
+  return decodeURIComponent(escape(atob(s)));
+}
+function buildShare(){
+  const payload = { v:1, m:curMap, l:plvl, s:[...selected], d:[...done], p:customPins, x:exits };
+  return b64urlEnc(JSON.stringify(payload));
+}
+function applyShare(code){
+  const p = JSON.parse(b64urlDec(code.trim()));
+  if(Array.isArray(p.s)){ selected = new Set(p.s); saveSel(); }
+  if(Array.isArray(p.d)){ done = new Set(p.d); saveDone(); }
+  if(p.l){ plvl = p.l; try{ localStorage.setItem(LEVEL_KEY, String(plvl)); }catch(e){} }
+  if(p.p && typeof p.p === "object"){ customPins = p.p; savePins(); }
+  if(p.x && typeof p.x === "object"){ exits = { fac: p.x.fac === "scav" ? "scav" : "pmc", picks: p.x.picks || {} }; saveExits(); }
+  if(p.m && MAPBY[p.m]){ curMap = p.m; try{ localStorage.setItem(MAP_KEY, curMap); }catch(e){} }
+}
+async function shareCreate(){
+  const code = buildShare();
+  const url = location.origin + location.pathname + "#s=" + code;
+  try{ history.replaceState(null, "", "#s=" + code); }catch(e){}
+  let copied = false;
+  try{ await navigator.clipboard.writeText(url); copied = true; }catch(e){}
+  window.prompt(copied ? "共有リンクをコピーしました。フレンドに送ってください。" : "この共有リンクをコピーしてフレンドに送ってください:", url);
+}
+function sharePrompt(){
+  const inp = window.prompt("共有コード（#s= より後）または共有リンクを貼り付け:");
+  if(!inp) return;
+  let code = inp.trim();
+  const mm = code.match(/#s=([^\s&]+)/);
+  if(mm) code = mm[1];
+  try{
+    applyShare(code);
+    renderTabs(); renderQuestList(); renderProgress(); updateSelInfo();
+    loadMap();
+    alert("共有データを読み込みました。");
+  }catch(e){ alert("読み込み失敗: " + e.message); }
+}
+
+/* ---------- レイド前チェック（鍵 / 回収 / 持ち込み） ---------- */
+let prepOpen = true;
+function loadChecks(){ try{ return JSON.parse(localStorage.getItem(CHECK_KEY)) || {}; }catch(e){ return {}; } }
+function saveChecks(c){ try{ localStorage.setItem(CHECK_KEY, JSON.stringify(c)); }catch(e){} }
+let checks = loadChecks();
+
+function renderPrep(){
+  const box = document.getElementById("prep");
+  const mn = effMapFilter() || curMap;
+  const mjp = MAPBY[mn] ? MAPBY[mn].jp : mn;
+
+  // 選択クエストから集約（アイテムid重複は除去、由来クエスト名を保持）
+  const keys = new Map(), bring = new Map(), collect = new Map();
+  const addTo = (map, it, from, extra) => {
+    if(!it || !it.id) return;
+    if(!map.has(it.id)) map.set(it.id, Object.assign({ id:it.id, name:it.name, short:it.short, from:[] }, extra||{}));
+    const e = map.get(it.id); if(!e.from.includes(from)) e.from.push(from);
+  };
+  for(const id of selected){
+    const t = TASKS.find(x => x.id === id); if(!t) continue;
+    for(const k of (t.keysByMap[mn] || [])) addTo(keys, k, t.name);
+    for(const b of (t.bringByMap[mn] || [])) addTo(bring, b, t.name, { jp:b.jp });
+    for(const c of (t.collectByMap[mn] || [])) addTo(collect, c, t.name, { fir:c.fir, count:c.count, jp:c.jp });
+  }
+
+  const total = keys.size + bring.size + collect.size;
+  if(selected.size === 0){ box.style.display = "none"; return; }
+  box.style.display = "";
+
+  const cm = checks[mn] || {};
+  const chk = id => !!cm[id];
+
+  let html = `<div class="phead" id="prephead">レイド前チェック — ${mjp} <span style="color:var(--dim);font-weight:400">(${total})</span> ${prepOpen ? "▲" : "▼"}` +
+             `<button id="prepreset" style="float:right;font-size:10px;padding:1px 6px">リセット</button></div>`;
+  if(prepOpen){
+    if(total === 0){
+      html += `<div class="pnote">このマップで持ち込む鍵・回収アイテムはありません（座標ピンのみ）。</div>`;
+    }else{
+      const grp = (title, m, opt) => {
+        if(!m.size) return "";
+        let s = `<div class="pgrp"><div class="pgt">${title}</div>`;
+        for(const e of m.values()){
+          const icon = opts.icons ? `<img src="${ITEM_ICON(e.id)}" alt="" onerror="this.style.visibility='hidden'">` : "";
+          const fir = (opt && opt.fir && e.fir) ? `<span class="fir">FiR</span>` : "";
+          const cnt = (opt && opt.count && e.count > 1) ? ` ×${e.count}` : "";
+          s += `<label class="pitem${chk(e.id) ? " done" : ""}">` +
+               `<input type="checkbox" data-item="${e.id}" ${chk(e.id) ? "checked" : ""}>` +
+               icon + `<span class="nm" title="${e.from.join(" / ")}">${e.short || e.name}${cnt}</span>${fir}</label>`;
+        }
+        return s + `</div>`;
+      };
+      html += grp("🔑 持ち込む鍵", keys);
+      html += grp("📤 持ち込み（設置・マーカー用）", bring);
+      html += grp("📥 現地で回収", collect, { fir:true, count:true });
+    }
+  }
+  box.innerHTML = html;
+
+  const head = document.getElementById("prephead");
+  if(head) head.onclick = (e) => { if(e.target.id === "prepreset") return; prepOpen = !prepOpen; renderPrep(); };
+  const rst = document.getElementById("prepreset");
+  if(rst) rst.onclick = () => { delete checks[mn]; saveChecks(checks); renderPrep(); };
+  box.querySelectorAll('input[data-item]').forEach(inp => {
+    inp.onchange = () => {
+      const cmm = checks[mn] = checks[mn] || {};
+      if(inp.checked) cmm[inp.dataset.item] = 1; else delete cmm[inp.dataset.item];
+      saveChecks(checks);
+      inp.closest(".pitem").classList.toggle("done", inp.checked);
+    };
+  });
+}
+
+/* ---------- レイドタイマー ---------- */
+let raidTimerIv = null;
+function raidTick(){
+  const el = document.getElementById("raidclock");
+  if(!raidTimer){ return; }
+  const left = raidTimer.end - Date.now();
+  if(left <= 0){
+    el.textContent = "00:00"; el.className = "clock danger";
+    raidTimer = null;
+    if(raidTimerIv){ clearInterval(raidTimerIv); raidTimerIv = null; }
+    document.getElementById("raidstart").textContent = "レイド開始";
+    return;
+  }
+  const m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
+  el.textContent = String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+  el.className = "clock" + (left < 120000 ? " danger" : left < 300000 ? " warn" : "");
+}
+function raidDurationFor(mn){
+  const meta = MAPMETA[mn];
+  return (meta && meta.raidDuration) ? meta.raidDuration : 40;
+}
+function startRaidTimer(){
+  raidTimer = { end: Date.now() + raidDurationFor(curMap) * 60000 };
+  if(raidTimerIv) clearInterval(raidTimerIv);
+  raidTimerIv = setInterval(raidTick, 1000);
+  raidTick();
+  document.getElementById("raidstart").textContent = "リセット";
+}
+function resetRaidTimer(){
+  raidTimer = null;
+  if(raidTimerIv){ clearInterval(raidTimerIv); raidTimerIv = null; }
+  const el = document.getElementById("raidclock");
+  el.textContent = String(raidDurationFor(curMap)).padStart(2,"0") + ":00";
+  el.className = "clock";
+  document.getElementById("raidstart").textContent = "レイド開始";
+}
+
+/* ---------- マップ生成 ---------- */
+async function loadMap(){
+  const md = MAPBY[curMap];
+  document.getElementById("ovtext").textContent = md.jp + " を読み込み中…";
+  showOverlay(true);
+
+  if(map){ map.remove(); map = null; }
+  map = L.map("map", {
+    crs: makeCRS(md),
+    minZoom: -4, maxZoom: 7, zoomSnap: 0.25, zoomControl: true,
+    attributionControl: true,
+  });
+  map.attributionControl.setPrefix("");
+  map.attributionControl.addAttribution('地図: <a href="https://tarkov.dev" target="_blank">tarkov.dev</a> (CC BY-NC-SA)');
+
+  const bounds = toBounds(md.b);
+  map.setMaxBounds(scaledBounds(md.b, 1.6));
+
+  svgLayerGroups = {};
+  floorTileLayer = null;
+  const floorSvgIds = new Set((md.floors || []).map(f => f.svg));
+  try{
+    if(md.svg){
+      // tarkov.dev と同じ手順で SVG 要素を組み立てる
+      const svgText = await (await fetch(md.svg)).text();
+      const svgEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      svgEl.innerHTML = svgText;
+      const inner = svgEl.firstElementChild;
+      if(inner){
+        const vb = inner.getAttribute("viewBox");
+        if(vb) svgEl.setAttribute("viewBox", vb);
+        [...inner.children].forEach(g => {
+          if(g.nodeName !== "g" || !g.id) return;
+          svgLayerGroups[g.id] = g;
+          // フロアレイヤー: 非表示から開始（setupFloors が制御）
+          // それ以外(ラベル等)で基準レイヤーでないもの: 隠す
+          if(floorSvgIds.has(g.id)) g.style.display = "none";
+          else if(g.id !== md.lyr) g.style.display = "none";
+        });
+      }
+      L.svgOverlay(svgEl, md.sb ? toBounds(md.sb) : bounds, { interactive:false }).addTo(map);
+    }else if(md.tile && !md.floors){
+      L.tileLayer(md.tile, { tileSize:256, bounds, noWrap:true, maxNativeZoom:6 }).addTo(map);
+    }
+    // md.tile && md.floors（The Lab）は showFloor がタイルを差し替える
+  }catch(e){
+    console.error(e);
+    if(md.tile && !md.floors){
+      L.tileLayer(md.tile, { tileSize:256, bounds, noWrap:true, maxNativeZoom:6 }).addTo(map);
+    }
+  }
+
+  markerLayer  = L.layerGroup().addTo(map);
+  extractLayer = L.layerGroup().addTo(map);
+  customLayer  = L.layerGroup().addTo(map);
+  map.fitBounds(bounds);
+
+  // 右クリックでカスタムピン追加
+  map.on("contextmenu", (ev) => addCustomPin(ev.latlng));
+
+  showMapNote(curMap);
+  renderExits();     // 現在マップの脱出候補リスト
+  setupFloors(md);   // フロアバー構築＋初期階選択（renderMarkers を内部で呼ぶ）
+  renderCustomPins();
+  renderLegend();
+  renderPrep();
+  if(!raidTimer) resetRaidTimer();
+  showOverlay(false);
+}
+
+/* ---------- フロア（階）切り替え ---------- */
+function setupFloors(md, keep){
+  const bar = document.getElementById("floorbar");
+  if(!md || !md.floors || !(md.svg || md.tile)){
+    curFloor = null;
+    bar.classList.add("hidden");
+    bar.innerHTML = "";
+    renderMarkers();
+    return;
+  }
+  // 各階の選択クエストピン数
+  const counts = md.floors.map(() => 0);
+  for(const id of selected){
+    const t = TASKS.find(x => x.id === id); if(!t) continue;
+    for(const m of (t.byMap[curMap] || [])){
+      const fi = floorIndexOf(m.pos ? m.pos.y : null, md.floors);
+      if(fi >= 0) counts[fi]++;
+    }
+  }
+  if(!(keep && curFloor != null && curFloor >= 0 && curFloor < md.floors.length)){
+    // 初期階: ピン最多。無ければ base
+    let best = md.floors.findIndex(f => f.base);
+    let bestC = 0;
+    counts.forEach((c, i) => { if(c > bestC){ bestC = c; best = i; } });
+    curFloor = best < 0 ? 0 : best;
+  }
+
+  bar.classList.remove("hidden");
+  bar.innerHTML = '<span class="flabel">階:</span>';
+  md.floors.forEach((f, i) => {
+    const btn = document.createElement("button");
+    btn.innerHTML = f.jp + (counts[i] ? ` <span class="fb">${counts[i]}</span>` : "");
+    btn.onclick = () => showFloor(md, i);
+    bar.appendChild(btn);
+  });
+  showFloor(md, curFloor);
+}
+function refreshFloors(){
+  const md = MAPBY[curMap];
+  if(md && md.floors) setupFloors(md, true);
+  else renderMarkers();
+}
+function showFloor(md, i){
+  curFloor = i;
+  const tf = md.floors[i];
+  if(tf.tile){
+    // タイル式フロア（The Lab）: タイルレイヤーごと差し替え
+    if(floorTileLayer && map){ map.removeLayer(floorTileLayer); floorTileLayer = null; }
+    if(map){
+      floorTileLayer = L.tileLayer(tf.tile, { tileSize:256, noWrap:true, maxNativeZoom:6, bounds: toBounds(md.b) }).addTo(map);
+      floorTileLayer.bringToBack();
+    }
+  }else{
+    const target = tf.svg;
+    const baseF = md.floors.find(f => f.base);
+    // 上層階を見るときは base(1F/地上)を薄く下敷きにして全体像を把握しやすくする
+    const ghost = (baseF && baseF.svg !== target && tf.lo >= (baseF.hi != null ? baseF.hi : tf.lo)) ? baseF.svg : null;
+    // フロアレイヤーの表示切替
+    md.floors.forEach(f => {
+      const g = svgLayerGroups[f.svg];
+      if(!g) return;
+      if(f.svg === target){ g.style.display = ""; g.style.opacity = ""; }
+      else if(f.svg === ghost){ g.style.display = ""; g.style.opacity = "0.22"; }
+      else { g.style.display = "none"; g.style.opacity = ""; }
+    });
+  }
+  // ボタンの active 更新
+  [...document.getElementById("floorbar").querySelectorAll("button")].forEach((b, bi) => {
+    b.classList.toggle("active", bi === i);
+  });
+  renderMarkers();
+}
+
+/* ---------- カスタムピン（右クリックで追加） ---------- */
+function renderCustomPins(){
+  if(!customLayer) return;
+  customLayer.clearLayers();
+  const arr = customPins[curMap] || [];
+  arr.forEach((p, i) => {
+    L.marker([p.lat, p.lng], { icon: L.divIcon({
+        className:"", iconSize:[18,18], iconAnchor:[9,18],
+        html:`<div class="custcompin" title="${(p.text||"").replace(/"/g,"")}">📌</div>` }) })
+      .bindPopup(
+        `<b>メモ</b><br>${(p.text||"").replace(/</g,"&lt;") || "<span style='color:#888'>(なし)</span>"}` +
+        `<br><button onclick="editCustomPin(${i})" style="margin-top:6px">編集</button> ` +
+        `<button onclick="delCustomPin(${i})">削除</button>`
+      ).addTo(customLayer);
+  });
+}
+function addCustomPin(latlng){
+  const text = window.prompt("このピンのメモ（例: スナイパー注意 / 休憩ポイント）", "");
+  if(text === null) return;
+  (customPins[curMap] = customPins[curMap] || []).push({ lat: latlng.lat, lng: latlng.lng, text: text.trim() });
+  savePins(); renderCustomPins();
+}
+function editCustomPin(i){
+  const arr = customPins[curMap] || []; if(!arr[i]) return;
+  const text = window.prompt("メモを編集", arr[i].text || "");
+  if(text === null) return;
+  arr[i].text = text.trim(); savePins(); renderCustomPins();
+}
+function delCustomPin(i){
+  const arr = customPins[curMap] || []; if(!arr[i]) return;
+  arr.splice(i, 1); savePins(); renderCustomPins();
+}
+window.editCustomPin = editCustomPin;
+window.delCustomPin = delCustomPin;
+
+function showOverlay(on, html){
+  const ov = document.getElementById("overlay");
+  if(html){ ov.querySelector("#ovtext").innerHTML = html; }
+  ov.style.display = on ? "flex" : "none";
+}
+
+/* ---------- 起動 ---------- */
+function applyData(data){
+  DATA = data;
+  TASKS = prepTasks(data.tasks);
+  EXTRACTS = {}; TRANSITS = {}; HAZARDS = {}; LOCKS = {}; SWITCHES = {}; BOSSES = {}; SPAWNS = {}; MAPMETA = {};
+  for(const m of data.maps){
+    const mn = canonMap(m.normalizedName);
+    for(const bag of [EXTRACTS, TRANSITS, HAZARDS, LOCKS, SWITCHES, BOSSES, SPAWNS]) if(!bag[mn]) bag[mn] = [];
+    EXTRACTS[mn].push(...(m.extracts||[]));
+    TRANSITS[mn].push(...(m.transits||[]));
+    HAZARDS[mn].push(...(m.hazards||[]));
+    LOCKS[mn].push(...(m.locks||[]));
+    SWITCHES[mn].push(...(m.switches||[]));
+    BOSSES[mn].push(...(m.bosses||[]));
+    SPAWNS[mn].push(...(m.spawns||[]));
+    if(!MAPMETA[mn] && (m.raidDuration || m.players)) MAPMETA[mn] = { raidDuration:m.raidDuration, players:m.players };
+  }
+  // トレーダー選択肢を用意（アルファベット順）
+  const sel = document.getElementById("traderSel");
+  const traders = [...new Set(TASKS.map(t => t.trader))].sort();
+  sel.innerHTML = '<option value="">▼ トレーダー（すべて）</option>' +
+    traders.map(tr => `<option value="${tr}">${tr}</option>`).join("");
+  if(opts.trader && traders.includes(opts.trader)) sel.value = opts.trader;
+  else opts.trader = "";
+
+  // マップ選択肢
+  const msel = document.getElementById("mapSel");
+  msel.innerHTML = '<option value="">▼ マップ（すべて）</option>' +
+    '<option value="__cur__">【表示中のマップに追従】</option>' +
+    MAPS.map(m => `<option value="${m.n}">${m.jp}</option>`).join("");
+  msel.value = opts.mapFilter || "";
+
+  buildChain();
+  renderTabs();
+  renderQuestList();
+  renderProgress();
+  updateSelInfo();
+}
+
+async function init(){
+  // オプション UI 反映
+  document.getElementById("opt_transit").checked = opts.transit;
+  { const r = document.querySelector(`#exFac input[value="${exits.fac}"]`); if(r) r.checked = true; }
+  document.getElementById("opt_hazard").checked = opts.hazard;
+  document.getElementById("opt_lock").checked = opts.lock;
+  document.getElementById("opt_switch").checked = opts.switch;
+  document.getElementById("opt_boss").checked = opts.boss;
+  document.getElementById("opt_spawn").checked = opts.spawn;
+  document.getElementById("opt_icons").checked = opts.icons;
+  document.getElementById("kappaonly").checked = opts.kappaOnly;
+  document.getElementById("opt_route").checked = opts.route;
+  document.getElementById("lvlin").value = plvl;
+  document.getElementById("showdone").checked = showDone;
+  applyView();
+
+  // 初回ガイド
+  try{
+    if(!localStorage.getItem(GUIDE_KEY)) document.getElementById("guide").classList.remove("hidden");
+  }catch(e){}
+
+  // キャッシュ or フェッチ
+  const cache = loadCache();
+  let usedCache = false;
+  if(cache){
+    applyData(cache.data);
+    usedCache = true;
+    const age = Date.now() - cache.ts;
+    setDataInfo(cache.ts, age > CACHE_TTL);
+  }
+  if(!cache || (Date.now() - cache.ts) > CACHE_TTL){
+    try{
+      showOverlay(true, "json.tarkov.dev から最新データを取得中…（初回は少し時間がかかります）");
+      const data = await fetchData();
+      saveCache(data);
+      applyData(data);
+      setDataInfo(Date.now(), false);
+    }catch(e){
+      if(!usedCache){
+        // 同梱スナップショットにフォールバック
+        if(window.__EFT_SNAPSHOT__ && window.__EFT_SNAPSHOT__.data){
+          applyData(window.__EFT_SNAPSHOT__.data);
+          const snapTs = Date.parse(window.__EFT_SNAPSHOT__.generated) || Date.now();
+          setDataInfo(snapTs, true);
+          usedCache = true;
+        }else{
+          showOverlay(true, `<div class="err">データ取得に失敗しました。<br>${e.message}<br><br>
+            ネット接続を確認し「データ更新」を押してください。</div>`);
+          return;
+        }
+      }
+    }
+  }
+  // 共有リンクで開かれた場合は状態を復元
+  const hm = (location.hash || "").match(/[#&]s=([^\s&]+)/);
+  if(hm){
+    try{
+      applyShare(hm[1]);
+      renderTabs(); renderQuestList(); renderProgress(); updateSelInfo();
+    }catch(e){ console.warn("共有コード読み込み失敗", e); }
+  }
+
+  await loadMap();
+  showOverlay(false);
+}
+
+function setDataInfo(ts, stale){
+  const d = new Date(ts);
+  const s = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+  document.getElementById("datainfo").textContent = (stale ? "⚠ 古い: " : "更新: ") + s;
+}
+
+/* ---------- イベント ---------- */
+document.getElementById("refresh").onclick = async () => {
+  try{
+    showOverlay(true, "json.tarkov.dev から最新データを取得中…");
+    const data = await fetchData();
+    saveCache(data); applyData(data); setDataInfo(Date.now(), false);
+    await loadMap();
+  }catch(e){
+    alert("取得失敗: " + e.message);
+  }finally{ showOverlay(false); }
+};
+document.getElementById("search").oninput = () => renderQuestList();
+document.getElementById("traderSel").onchange = (e) => { opts.trader = e.target.value; saveOpts(); renderQuestList(); };
+document.getElementById("mapSel").onchange = (e) => { opts.mapFilter = e.target.value; saveOpts(); renderQuestList(); renderPrep(); };
+document.getElementById("selnone").onclick = () => {
+  selected.clear(); saveSel(); renderTabs(); renderQuestList(); refreshFloors(); renderLegend(); renderPrep(); updateSelInfo();
+};
+document.getElementById("kappaonly").onchange = (e) => { opts.kappaOnly = e.target.checked; saveOpts(); renderQuestList(); };
+document.getElementById("showdone").onchange = (e) => { showDone = e.target.checked; renderQuestList(); };
+document.getElementById("lvlin").onchange = (e) => {
+  plvl = Math.max(1, Math.min(79, parseInt(e.target.value,10) || 1));
+  e.target.value = plvl;
+  try{ localStorage.setItem(LEVEL_KEY, String(plvl)); }catch(err){}
+  renderQuestList();
+};
+document.getElementById("bright").oninput = (e) => { view.bright = parseFloat(e.target.value); applyView(); saveView(); };
+document.getElementById("contrast").oninput = (e) => { view.contrast = parseFloat(e.target.value); applyView(); saveView(); };
+document.getElementById("brightreset").onclick = () => { view = { bright:1, contrast:1 }; applyView(); saveView(); };
+document.getElementById("guideclose").onclick = () => {
+  document.getElementById("guide").classList.add("hidden");
+  try{ localStorage.setItem(GUIDE_KEY, "1"); }catch(e){}
+};
+for(const [id,key] of [["opt_transit","transit"],
+                       ["opt_hazard","hazard"],["opt_lock","lock"],["opt_switch","switch"],
+                       ["opt_boss","boss"],["opt_spawn","spawn"],["opt_route","route"]]){
+  document.getElementById(id).onchange = (e) => { opts[key] = e.target.checked; saveOpts(); renderMarkers(); renderLegend(); };
+}
+// 脱出地点: 出撃タイプ切替
+for(const r of document.querySelectorAll('#exFac input[name="exfac"]')){
+  r.onchange = (e) => { if(!e.target.checked) return; exits.fac = e.target.value === "scav" ? "scav" : "pmc"; saveExits(); renderExits(); renderMarkers(); renderLegend(); };
+}
+// 脱出地点: 個別チェック（委譲）
+document.getElementById("exList").addEventListener("change", (e) => {
+  const cb = e.target.closest("input[data-ex]");
+  if(!cb) return;
+  setExitPick(cb.getAttribute("data-ex"), cb.checked);
+  renderExits(); renderMarkers();
+});
+document.getElementById("exAll").onclick = () => { delete exits.picks[exKey()]; saveExits(); renderExits(); renderMarkers(); };
+document.getElementById("exNone").onclick = () => { exits.picks[exKey()] = {}; saveExits(); renderExits(); renderMarkers(); };
+(() => {
+  const s = document.getElementById("exitSect");
+  try{ const v = localStorage.getItem("eft_qm_exit_open_v1"); if(v === "0") s.open = false; }catch(e){}
+  s.addEventListener("toggle", () => { try{ localStorage.setItem("eft_qm_exit_open_v1", s.open ? "1" : "0"); }catch(e){} });
+})();
+document.getElementById("sharemake").onclick = shareCreate;
+document.getElementById("shareload").onclick = sharePrompt;
+(() => {
+  const sect = document.getElementById("layersSect");
+  try{ if(localStorage.getItem("eft_qm_layers_open_v1") === "1") sect.open = true; }catch(e){}
+  sect.addEventListener("toggle", () => {
+    try{ localStorage.setItem("eft_qm_layers_open_v1", sect.open ? "1" : "0"); }catch(e){}
+  });
+})();
+document.getElementById("opt_icons").onchange = (e) => { opts.icons = e.target.checked; saveOpts(); renderPrep(); };
+document.getElementById("raidstart").onclick = () => { raidTimer ? resetRaidTimer() : startRaidTimer(); };
+
+window.addEventListener("load", () => {
+  if(typeof L === "undefined"){
+    showOverlay(true, '<div class="err">地図ライブラリ(Leaflet)の読み込みに失敗しました。<br>インターネット接続を確認してページを再読み込みしてください。</div>');
+    return;
+  }
+  init();
+});
+</script>
+</body>
+</html>

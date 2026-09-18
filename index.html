@@ -92,7 +92,7 @@
   #map{position:absolute;inset:0;background:#111;filter:brightness(var(--mapbright,1)) contrast(var(--mapcontrast,1))}
 
   /* 明るさコントロール */
-  #brightctl{position:absolute;right:10px;top:100px;z-index:600;background:#000c;border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:11px;display:flex;gap:8px;align-items:center}
+  #brightctl{position:absolute;left:10px;top:56px;z-index:600;background:#000c;border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:11px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:260px}
   #brightctl input[type=range]{width:80px}
   #brightctl button{padding:2px 6px;font-size:10px}
 
@@ -657,6 +657,21 @@ const isCoopExtract = name => /co-?op/i.test(name || "");
 // 別フロアバッジ用の短縮表記("Underground"等の長い名前だとマーカーと重なって見づらいため)
 const FLOOR_SHORT = { Underground:"B1", Bunkers:"B1", Tunnels:"B1", Garage:"B1", Technical:"B1" };
 const floorShort = jp => FLOOR_SHORT[jp] || jp;
+// 脱出口の実フロア: 座標のY値だけで判定すると、Shorelineのような屋外主体のマップで地形の起伏を
+// 「地下」と誤判定してしまう(実際は建物内の階とは無関係な高低差のため)。そのため既定は「基準階」とし、
+// 実際に基準階と異なると確認できたものだけここに手動で記録する(ユーザー確認ベース)。
+const EXTRACT_FLOOR_OVERRIDE = {
+  customs:    { "ZB-1011": "Underground" },
+  shoreline:  { "Admin Basement": "Underground", "East Wing Gym Entrance": "2F" },
+};
+function extractFloorIndex(mapN, md, e){
+  if(!md.floors) return -1;
+  const baseIdx = md.floors.findIndex(f => f.base);
+  const ov = (EXTRACT_FLOOR_OVERRIDE[mapN] || {})[e.name];
+  if(!ov) return baseIdx;
+  const fi = md.floors.findIndex(f => f.jp === ov);
+  return fi >= 0 ? fi : baseIdx;
+}
 
 /* mob id → ゲーム内表示名（英語） */
 const MOB_NAME = {
@@ -1303,13 +1318,14 @@ function renderMarkers(){
     else if(isCoopExtract(e.name)){ color="var(--shared)"; letter=T("sharedGlyph"); kind=T("kindCoop"); }
     else if(fac==="scav"){ color="var(--scav)"; letter="S"; kind=T("kindScav"); }
     else { color="var(--ok)"; letter="P"; kind=T("kindPMC"); }
-    // 脱出口は階層フィルタの対象外(常に表示)。現在の階と違う場合はバッジ+半透明で分かるようにする
+    // 脱出口は階層フィルタの対象外(常に表示)。実フロアが現在表示中の階と違う場合だけバッジ+半透明で示す
+    // (フロア自体はEXTRACT_FLOOR_OVERRIDEで管理。既定は基準階なので通常は素通り)
     let floorTag = null, floorFull = null;
     if(md.floors){
-      const fi = floorIndexOf(e.position.y, md.floors);
+      const fi = extractFloorIndex(curMap, md, e);
       if(fi >= 0 && fi !== curFloor){ floorFull = md.floors[fi].jp; floorTag = floorShort(floorFull); }
     }
-    L.marker(gpos(e.position), { icon:iconExtract(color, letter, { dim: !!floorTag, floorTag }) })
+    L.marker(gpos(e.position), { icon:iconExtract(color, floorTag ? "" : letter, { dim: !!floorTag, floorTag }) })
       .bindPopup(T("extractPopup", e.name||"?", kind, fac) + (floorFull ? `<br><span style="color:#a06">${T("floorNote", floorFull)}</span>` : ""))
       .addTo(extractLayer);
   }

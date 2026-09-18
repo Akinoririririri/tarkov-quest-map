@@ -92,9 +92,15 @@
   #map{position:absolute;inset:0;background:#111;filter:brightness(var(--mapbright,1)) contrast(var(--mapcontrast,1))}
 
   /* 明るさコントロール */
-  #brightctl{position:absolute;right:10px;top:10px;z-index:600;background:#000c;border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:11px;display:flex;gap:8px;align-items:center}
+  #brightctl{position:absolute;right:10px;top:54px;z-index:600;background:#000c;border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:11px;display:flex;gap:8px;align-items:center}
   #brightctl input[type=range]{width:80px}
   #brightctl button{padding:2px 6px;font-size:10px}
+
+  /* 応援ボタン(右上) */
+  #supportBtn{position:absolute;right:10px;top:10px;z-index:650;background:var(--accent);color:#1b1b1b;
+    border:1px solid var(--accent2);border-radius:8px;padding:10px 18px;font-size:14px;font-weight:800;
+    text-decoration:none;box-shadow:0 2px 8px #0008;display:inline-block}
+  #supportBtn:hover{background:var(--accent2)}
 
   /* レイドタイマー */
   #raidtimer{position:absolute;left:10px;top:10px;z-index:600;background:#000c;border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12px;display:flex;gap:8px;align-items:center}
@@ -224,6 +230,7 @@
     <div id="floorbar" class="hidden"></div>
     <div id="mapwrap">
       <div id="map"></div>
+      <a id="supportBtn" href="https://ko-fi.com/tarkovquestmap" target="_blank" rel="noopener" data-i18n="supportBtn">☕ Support</a>
       <div id="brightctl">
         <span data-i18n="brightness">明るさ</span>
         <input type="range" id="bright" min="0.4" max="1.6" step="0.05" value="1" title="マップの明るさ" data-i18n-title="brightnessTitle" />
@@ -283,7 +290,7 @@ const STR = {
     refresh:"データ更新", traderAll:"▼ トレーダー（すべて）", mapAll:"▼ マップ（すべて）",
     followCurrentMap:"【表示中のマップに追従】", searchPlaceholder:"クエスト名で検索…",
     clearSel:"選択解除", kappaOnly:"Kappaのみ ★", lvLabel:"Lv", showDone:"完了も表示",
-    supportLink:"☕ このツールをKo-fiで応援する",
+    supportLink:"☕ このツールをKo-fiで応援する", supportBtn:"☕ 応援する",
     layersSection:"表示レイヤー・共有", optTransit:"トランジット（マップ間移動）",
     hintExitBelow:"※脱出地点は下の「脱出地点」欄で選択", optHazard:"危険地帯", optLock:"施錠ドア",
     optSwitch:"スイッチ", optBoss:"ボス", optSpawn:"スポーン", optIcons:"アイコン",
@@ -371,7 +378,7 @@ const STR = {
     refresh:"Refresh data", traderAll:"▼ Trader (all)", mapAll:"▼ Map (all)",
     followCurrentMap:"[Follow current map tab]", searchPlaceholder:"Search quest name…",
     clearSel:"Clear selection", kappaOnly:"Kappa only ★", lvLabel:"Lv", showDone:"Show completed",
-    supportLink:"☕ Support this tool on Ko-fi",
+    supportLink:"☕ Support this tool on Ko-fi", supportBtn:"☕ Support",
     layersSection:"Display layers / Share", optTransit:"Transit (between maps)",
     hintExitBelow:"※ Pick extracts in the “Extracts” section below", optHazard:"Hazard areas", optLock:"Locked doors",
     optSwitch:"Switches", optBoss:"Bosses", optSpawn:"Spawns", optIcons:"Icons",

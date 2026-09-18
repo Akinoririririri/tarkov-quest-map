@@ -98,9 +98,11 @@
 
   /* 応援ボタン(右上) */
   #supportBtn{position:absolute;right:10px;top:10px;z-index:650;background:var(--accent);color:#1b1b1b;
-    border:1px solid var(--accent2);border-radius:8px;padding:10px 18px;font-size:14px;font-weight:800;
-    text-decoration:none;box-shadow:0 2px 8px #0008;display:inline-block}
+    border:1px solid var(--accent2);border-radius:8px;padding:8px 16px;box-shadow:0 2px 8px #0008;
+    text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:2px;max-width:200px;text-align:center}
   #supportBtn:hover{background:var(--accent2)}
+  #supportBtn .main{font-size:14px;font-weight:800}
+  #supportBtn .sub{font-size:10px;font-weight:600;opacity:.8;line-height:1.3}
 
   /* レイドタイマー */
   #raidtimer{position:absolute;left:10px;top:10px;z-index:600;background:#000c;border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12px;display:flex;gap:8px;align-items:center}
@@ -231,7 +233,10 @@
     <div id="floorbar" class="hidden"></div>
     <div id="mapwrap">
       <div id="map"></div>
-      <a id="supportBtn" href="https://ko-fi.com/tarkovquestmap" target="_blank" rel="noopener" data-i18n="supportBtn">☕ Support</a>
+      <a id="supportBtn" href="https://ko-fi.com/tarkovquestmap" target="_blank" rel="noopener" data-i18n-title="supportBtnTitle">
+        <span class="main" data-i18n="supportBtn">☕ Support</span>
+        <span class="sub" data-i18n="supportBtnSub">Thanks for using this tool!</span>
+      </a>
       <div id="brightctl">
         <span data-i18n="brightness">明るさ</span>
         <input type="range" id="bright" min="0.4" max="1.6" step="0.05" value="1" title="マップの明るさ" data-i18n-title="brightnessTitle" />
@@ -292,6 +297,8 @@ const STR = {
     followCurrentMap:"【表示中のマップに追従】", searchPlaceholder:"クエスト名で検索…",
     clearSel:"選択解除", kappaOnly:"Kappaのみ ★", lvLabel:"Lv", showDone:"完了も表示",
     supportLink:"☕ このツールをKo-fiで応援する", supportBtn:"☕ 応援する",
+    supportBtnTitle:"使ってくれてありがとうございます！このツールはこれからもずっと無料です。もし役に立ったら、Ko-fiでの応援が励みになります(任意です、無理のない範囲で)。",
+    supportBtnSub:"使ってくれてありがとう(任意です)",
     layersSection:"表示レイヤー・共有", optTransit:"トランジット（マップ間移動）",
     hintExitBelow:"※脱出地点は下の「脱出地点」欄で選択", optHazard:"危険地帯", optLock:"施錠ドア",
     optSwitch:"スイッチ", optBoss:"ボス", optSpawn:"スポーン", optIcons:"アイコン",
@@ -382,6 +389,8 @@ const STR = {
     followCurrentMap:"[Follow current map tab]", searchPlaceholder:"Search quest name…",
     clearSel:"Clear selection", kappaOnly:"Kappa only ★", lvLabel:"Lv", showDone:"Show completed",
     supportLink:"☕ Support this tool on Ko-fi", supportBtn:"☕ Support",
+    supportBtnTitle:"Thanks for using this tool! It'll always stay free. If it's saved you time, a tip on Ko-fi is appreciated — totally optional, no pressure.",
+    supportBtnSub:"Thanks for using this! (optional)",
     layersSection:"Display layers / Share", optTransit:"Transit (between maps)",
     hintExitBelow:"※ Pick extracts in the “Extracts” section below", optHazard:"Hazard areas", optLock:"Locked doors",
     optSwitch:"Switches", optBoss:"Bosses", optSpawn:"Spawns", optIcons:"Icons",
@@ -645,6 +654,9 @@ const objDesc = o => LANG === "ja" ? (o.descriptionJa || o.description || "") : 
 // 脱出地点: 名前に "Co-op" が入っているものだけ「PMC+Scav両方が揃わないと使用不可」の真の共同脱出。
 // それ以外の faction=shared は「PMC/Scavどちらでも単独で使える」という意味なので、今回の出撃タイプ名で表示する。
 const isCoopExtract = name => /co-?op/i.test(name || "");
+// 別フロアバッジ用の短縮表記("Underground"等の長い名前だとマーカーと重なって見づらいため)
+const FLOOR_SHORT = { Underground:"B1", Bunkers:"B1", Tunnels:"B1", Garage:"B1", Technical:"B1" };
+const floorShort = jp => FLOOR_SHORT[jp] || jp;
 
 /* mob id → ゲーム内表示名（英語） */
 const MOB_NAME = {
@@ -1292,13 +1304,13 @@ function renderMarkers(){
     else if(fac==="scav"){ color="var(--scav)"; letter="S"; kind=T("kindScav"); }
     else { color="var(--ok)"; letter="P"; kind=T("kindPMC"); }
     // 脱出口は階層フィルタの対象外(常に表示)。現在の階と違う場合はバッジ+半透明で分かるようにする
-    let floorTag = null;
+    let floorTag = null, floorFull = null;
     if(md.floors){
       const fi = floorIndexOf(e.position.y, md.floors);
-      if(fi >= 0 && fi !== curFloor) floorTag = md.floors[fi].jp;
+      if(fi >= 0 && fi !== curFloor){ floorFull = md.floors[fi].jp; floorTag = floorShort(floorFull); }
     }
     L.marker(gpos(e.position), { icon:iconExtract(color, letter, { dim: !!floorTag, floorTag }) })
-      .bindPopup(T("extractPopup", e.name||"?", kind, fac) + (floorTag ? `<br><span style="color:#a06">${T("floorNote", floorTag)}</span>` : ""))
+      .bindPopup(T("extractPopup", e.name||"?", kind, fac) + (floorFull ? `<br><span style="color:#a06">${T("floorNote", floorFull)}</span>` : ""))
       .addTo(extractLayer);
   }
   if(opts.transit){

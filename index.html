@@ -1776,8 +1776,8 @@ function showFloor(md, i){
   }else{
     const target = tf.svg;
     const baseF = md.floors.find(f => f.base);
-    // 上層階を見るときは base(1F/地上)を薄く下敷きにして全体像を把握しやすくする
-    const ghost = (baseF && baseF.svg !== target && tf.lo >= (baseF.hi != null ? baseF.hi : tf.lo)) ? baseF.svg : null;
+    // 基準階(1F/地上)以外を見ている時は、上層階でも地下でも base を薄く下敷きにして全体像を把握しやすくする
+    const ghost = (baseF && baseF.svg !== target) ? baseF.svg : null;
     // フロアレイヤーの表示切替
     md.floors.forEach(f => {
       const g = svgLayerGroups[f.svg];

@@ -23,7 +23,7 @@ button top-left to switch language.
 ## Support this project
 
 If this tool saves you time, a tip is appreciated but never required — the tool stays free
-either way. *(donation link coming soon)*
+either way. **[☕ Support on Ko-fi](https://ko-fi.com/tarkovquestmap)**
 
 ## Credits & license
 

@@ -132,7 +132,8 @@
 
   /* Leaflet マーカー */
   .qmark{border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #000, 0 1px 4px #000a;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:10px;text-shadow:0 1px 2px #000}
-  .xmark{border:2px solid #fff;box-shadow:0 0 0 1px #000, 0 1px 4px #000a;display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:11px}
+  .xmark{position:relative;border:2px solid #fff;box-shadow:0 0 0 1px #000, 0 1px 4px #000a;display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:11px}
+  .xmark .xfloor{position:absolute;right:-5px;bottom:-6px;background:#000d;color:#fff;border:1px solid #fff9;border-radius:3px;font-size:8px;line-height:1.3;padding:1px 3px;font-weight:700;white-space:nowrap}
   .minimark{width:13px;height:13px;border-radius:3px;border:1px solid #fff;box-shadow:0 0 0 1px #000;display:flex;align-items:center;justify-content:center;color:#000;font-weight:800;font-size:9px}
   .custcompin{font-size:17px;line-height:1;filter:drop-shadow(0 1px 2px #000);cursor:pointer}
   .leaflet-popup-content{font-size:12px;line-height:1.5}
@@ -316,6 +317,8 @@ const STR = {
     progressKappa:(kapDn,kapAll)=>` ・ Kappa必須 <b>${kapDn}</b>/${kapAll}`,
     progressLK:(lkDn,lkAll)=>` ・ Lightkeeper <b>${lkDn}</b>/${lkAll}`,
     unknownName:"(名称不明)", kindPMC:"PMC", kindScav:"Scav", kindShared:"共有", sharedGlyph:"共",
+    kindCoop:"共同(両方必要)", coopListNote:"🟠「共同」= PMCとScav両方が揃った時のみ使用可",
+    floorNote:floor=>`※ ${floor} フロアの脱出口です(現在の表示階とは別)`,
     extractPopup:(name,kind,fac)=>`<b>脱出: ${name}</b><br>区分: ${kind}（今回: ${fac==="scav"?"Scav":"PMC"}出撃）`,
     transitLabel:"トランジット", transitPopup:desc=>`<b>トランジット</b><br>${desc}`,
     hazardSniper:"スナイパースカフの射線内", hazardMinefield:"地雷原", hazardOther:"危険地帯",
@@ -332,7 +335,7 @@ const STR = {
     legendLockedDoor:"施錠ドア", legendSwitch:"スイッチ", legendBoss:"ボス出現",
     legendPmcSpawn:"PMCスポーン", legendScavSpawn:"Scavスポーン", legendRoute:"— — 巡回ルート(番号順)",
     legendToggle:open=>`凡例 ${open?"▲":"▼"}`,
-    legendExitLine:fac=>`脱出（今回: <b>${fac==="scav"?"Scav":"PMC"}</b>出撃）: <span class="dot" style="background:var(--ok)"></span>PMC&nbsp; <span class="dot" style="background:var(--scav)"></span>Scav&nbsp; <span class="dot" style="background:var(--shared)"></span>共有 — 「脱出地点」欄でチェックした地点のみ表示`,
+    legendExitLine:fac=>`脱出（今回: <b>${fac==="scav"?"Scav":"PMC"}</b>出撃）: <span class="dot" style="background:var(--ok)"></span>PMC&nbsp; <span class="dot" style="background:var(--scav)"></span>Scav&nbsp; <span class="dot" style="background:var(--shared)"></span>共同(両方必要) — 「脱出地点」欄でチェックした地点のみ表示。階層バッジ付き=別フロアの脱出口`,
     legendMarkerLine:'<span class="dot" style="background:#888"></span>丸=クエスト目標(記号A/B..)　📌=自分のメモ(右クリックで追加)',
     legendHazardLine:"破線で囲った範囲=危険地帯。範囲内に入ると危険",
     legendColorLine:"地図の色（tarkov.dev提供）: 濃い灰=建物内 / 斜線=階段・スロープ / 水色=水場 / 破線=マップ境界",
@@ -404,6 +407,8 @@ const STR = {
     progressKappa:(kapDn,kapAll)=>` ・ Kappa required <b>${kapDn}</b>/${kapAll}`,
     progressLK:(lkDn,lkAll)=>` ・ Lightkeeper <b>${lkDn}</b>/${lkAll}`,
     unknownName:"(unknown)", kindPMC:"PMC", kindScav:"Scav", kindShared:"Shared", sharedGlyph:"Sh",
+    kindCoop:"Co-op (both required)", coopListNote:"🟠 “Co-op” = usable only when both a PMC and a Scav are present",
+    floorNote:floor=>`※ This extract is on the ${floor} floor (different from what you're currently viewing)`,
     extractPopup:(name,kind,fac)=>`<b>Extract: ${name}</b><br>Type: ${kind} (this raid: ${fac==="scav"?"Scav":"PMC"})`,
     transitLabel:"Transit", transitPopup:desc=>`<b>Transit</b><br>${desc}`,
     hazardSniper:"Sniper scav line of fire", hazardMinefield:"Minefield", hazardOther:"Hazard area",
@@ -420,7 +425,7 @@ const STR = {
     legendLockedDoor:"Locked door", legendSwitch:"Switch", legendBoss:"Boss spawn",
     legendPmcSpawn:"PMC spawn", legendScavSpawn:"Scav spawn", legendRoute:"— — Route (numbered order)",
     legendToggle:open=>`Legend ${open?"▲":"▼"}`,
-    legendExitLine:fac=>`Extracts (this raid: <b>${fac==="scav"?"Scav":"PMC"}</b>): <span class="dot" style="background:var(--ok)"></span>PMC&nbsp; <span class="dot" style="background:var(--scav)"></span>Scav&nbsp; <span class="dot" style="background:var(--shared)"></span>Shared — only extracts checked in “Extracts” show`,
+    legendExitLine:fac=>`Extracts (this raid: <b>${fac==="scav"?"Scav":"PMC"}</b>): <span class="dot" style="background:var(--ok)"></span>PMC&nbsp; <span class="dot" style="background:var(--scav)"></span>Scav&nbsp; <span class="dot" style="background:var(--shared)"></span>Co-op (both required) — only extracts checked in “Extracts” show. Floor badge = extract is on a different floor`,
     legendMarkerLine:'<span class="dot" style="background:#888"></span>Circle=quest objective (letter A/B..)　📌=your note (right-click to add)',
     legendHazardLine:"Dashed outline=hazard area. Entering it is dangerous",
     legendColorLine:"Map colors (from tarkov.dev): dark gray=indoors / hatching=stairs・ramp / light blue=water / dashed=map boundary",
@@ -637,6 +642,9 @@ const OBJ_TYPE_KEY = {
 const objTypeJa = t => OBJ_TYPE_KEY[t] ? T(OBJ_TYPE_KEY[t]) : t;
 // 目標の説明文: LANG=ja は日本語優先、LANG=en は英語優先（両方 tarkov.dev から取得済み）
 const objDesc = o => LANG === "ja" ? (o.descriptionJa || o.description || "") : (o.description || o.descriptionJa || "");
+// 脱出地点: 名前に "Co-op" が入っているものだけ「PMC+Scav両方が揃わないと使用不可」の真の共同脱出。
+// それ以外の faction=shared は「PMC/Scavどちらでも単独で使える」という意味なので、今回の出撃タイプ名で表示する。
+const isCoopExtract = name => /co-?op/i.test(name || "");
 
 /* mob id → ゲーム内表示名（英語） */
 const MOB_NAME = {
@@ -917,7 +925,9 @@ function exitGroups(){
   const m = new Map();
   for(const e of exitsForCurrent()){
     const nm = e.name || T("unknownName");
-    if(!m.has(nm)) m.set(nm, { name:nm, faction:(e.faction||"").toLowerCase()||"shared", items:[] });
+    const raw = (e.faction||"").toLowerCase();
+    const disp = (raw==="pmc"||raw==="scav") ? raw : (isCoopExtract(nm) ? "coop" : exits.fac);
+    if(!m.has(nm)) m.set(nm, { name:nm, faction:disp, items:[] });
     m.get(nm).items.push(e);
   }
   return [...m.values()].sort((a,b) => a.name.localeCompare(b.name));
@@ -940,13 +950,14 @@ function renderExits(){
   const groups = exitGroups();
   if(!groups.length){ box.innerHTML = `<div class="exempty">${T("noExitData")}</div>`; return; }
   const tagCol = f => f === "pmc" ? "var(--ok)" : f === "scav" ? "var(--scav)" : "var(--shared)";
-  const tagTxt = f => f === "pmc" ? "PMC" : f === "scav" ? "Scav" : T("kindShared");
+  const tagTxt = f => f === "pmc" ? "PMC" : f === "scav" ? "Scav" : T("kindCoop");
   box.innerHTML = groups.map(g =>
     `<label class="exrow">
        <input type="checkbox" data-ex="${g.name.replace(/"/g,"&quot;")}" ${exitVisible(g.name) ? "checked" : ""} />
        <span class="xnm">${g.name.replace(/</g,"&lt;")}</span>
        <span class="xtag" style="color:${tagCol(g.faction)}">${tagTxt(g.faction)}</span>
-     </label>`).join("");
+     </label>`).join("") +
+    (groups.some(g => g.faction === "coop") ? `<div class="exempty" style="color:var(--shared)">${T("coopListNote")}</div>` : "");
   const shown = groups.filter(g => exitVisible(g.name)).length;
   document.getElementById("exHint").textContent = T("exitHint", shown, groups.length);
 }
@@ -1230,8 +1241,11 @@ function iconQuest(color, label){
   return L.divIcon({ className:"", html:`<div class="qmark" style="width:17px;height:17px;background:${color}">${label||""}</div>`,
     iconSize:[17,17], iconAnchor:[8.5,8.5] });
 }
-function iconExtract(color, letter){
-  return L.divIcon({ className:"", html:`<div class="xmark" style="width:15px;height:15px;background:${color}">${letter||""}</div>`,
+function iconExtract(color, letter, opt){
+  opt = opt || {};
+  const op = opt.dim ? "opacity:.5;" : "";
+  const badge = opt.floorTag ? `<span class="xfloor">${opt.floorTag}</span>` : "";
+  return L.divIcon({ className:"", html:`<div class="xmark" style="width:15px;height:15px;background:${color};${op}">${letter||""}${badge}</div>`,
     iconSize:[15,15], iconAnchor:[7,7] });
 }
 function iconMini(color, letter, title){
@@ -1268,15 +1282,23 @@ function renderMarkers(){
   // --- 脱出 / トランジット ---
   const fac = exits.fac;
   for(const e of exitsForCurrent()){
-    if(!e.position || !onFloor(e.position)) continue;
+    if(!e.position) continue;
     if(!exitVisible(e.name || T("unknownName"))) continue;
-    const f = (e.faction||"").toLowerCase();
+    const raw = (e.faction||"").toLowerCase();
     let color, letter, kind;
-    if(f==="pmc"){ color="var(--ok)"; letter="P"; kind=T("kindPMC"); }
-    else if(f==="scav"){ color="var(--scav)"; letter="S"; kind=T("kindScav"); }
-    else { color="var(--shared)"; letter=T("sharedGlyph"); kind=T("kindShared"); }
-    L.marker(gpos(e.position), { icon:iconExtract(color, letter) })
-      .bindPopup(T("extractPopup", e.name||"?", kind, fac))
+    if(raw==="pmc"){ color="var(--ok)"; letter="P"; kind=T("kindPMC"); }
+    else if(raw==="scav"){ color="var(--scav)"; letter="S"; kind=T("kindScav"); }
+    else if(isCoopExtract(e.name)){ color="var(--shared)"; letter=T("sharedGlyph"); kind=T("kindCoop"); }
+    else if(fac==="scav"){ color="var(--scav)"; letter="S"; kind=T("kindScav"); }
+    else { color="var(--ok)"; letter="P"; kind=T("kindPMC"); }
+    // 脱出口は階層フィルタの対象外(常に表示)。現在の階と違う場合はバッジ+半透明で分かるようにする
+    let floorTag = null;
+    if(md.floors){
+      const fi = floorIndexOf(e.position.y, md.floors);
+      if(fi >= 0 && fi !== curFloor) floorTag = md.floors[fi].jp;
+    }
+    L.marker(gpos(e.position), { icon:iconExtract(color, letter, { dim: !!floorTag, floorTag }) })
+      .bindPopup(T("extractPopup", e.name||"?", kind, fac) + (floorTag ? `<br><span style="color:#a06">${T("floorNote", floorTag)}</span>` : ""))
       .addTo(extractLayer);
   }
   if(opts.transit){

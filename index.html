@@ -32,6 +32,34 @@
   #titlebar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
   #titlebar h1{font-size:15px;margin:0;padding:0;border:0;color:var(--accent2);letter-spacing:.04em}
   #langToggle{font-size:11px;padding:3px 9px;flex:0 0 auto}
+  #helpBtn{font-size:11px;padding:3px 9px;flex:0 0 auto;border-color:var(--accent);color:var(--accent2)}
+  #helpdlg{background:var(--panel);color:var(--text);border:1px solid var(--accent);border-radius:10px;padding:0;width:min(640px,94vw);max-height:90vh}
+  #helpdlg::backdrop{background:#000b}
+  #helpdlg .help-in{padding:18px 20px;display:flex;flex-direction:column;gap:12px;font-size:13px;line-height:1.7;max-height:90vh;overflow-y:auto}
+  #helpdlg h3{margin:0;color:var(--accent2);font-size:16px}
+  #helpdlg details{border:1px solid var(--line);border-radius:6px;background:#00000030}
+  #helpdlg summary{padding:8px 12px;cursor:pointer;font-weight:700;color:var(--accent2);user-select:none}
+  #helpdlg details>div{padding:2px 14px 10px}
+  #helpdlg ol,#helpdlg ul{margin:4px 0;padding-left:20px}
+  #helpdlg li{margin:3px 0}
+  #helpdlg p{margin:6px 0}
+  #helpdlg .k{display:inline-block;padding:0 6px;border:1px solid var(--line);border-radius:4px;font-size:11px;background:var(--panel2)}
+  #fbdlg{background:var(--panel);color:var(--text);border:1px solid var(--accent);border-radius:10px;padding:0;width:min(520px,94vw);max-height:90vh}
+  #fbdlg::backdrop{background:#000b}
+  #fbdlg h3{margin:0;color:var(--accent2);font-size:16px}
+  #fbdlg textarea{width:100%;height:130px;resize:vertical;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:8px;font-size:13px;font-family:inherit}
+  #fbdlg .fbinfo{border:1px solid var(--line);border-radius:6px;background:#00000030}
+  #fbdlg .fbinfo summary{padding:6px 10px;cursor:pointer;font-size:12px;color:var(--dim)}
+  #fbdlg .fbinfo pre{margin:0;padding:4px 10px 8px;font-size:11px;white-space:pre-wrap;word-break:break-all;color:var(--dim)}
+  #fbdlg .tt-ok{color:#6db36d}
+  #fbdlg .tt-err{color:#e6564e}
+  #modeBtns{display:flex;flex:1 1 auto}
+  #modeBtns button{flex:1;border-radius:0;padding:6px 8px;font-weight:600}
+  #modeBtns button:first-child{border-radius:4px 0 0 4px}
+  #modeBtns button:last-child{border-radius:0 4px 4px 0}
+  #modeBtns button+button{margin-left:-1px}
+  #modeBtns button.on{background:var(--accent);color:#1b1b1b;border-color:var(--accent);position:relative}
+  #modeHint{line-height:1.5}
   .bar{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
   .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:6px 10px;cursor:pointer;font-size:12px}
@@ -115,6 +143,17 @@
   /* 初回ガイド */
   #guide{position:absolute;inset:0;z-index:1100;background:#000b;display:flex;align-items:center;justify-content:center;padding:24px}
   #guide .card{background:var(--panel);border:1px solid var(--accent);border-radius:10px;max-width:440px;padding:20px 22px;line-height:1.7;font-size:13px}
+  #ttdlg{background:var(--panel);color:var(--text);border:1px solid var(--accent);border-radius:10px;padding:0;width:min(520px,92vw);max-height:88vh}
+  #ttdlg::backdrop{background:#000b}
+  #ttdlg .tt-in{padding:18px 20px;display:flex;flex-direction:column;gap:12px;font-size:13px;line-height:1.6;max-height:88vh;overflow-y:auto}
+  #ttdlg h3{margin:0;color:var(--accent2);font-size:15px}
+  #ttdlg ol{margin:0;padding-left:20px}
+  #ttdlg textarea{width:100%;height:84px;resize:vertical;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font-size:11px;font-family:monospace}
+  #ttdlg .tt-box{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:#00000030;display:flex;flex-direction:column;gap:6px}
+  #ttdlg .tt-err{color:#e6564e}
+  #ttdlg .tt-ok{color:#6db36d}
+  #ttdlg .tt-btns{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+  .quest .qfail{color:#e6564e;font-size:10px;border:1px solid #e6564e;border-radius:3px;padding:0 4px;margin-left:4px}
   #guide h3{margin:0 0 10px;color:var(--accent2);font-size:15px}
   #guide ol{margin:0 0 14px;padding-left:20px}
   #guide li{margin:5px 0}
@@ -150,7 +189,18 @@
   <aside id="sidebar">
     <div id="titlebar">
       <h1 id="appTitle" data-i18n="appTitle">タルコフ クエストマップ</h1>
-      <button id="langToggle" title="Language / 言語">EN</button>
+      <div class="row" style="flex-wrap:nowrap;gap:6px">
+        <button id="helpBtn" class="hbtn" data-i18n="helpBtn">使い方</button>
+        <button id="langToggle" title="Language / 言語">EN</button>
+      </div>
+    </div>
+
+    <div class="bar" id="modeBar">
+      <div class="row">
+        <span class="muted" data-i18n="modeLabel">ゲームモード</span>
+        <div id="modeBtns" role="radiogroup"></div>
+      </div>
+      <div id="modeHint" class="muted"></div>
     </div>
 
     <div class="bar">
@@ -160,6 +210,9 @@
       </div>
       <div class="row">
         <a href="https://ko-fi.com/tarkovquestmap" target="_blank" rel="noopener" class="muted" style="text-decoration:underline" data-i18n="supportLink">☕ このツールをKo-fiで応援する</a>
+      </div>
+      <div class="row">
+        <a href="#" id="fbLink" class="muted" style="text-decoration:underline" data-i18n="fbLink">💬 ご意見・不具合報告</a>
       </div>
       <div class="row">
         <select id="traderSel"><option value="" data-i18n="traderAll">▼ トレーダー（すべて）</option></select>
@@ -204,6 +257,9 @@
         <button id="sharemake" data-i18n="shareCreateBtn">共有リンク作成</button>
         <button id="shareload" data-i18n="shareLoadBtn">コード読込</button>
       </div>
+      <div class="row">
+        <button id="ttimport" data-i18n="ttBtn">TarkovTracker取込</button>
+      </div>
       </div>
     </details>
 
@@ -227,6 +283,35 @@
     <div id="prep"></div>
     <div id="questlist"></div>
   </aside>
+
+  <!-- ===== TarkovTracker 取込ダイアログ ===== -->
+  <dialog id="ttdlg">
+    <div class="tt-in">
+      <h3 data-i18n="ttTitle">TarkovTracker の進捗を取り込む</h3>
+      <div data-i18n-html="ttHow"></div>
+      <div class="muted" data-i18n="ttPrivacy"></div>
+      <div class="row">
+        <input type="file" id="ttfile" accept=".json,application/json" />
+      </div>
+      <div>
+        <div class="muted" data-i18n="ttPasteLabel"></div>
+        <textarea id="ttpaste" spellcheck="false"></textarea>
+      </div>
+      <div id="ttmsg"></div>
+      <div id="ttopts" class="tt-box hidden">
+        <div id="ttmodes" class="row"></div>
+        <div id="ttsum"></div>
+        <label class="chk"><input type="radio" name="ttmerge" value="merge" checked /> <span data-i18n="ttMerge"></span></label>
+        <label class="chk"><input type="radio" name="ttmerge" value="overwrite" /> <span data-i18n="ttOverwrite"></span></label>
+        <label class="chk"><input type="checkbox" id="ttlevel" checked /> <span id="ttlevellabel"></span></label>
+      </div>
+      <div class="tt-btns">
+        <button id="ttundo" class="hidden" data-i18n="ttUndoBtn"></button>
+        <button id="ttrun" class="primary hidden" data-i18n="ttRun"></button>
+        <button id="ttclose" data-i18n="ttClose"></button>
+      </div>
+    </div>
+  </dialog>
 
   <!-- ===== メイン ===== -->
   <main id="main">
@@ -269,12 +354,42 @@
             <li data-i18n-html="guideStep4">このウィンドウをサブディスプレイへ移動し、<b>F11</b> で全画面にすると見やすいです。</li>
             <li data-i18n-html="guideStep5">ワイプ後や新クエスト追加時は左上の <b>データ更新</b> を押してください。</li>
           </ol>
+          <p class="muted" data-i18n="guideMore">詳しい説明は、サイドバー上部の「使い方」ボタンからいつでも見られます。</p>
           <button id="guideclose" class="primary" data-i18n="guideStart">はじめる</button>
         </div>
       </div>
     </div>
   </main>
 </div>
+
+<dialog id="helpdlg">
+  <div class="help-in">
+    <h3 data-i18n="helpTitle">使い方</h3>
+    <div id="helpbody" data-i18n-html="helpBody"></div>
+    <div class="tt-btns">
+      <button id="helpfb" data-i18n="fbBtn">ご意見・不具合報告</button>
+      <button id="helpclose" class="primary" data-i18n="helpClose">閉じる</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="fbdlg">
+  <div class="help-in">
+    <h3 data-i18n="fbTitle">ご意見・不具合報告</h3>
+    <p class="muted" style="font-size:12px" data-i18n-html="fbIntro"></p>
+    <div class="row" id="fbtypes"></div>
+    <label class="muted" for="fbmsg" data-i18n="fbMsgLabel">内容</label>
+    <textarea id="fbmsg" maxlength="1500" data-i18n-placeholder="fbMsgPh"></textarea>
+    <details class="fbinfo"><summary data-i18n="fbInfoLabel">一緒に送られる情報（確認できます）</summary><pre id="fbinfo"></pre></details>
+    <div id="fbmsgout" class="muted"></div>
+    <a id="fbdirect" href="#" target="_blank" rel="noopener" class="muted" style="text-decoration:underline;font-size:11px" data-i18n="fbDirect">フォームを直接開く</a>
+    <div class="tt-btns">
+      <button id="fbcopy" data-i18n="fbCopy">内容をコピー</button>
+      <button id="fbsend" class="primary" data-i18n="fbSend">送信</button>
+      <button id="fbclose" data-i18n="helpClose">閉じる</button>
+    </div>
+  </div>
+</dialog>
 
 <script>
 /* ============================================================
@@ -295,6 +410,15 @@
    svg=SVGパス, lyr=表示するSVGレイヤーID, tile=タイルURL(SVGが無い時) */
 /* ---------- 多言語対応 (i18n) ---------- */
 let LANG = localStorage.getItem("eft_qm_lang") || "ja";
+/* ゲームモード: PvP / PvE / Seasonal は別キャラ＝進行状況が別。
+   PvP は従来のキー名のまま(既存データを引き継ぐ)、他は末尾に _pve / _seasonal を付けて分離する。
+   データ元: PvE は json.tarkov.dev/pve/*(クエスト・脱出地点・ボス等が別)、
+   Seasonal は専用フィードが無いので regular(PvP)を使う。 */
+const MODES = ["pvp", "pve", "seasonal"];
+let MODE = "pvp";
+try{ const m = localStorage.getItem("eft_qm_mode"); if(MODES.includes(m)) MODE = m; }catch(e){}
+const MK = base => MODE === "pvp" ? base : base + "_" + MODE;
+const DATA_SRC = MODE === "pve" ? "pve" : "regular";
 const STR = {
   ja: {
     appTitle:"タルコフ クエストマップ", langToggleLabel:"EN",
@@ -357,6 +481,104 @@ const STR = {
     sharePromptLoad:"共有コード（#s= より後）または共有リンクを貼り付け:",
     shareLoadedAlert:"共有データを読み込みました。",
     shareLoadFailedAlert:msg=>`読み込み失敗: ${msg}`,
+    ttBtn:"TarkovTracker取込", ttTitle:"TarkovTracker の進捗を取り込む",
+    ttHow:"<ol><li>TarkovTracker（tarkovtracker.org）の設定画面で、進捗の<b>バックアップ（エクスポート）</b>JSONを保存</li><li>そのファイルを下で選ぶか、中身を貼り付け</li></ol>クエストの完了・失敗・達成済みの目標と、レベルを反映できます。",
+    ttPrivacy:"🔒 ファイルはこの端末のブラウザ内だけで処理され、どこにも送信されません。",
+    ttPasteLabel:"または JSON の中身を貼り付け:",
+    ttErrJson:"JSONとして読めませんでした。バックアップファイルか確認してください。",
+    ttErrFormat:"TarkovTracker のバックアップファイルではありません。",
+    ttErrEmpty:"取り込める進捗データがありません。",
+    modeLabel:"ゲームモード", modePvp:"PvP", modePve:"PvE", modeSeasonal:"Seasonal",
+    modeHintPvp:"通常のPvPキャラ。完了・レベルなどの進行状況はモードごとに別保存です。",
+    modeHintPve:"PvEキャラ。PvE専用のクエスト・脱出地点・ボスのデータに切り替わります（進行状況はPvPと別保存）。",
+    modeHintSeasonal:"シーズン用キャラ（PvP・ワイプあり）。通常クエストはPvPと同じデータです。季節限定のKord Breachクエストはデータ未対応。進行状況は別保存。",
+    ttTarget:(n)=>`取り込み先: <b>${n}</b>（いま選んでいるゲームモード）`,
+    helpBtn:"使い方", helpTitle:"使い方", helpClose:"閉じる",
+    fbLink:"💬 ご意見・不具合報告", fbBtn:"ご意見・不具合報告", fbTitle:"ご意見・不具合報告",
+    fbIntro:"欲しい機能・困ったこと・不具合をお知らせください。内容は<b>開発者だけが見られます</b>（公開されません）。ログインや名前・メールアドレスは不要です。個人情報は書かないでください。返信できない場合があります。",
+    fbTypeIdea:"💡 要望", fbTypeBug:"🐞 不具合", fbTypeOther:"💬 その他",
+    fbMsgLabel:"内容", fbMsgPh:"例: 〇〇のクエストのピンが違う場所に出ます／〇〇の機能が欲しいです",
+    fbInfoLabel:"一緒に送られる情報（確認できます）",
+    fbCopy:"内容をコピー", fbSend:"送信", fbCopied:"コピーしました。", fbEmpty:"内容を入力してください。",
+    fbSent:"送信しました。ご意見ありがとうございます！", fbSending:"送信しています…", fbWait:"続けて送るときは、少し待ってからお願いします。", fbSendErr:"送信できませんでした。通信を確認するか、下の「フォームを直接開く」から送ってください。", fbDirect:"フォームを直接開く",
+    guideMore:"詳しい説明は、サイドバー上部の「使い方」ボタンからいつでも見られます。",
+    helpBody:`
+<details open><summary>1. まずはこの順番で</summary><div><ol>
+<li>左上の <b>ゲームモード</b>（PvP / PvE / Seasonal）を、自分が遊んでいるモードに合わせる。</li>
+<li>左のサイドバーで <b>トレーダー</b> か <b>マップ</b> を選んで絞り込み、<b>今回のレイドでやるクエスト</b>にチェックを入れる。</li>
+<li>上のタブでマップを切り替えると、選んだクエストの目標が<b>ピン</b>で地図に出る。ピンにマウスを乗せると、目標の説明・条件・前提クエスト・次のクエストが見える。</li>
+<li>左の <b>脱出地点</b> 欄で、今回使う脱出地点にチェックを入れる（→ 5.）。</li>
+<li>ウィンドウをサブディスプレイへ動かし、<span class="k">F11</span> で全画面にすると見やすい。</li>
+</ol></div></details>
+
+<details><summary>2. ゲームモード（PvP / PvE / Seasonal）</summary><div>
+<p>ゲーム側でキャラが別なので、このツールも<b>モードごとに進行状況を別々に保存</b>します（完了・失敗・レベル・選んだクエスト・脱出地点の選択）。ボタンを押すとページが読み込み直されます。</p>
+<ul>
+<li><b>PvP</b>: 通常のPvPキャラ。</li>
+<li><b>PvE</b>: PvE専用のクエスト（[PVE ZONE]）・脱出地点・ボス・スポーンのデータに切り替わる。</li>
+<li><b>Seasonal</b>: シーズン用キャラ（ワイプあり）。専用データが公開されていないため、通常クエストはPvPと同じデータを使う。<b>季節限定の Kord Breach クエストは未対応</b>。</li>
+</ul></div></details>
+
+<details><summary>3. 地図の見方</summary><div><ul>
+<li><b>階ボタン</b>（地図の上）: 複数階のマップで階を切り替える。上の階を見るときは、1階が薄く下敷きで出るので位置がつかみやすい。ボタンの数字は、その階にある選択クエストのピン数。</li>
+<li><b>ピンの色と文字</b>: クエストごとに色と記号（A・B・C…）が付く。左のクエスト一覧の同じ記号と対応している。</li>
+<li><b>凡例</b>: 地図の左下の「凡例 ▼」で、記号や色の意味が見られる。</li>
+<li><b>表示レイヤー</b>: 左の「表示レイヤー・共有」で、トランジット・危険地帯・施錠ドア・スイッチ・ボス・スポーンの表示を切り替える。</li>
+<li><b>巡回ルート番号</b>: チェックすると、ピンに①②③…と回る順番の番号が付き、最短順に線でつながる。</li>
+<li><b>カスタムピン</b>: 地図を<b>右クリック</b>してメモ付きのピンを追加できる（ピンをクリックで編集・削除）。</li>
+<li><b>明るさ・コントラスト</b>: 地図の左上のスライダーで調整。</li>
+</ul></div></details>
+
+<details><summary>4. クエスト一覧のマークと完了管理</summary><div><ul>
+<li><span class="k">★</span> … Kappa（Kappa container）の入手に必要なクエスト。「Kappaのみ ★」で絞り込める。</li>
+<li><span class="k">○ / ✓</span> … クリックで完了にする／戻す。完了したクエストは一覧から自動で隠れ、「完了も表示」で見られる。</li>
+<li><span class="k">✗失敗</span> … 失敗したクエスト（TarkovTracker取込で付く）。一覧から隠れ、「今すぐ受注できる」にも出ない。</li>
+<li><b>Lv</b> 欄に自分のレベルを入れると、「<b>▶ 今すぐ受注できる</b>」に、前提クエストを終えていてレベルも足りているクエストが出る。</li>
+<li>フレンドと協力して遊ぶとき、<b>自分で選んだクエスト</b>と<b>共有リンクで受け取ったクエスト</b>は、完了済みでも隠れず「✓済」の表示で残る。</li>
+</ul></div></details>
+
+<details><summary>5. 脱出地点の選び方</summary><div>
+<p>左の「脱出地点」欄で、まず<b>PMC か Scav</b> を選び、そのあと今回使う脱出地点にチェックを入れると、<b>チェックした地点だけ</b>地図に出ます。「全部表示／全部隠す」ボタンもあります。色は 緑=PMC・青=Scav・橙=共有 です。PvEでは、PvE用の脱出地点が出ます。</p>
+</div></details>
+
+<details><summary>6. レイド前チェック</summary><div>
+<p>左の「レイド前チェック」に、選んだクエストに必要なものが出ます。行のチェックボックスは保存されます（「リセット」で全部外せる）。</p>
+<ul><li>🔑 持ち込む鍵　／　📤 設置・持ち込むアイテム　／　📥 現地で回収するアイテム（FiR＝レイド内で入手が必要）</li></ul>
+<p>マップ上部の<b>レイドタイマー</b>で、そのマップの制限時間が数えられます（残り5分で黄、2分で赤）。</p>
+</div></details>
+
+<details><summary>7. TarkovTracker取込</summary><div>
+<p>すでに TarkovTracker に進行状況を記録している人向け。完了クエスト・失敗クエスト・達成済みの目標・レベルを、まとめて反映できます。</p>
+<ol>
+<li>TarkovTracker（tarkovtracker.org）の設定画面で、バックアップ（エクスポート）の <b>.json</b> を保存する。</li>
+<li>このツールの「表示レイヤー・共有」を開き、<b>TarkovTracker取込</b> を押してファイルを選ぶ（貼り付けでも可）。</li>
+<li>内容を確認して<b>取り込む</b>。「追加のみ／上書き」を選べて、直後なら「元に戻す」もできる。</li>
+</ol>
+<p>ファイルはブラウザの中だけで処理され、どこにも送信されません。取込先は<b>いま選んでいるゲームモード</b>です。使っていない人は無視して大丈夫（クエストは ○/✓ で手動でも管理できます）。</p>
+</div></details>
+
+<details><summary>8. 共有リンク</summary><div>
+<p>「共有リンク作成」で、いまの状態（モード・選んだクエスト・完了・レベル・カスタムピン・マップ・脱出地点）をURLにしてコピーできます。フレンドがそのURLを開く、または「コード読込」に貼り付けると同じ状態になります。失敗クエストと達成済みの目標は共有されません。</p>
+</div></details>
+
+<details><summary>9. データ更新・困ったとき</summary><div><ul>
+<li><b>データ更新</b>: ワイプ後や新クエスト追加時に押す。クエスト・脱出地点・ボス位置などを最新にする（1日1回は自動で更新）。</li>
+<li>データが読めないとき: ネットを確認して「データ更新」。取得できない場合は同梱のデータで動き、「⚠古い」と表示されます。</li>
+<li>地図が真っ黒: 画像サーバーが混んでいます。少し待って再読み込み。</li>
+<li>地図の絵が新しいレイアウトと違う（例: Lighthouse）: 地図の絵は tarkov.dev が更新するまで古いままです。地図の上にお知らせが出ます。</li>
+<li>クエスト名・アイテム名・マップ名・脱出地点名は、ゲームの表記どおり英語で表示します。</li>
+<li>欲しい機能・不具合・ご意見は、サイドバーの「💬 ご意見・不具合報告」（またはこのウィンドウ下のボタン）から送れます。</li>
+</ul></div></details>
+
+<p class="muted">このツールはゲームに一切アクセスしません（メモリ読取り・注入なし）。tarkov.dev の公開データと地図を使っています（地図: CC BY-NC-SA 4.0）。</p>`,
+    ttModeLabel:"取り込むモード:", ttModePvp:"PvP", ttModePve:"PvE", ttModeSeasonal:"Seasonal",
+    ttSummary:(lv,c,cKnown,f,o)=>`レベル <b>${lv||"-"}</b> ／ 完了クエスト <b>${c}</b> 件（このツールで認識 ${cKnown} 件）／ 失敗 <b>${f}</b> 件 ／ 達成済みの目標 <b>${o}</b> 件`,
+    ttMerge:"追加のみ（今の完了マークは残す）", ttOverwrite:"上書き（TarkovTracker と同じ状態にする）",
+    ttLevelLabel:lv=>`レベルも反映する（Lv ${lv}）`,
+    ttRun:"取り込む", ttClose:"閉じる", ttUndoBtn:"直前の取り込みを元に戻す",
+    ttDoneMsg:(c,f,o)=>`取り込みました: 完了 ${c} 件 ／ 失敗 ${f} 件 ／ 目標 ${o} 件`,
+    ttUndoneMsg:"元に戻しました。",
+    failBadge:"✗失敗",
     prepHeader:mjp=>`レイド前チェック — ${mjp}`,
     prepEmpty:"このマップで持ち込む鍵・回収アイテムはありません（座標ピンのみ）。",
     prepKeys:"🔑 持ち込む鍵", prepBring:"📤 持ち込み（設置・マーカー用）", prepCollect:"📥 現地で回収",
@@ -449,6 +671,104 @@ const STR = {
     sharePromptLoad:"Paste the share code (after #s=) or the full link:",
     shareLoadedAlert:"Share data loaded.",
     shareLoadFailedAlert:msg=>`Load failed: ${msg}`,
+    ttBtn:"Import TarkovTracker", ttTitle:"Import TarkovTracker progress",
+    ttHow:"<ol><li>In TarkovTracker (tarkovtracker.org) settings, save your progress <b>backup (export)</b> JSON</li><li>Choose that file below, or paste its contents</li></ol>Completed / failed quests, completed objectives and your level can be applied.",
+    ttPrivacy:"🔒 The file is processed only inside this browser and is never sent anywhere.",
+    ttPasteLabel:"Or paste the JSON contents:",
+    ttErrJson:"Could not read this as JSON. Please check it is a backup file.",
+    ttErrFormat:"This is not a TarkovTracker backup file.",
+    ttErrEmpty:"No importable progress data found.",
+    modeLabel:"Game mode", modePvp:"PvP", modePve:"PvE", modeSeasonal:"Seasonal",
+    modeHintPvp:"Regular PvP character. Progress (completed quests, level…) is saved separately per mode.",
+    modeHintPve:"PvE character. Switches to the PvE-specific quests, extracts and boss data (progress saved separately from PvP).",
+    modeHintSeasonal:"Seasonal PvP character (wiped each season). Regular quests use the same data as PvP; seasonal-only Kord Breach quests are not covered yet. Progress saved separately.",
+    ttTarget:(n)=>`Import into: <b>${n}</b> (the game mode currently selected)`,
+    helpBtn:"Help", helpTitle:"How to use", helpClose:"Close",
+    fbLink:"💬 Feedback / bug report", fbBtn:"Feedback / bug report", fbTitle:"Feedback / bug report",
+    fbIntro:"Tell us about a feature you want, a problem, or a bug. Only the <b>developer can see</b> what you send (it is not public). No login, name or email is needed. Please don't include personal info. Replies may not always be possible.",
+    fbTypeIdea:"💡 Feature request", fbTypeBug:"🐞 Bug", fbTypeOther:"💬 Other",
+    fbMsgLabel:"Message", fbMsgPh:"e.g. The pin for quest X is in the wrong place / I'd like a feature that…",
+    fbInfoLabel:"Info sent along (you can review it)",
+    fbCopy:"Copy text", fbSend:"Send", fbCopied:"Copied.", fbEmpty:"Please enter a message.",
+    fbSent:"Sent. Thank you for your feedback!", fbSending:"Sending…", fbWait:"Please wait a moment before sending another.", fbSendErr:"Could not send. Check your connection, or use \"Open the form directly\" below.", fbDirect:"Open the form directly",
+    guideMore:"You can read the detailed guide any time with the \"Help\" button at the top of the sidebar.",
+    helpBody:`
+<details open><summary>1. Quick start</summary><div><ol>
+<li>Set the <b>Game mode</b> at the top-left (PvP / PvE / Seasonal) to the one you play.</li>
+<li>In the sidebar, filter by <b>Trader</b> or <b>Map</b> and check the <b>quests you're running this raid</b>.</li>
+<li>Switch maps with the tabs on top. The objectives of your selected quests show as <b>pins</b>. Hover a pin to see the description, conditions, prerequisite and next quests.</li>
+<li>In the <b>Extracts</b> section, check the extracts you'll use (→ 5.).</li>
+<li>Move the window to your second monitor and press <span class="k">F11</span> for fullscreen.</li>
+</ol></div></details>
+
+<details><summary>2. Game modes (PvP / PvE / Seasonal)</summary><div>
+<p>Each mode is a separate character in the game, so this tool <b>saves progress per mode</b> (completed/failed quests, level, selected quests, extract picks). Switching reloads the page.</p>
+<ul>
+<li><b>PvP</b>: the regular PvP character.</li>
+<li><b>PvE</b>: switches to the PvE-specific quests ([PVE ZONE]), extracts, bosses and spawns.</li>
+<li><b>Seasonal</b>: the seasonal (wiped) character. No separate data feed exists, so regular quests use the PvP data. <b>Seasonal-only Kord Breach quests are not covered</b>.</li>
+</ul></div></details>
+
+<details><summary>3. Reading the map</summary><div><ul>
+<li><b>Floor buttons</b> (above the map): switch floors on multi-level maps. When viewing an upper floor, the 1st floor is drawn faintly underneath for orientation. The number on each button is the count of your selected pins on that floor.</li>
+<li><b>Pin colors and letters</b>: each quest gets a color and a letter (A, B, C…), matching the same letter in the quest list.</li>
+<li><b>Legend</b>: "Legend ▼" at the bottom-left explains the symbols and colors.</li>
+<li><b>Layers</b>: in "Display layers / Share", toggle transits, hazards, locked doors, switches, bosses and spawns.</li>
+<li><b>Route numbers</b>: when enabled, pins get ①②③… in a shortest-path order joined by a line.</li>
+<li><b>Custom pins</b>: <b>right-click</b> the map to add a pin with a note (click a pin to edit/delete).</li>
+<li><b>Brightness / contrast</b>: sliders at the top-left of the map.</li>
+</ul></div></details>
+
+<details><summary>4. Quest list marks &amp; completion</summary><div><ul>
+<li><span class="k">★</span> … a quest required for the Kappa container. "Kappa only ★" filters to them.</li>
+<li><span class="k">○ / ✓</span> … click to mark a quest complete / undo. Completed quests hide from the list automatically; "Show completed" brings them back.</li>
+<li><span class="k">✗ failed</span> … a failed quest (set by the TarkovTracker import). Hidden from the list and from "Available now".</li>
+<li>Enter your level in <b>Lv</b> and the "<b>▶ Available now</b>" section lists quests whose prerequisites are done and whose level requirement you meet.</li>
+<li>When playing co-op, quests <b>you selected yourself</b> or <b>received via a share link</b> stay visible with a "✓ done" badge even if completed.</li>
+</ul></div></details>
+
+<details><summary>5. Choosing extracts</summary><div>
+<p>In the "Extracts" section, first pick <b>PMC or Scav</b>, then check the extracts you'll use — <b>only checked ones</b> appear on the map. There are "Show all / Hide all" buttons. Colors: green = PMC, blue = Scav, orange = shared. In PvE mode, the PvE extracts are shown.</p>
+</div></details>
+
+<details><summary>6. Pre-raid check</summary><div>
+<p>The "Pre-raid check" panel lists what your selected quests need. Row checkboxes are saved ("Reset" clears them).</p>
+<ul><li>🔑 keys to bring / 📤 items to bring or plant / 📥 items to collect in raid (FiR = must be found in raid)</li></ul>
+<p>The <b>raid timer</b> above the map counts down the map's time limit (yellow at 5 min left, red at 2 min).</p>
+</div></details>
+
+<details><summary>7. TarkovTracker import</summary><div>
+<p>For people who already track progress on TarkovTracker: apply completed quests, failed quests, completed objectives and your level in one go.</p>
+<ol>
+<li>In TarkovTracker (tarkovtracker.org) settings, save the backup (export) <b>.json</b>.</li>
+<li>Open "Display layers / Share" here, press <b>Import TarkovTracker</b> and choose the file (or paste it).</li>
+<li>Check the summary, then <b>Import</b>. You can choose "Add only / Overwrite", and undo right after.</li>
+</ol>
+<p>The file is processed only inside your browser and is never sent anywhere. It imports into the <b>game mode currently selected</b>. If you don't use TarkovTracker, ignore this — you can track completion manually with ○/✓.</p>
+</div></details>
+
+<details><summary>8. Share links</summary><div>
+<p>"Create share link" copies the current state (mode, selected quests, completions, level, custom pins, map, extract picks) as a URL. A friend who opens it, or pastes it into "Load code", gets the same state. Failed quests and completed objectives are not shared.</p>
+</div></details>
+
+<details><summary>9. Refreshing data &amp; troubleshooting</summary><div><ul>
+<li><b>Refresh data</b>: press it after a wipe or when new quests are added. It updates quests, extracts, boss spawns, etc. (it also refreshes automatically about once a day).</li>
+<li>If data won't load: check your connection and press "Refresh data". If it can't be fetched, the bundled data is used and "⚠ stale" is shown.</li>
+<li>Map is black: the image server is busy — wait a moment and reload.</li>
+<li>Map art doesn't match the new layout (e.g. Lighthouse): map art stays old until tarkov.dev updates it; a notice appears above the map.</li>
+<li>Quest, item, map and extract names are shown in English exactly as in the game.</li>
+<li>Feature requests, bugs and feedback can be sent from "💬 Feedback / bug report" in the sidebar (or the button at the bottom of this window).</li>
+</ul></div></details>
+
+<p class="muted">This tool never touches the game (no memory reading or injection). It uses public tarkov.dev data and maps (maps: CC BY-NC-SA 4.0).</p>`,
+    ttModeLabel:"Game mode:", ttModePvp:"PvP", ttModePve:"PvE", ttModeSeasonal:"Seasonal",
+    ttSummary:(lv,c,cKnown,f,o)=>`Level <b>${lv||"-"}</b> / completed quests <b>${c}</b> (${cKnown} recognized here) / failed <b>${f}</b> / completed objectives <b>${o}</b>`,
+    ttMerge:"Add only (keep my current completions)", ttOverwrite:"Overwrite (match TarkovTracker exactly)",
+    ttLevelLabel:lv=>`Also apply level (Lv ${lv})`,
+    ttRun:"Import", ttClose:"Close", ttUndoBtn:"Undo last import",
+    ttDoneMsg:(c,f,o)=>`Imported: ${c} completed / ${f} failed / ${o} objectives`,
+    ttUndoneMsg:"Restored.",
+    failBadge:"✗ failed",
     prepHeader:mjp=>`Pre-raid checklist — ${mjp}`,
     prepEmpty:"No keys or pickup items needed on this map (pins only).",
     prepKeys:"🔑 Keys to bring", prepBring:"📤 To bring (plant/mark)", prepCollect:"📥 Find on site",
@@ -501,6 +821,21 @@ document.getElementById("langToggle").onclick = () => {
   try{ localStorage.setItem("eft_qm_lang", LANG); }catch(e){}
   location.reload();
 };
+// ゲームモード切替（言語切替と同じくリロード方式。モード別のキーとデータ元が起動時に決まるため）
+function setMode(m){
+  if(!MODES.includes(m) || m === MODE) return;
+  try{ localStorage.setItem("eft_qm_mode", m); }catch(e){}
+  // 共有リンク(#s=…)は元のモード向けの内容なので、切替時は外す
+  location.hash = "";
+  location.reload();
+}
+(function renderModeBar(){
+  const names = { pvp:T("modePvp"), pve:T("modePve"), seasonal:T("modeSeasonal") };
+  const box = document.getElementById("modeBtns");
+  box.innerHTML = MODES.map(k => `<button type="button" role="radio" data-mode="${k}" aria-checked="${k === MODE}" class="${k === MODE ? "on" : ""}">${names[k]}</button>`).join("");
+  box.querySelectorAll("button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  document.getElementById("modeHint").textContent = T(MODE === "pvp" ? "modeHintPvp" : MODE === "pve" ? "modeHintPve" : "modeHintSeasonal");
+})();
 
 const NINF = -1e9, PINF = 1e9;
 const MAPS = [
@@ -696,30 +1031,30 @@ async function jdFetch(path){
   return r.json();
 }
 
-const CACHE_KEY = "eft_qm_cache_v4_" + LANG;   // v4: 1.1.5.0 ライトハウス改修で更新／言語別に分離(条件文が言語焼き込みのため)
-const SEL_KEY   = "eft_qm_selected_v1";
+const CACHE_KEY = "eft_qm_cache_v4_" + LANG + (DATA_SRC === "pve" ? "_pve" : "");   // v4: 1.1.5.0 ライトハウス改修で更新／言語別・データ元別に分離(条件文が言語焼き込みのため)
+const SEL_KEY   = MK("eft_qm_selected_v1");
 const OPT_KEY   = "eft_qm_opts_v1";
 const MAP_KEY   = "eft_qm_lastmap_v1";
 const VIEW_KEY  = "eft_qm_view_v1";   // 明るさ等の表示設定
 const GUIDE_KEY = "eft_qm_guide_seen_v1";
 const PIN_KEY   = "eft_qm_pins_v1";   // カスタムピン { mapNN: [{lat,lng,text}] }
-const CHECK_KEY = "eft_qm_checks_v1"; // 持ち物チェック { mapNN: { itemId: 1 } }
-const DONE_KEY  = "eft_qm_done_v1";   // 完了クエスト { taskId: 1 }
-const LEVEL_KEY = "eft_qm_level_v1";  // プレイヤーレベル
+const CHECK_KEY = MK("eft_qm_checks_v1"); // 持ち物チェック { mapNN: { itemId: 1 } }
+const DONE_KEY  = MK("eft_qm_done_v1");   // 完了クエスト { taskId: 1 }
+const LEVEL_KEY = MK("eft_qm_level_v1");  // プレイヤーレベル
 const CACHE_TTL = 1000*60*60*24; // 24h
 
 const ITEM_ICON = id => "https://assets.tarkov.dev/" + id + "-icon.webp";
 
 async function fetchData(){
   const [tasksR, enR, jaR, mapsR, mapsEnR, tradersR, tradersEnR, itemsEnR] = await Promise.all([
-    jdFetch("regular/tasks"),
-    jdFetch("regular/tasks_en"),
-    jdFetch("regular/tasks_ja").catch(() => ({ data:{} })),
-    jdFetch("regular/maps"),
-    jdFetch("regular/maps_en").catch(() => ({ data:{} })),
-    jdFetch("regular/traders"),
-    jdFetch("regular/traders_en").catch(() => ({ data:{} })),
-    jdFetch("regular/items_en").catch(() => ({ data:{} })),
+    jdFetch(DATA_SRC + "/tasks"),
+    jdFetch(DATA_SRC + "/tasks_en"),
+    jdFetch(DATA_SRC + "/tasks_ja").catch(() => ({ data:{} })),
+    jdFetch(DATA_SRC + "/maps"),
+    jdFetch(DATA_SRC + "/maps_en").catch(() => ({ data:{} })),
+    jdFetch(DATA_SRC + "/traders"),
+    jdFetch(DATA_SRC + "/traders_en").catch(() => ({ data:{} })),
+    jdFetch(DATA_SRC + "/items_en").catch(() => ({ data:{} })),
   ]);
 
   const en  = (enR && enR.data) || {};
@@ -874,6 +1209,18 @@ async function fetchData(){
   if(!tasks.length) throw new Error(T("noTaskData"));
   return { maps, tasks };
 }
+// 同梱スナップショット(オフライン用)。PvP/Seasonal は data-snapshot.js、PvE は必要になったときだけ data-snapshot-pve.js を読む
+function loadSnapshot(){
+  if(DATA_SRC !== "pve") return Promise.resolve(window.__EFT_SNAPSHOT__);
+  if(window.__EFT_SNAPSHOT_PVE__) return Promise.resolve(window.__EFT_SNAPSHOT_PVE__);
+  return new Promise(res => {
+    const s = document.createElement("script");
+    s.src = "data-snapshot-pve.js";
+    s.onload = () => res(window.__EFT_SNAPSHOT_PVE__);
+    s.onerror = () => res(null);
+    document.head.appendChild(s);
+  });
+}
 function loadCache(){
   try{
     const c = JSON.parse(localStorage.getItem(CACHE_KEY));
@@ -906,8 +1253,17 @@ let opts = loadOpts();
 function loadDone(){ try{ return JSON.parse(localStorage.getItem(DONE_KEY)) || []; }catch(e){ return []; } }
 function saveDone(){ try{ localStorage.setItem(DONE_KEY, JSON.stringify([...done])); }catch(e){} }
 const isDone = id => done.has(id);
+// TarkovTracker 取込で入る「失敗クエスト」「達成済みの目標」
+const FAILED_KEY = MK("eft_qm_failed_v1"), OBJDONE_KEY = MK("eft_qm_objdone_v1"), TTUNDO_KEY = MK("eft_qm_tt_undo_v1");
+function loadIdSet(k){ try{ const a = JSON.parse(localStorage.getItem(k)); return new Set(Array.isArray(a) ? a : []); }catch(e){ return new Set(); } }
+function saveIdSet(k, s){ try{ localStorage.setItem(k, JSON.stringify([...s])); }catch(e){} }
+let failed = loadIdSet(FAILED_KEY);     // 失敗したクエストID
+let doneObjs = loadIdSet(OBJDONE_KEY);  // 達成済みの目標ID（地図から隠す）
+const isFailed = id => failed.has(id);
+const objHidden = o => !showDone && !!o && doneObjs.has(o.id);
 // 前提クエスト完了 かつ レベル達成 で受注可能
 function isAvailable(t){
+  if(failed.has(t.id)) return false;
   if(t.lvl && plvl < t.lvl) return false;
   return (t.req || []).every(rid => done.has(rid));
 }
@@ -935,7 +1291,7 @@ function loadPins(){ try{ return JSON.parse(localStorage.getItem(PIN_KEY)) || {}
 function savePins(){ try{ localStorage.setItem(PIN_KEY, JSON.stringify(customPins)); }catch(e){} }
 
 /* ---------- 脱出地点の選択（出撃タイプ + マップ別に候補チェック） ---------- */
-const EXIT_KEY = "eft_qm_exits_v1";
+const EXIT_KEY = MK("eft_qm_exits_v1");   // PvE は脱出地点が別データなので、モード別に保存
 // exits.fac: "pmc" | "scav"  /  exits.picks["mapNN|fac"]: {脱出名:1} — キー自体が無ければ「全部表示」
 function exKey(){ return curMap + "|" + exits.fac; }
 function loadExits(){
@@ -1134,7 +1490,7 @@ function renderTabs(){
   const selArr = [...selected];
   selArr.forEach(id => {
     const t = TASKS.find(x => x.id === id); if(!t) return;
-    for(const mn of Object.keys(t.byMap)) counts[mn] = (counts[mn]||0) + t.byMap[mn].length;
+    for(const mn of Object.keys(t.byMap)) counts[mn] = (counts[mn]||0) + t.byMap[mn].filter(m => !objHidden(m.obj)).length;
   });
   for(const md of MAPS){
     const b = document.createElement("button");
@@ -1164,7 +1520,8 @@ function questRow(t){
   const info = document.createElement("div");
   info.style.flex = "1"; info.style.minWidth = "0";
   const where = t.mapName ? t.mapName : (t.allMaps.length ? t.allMaps.map(m=>MAPBY[m]?MAPBY[m].jp:m).join(", ") : T("multipleOrNone"));
-  const badge = (dn && selected.has(t.id)) ? ` <span style="color:#6db36d">${T("doneBadge")}</span>` : "";
+  const badge = ((dn && selected.has(t.id)) ? ` <span style="color:#6db36d">${T("doneBadge")}</span>` : "") +
+                (isFailed(t.id) ? ` <span class="qfail">${T("failBadge")}</span>` : "");
   info.innerHTML = `<div class="qn">${t.name}${badge}</div><div class="meta">${t.trader} ・ ${T("lvLabel")}${t.lvl||"-"} ・ ${where}</div>` +
     (selected.has(t.id) ? chainHtml(t) : "");
   const doneBtn = document.createElement("button");
@@ -1193,7 +1550,7 @@ function renderQuestList(){
     if(opts.kappaOnly && !t.kappa) return false;
     if(fmap && !t.allMaps.includes(fmap)) return false;
     if(q && !t.name.toLowerCase().includes(q)) return false;
-    if(isDone(t.id) && !showDone && !selected.has(t.id)) return false;  // 完了は既定で隠す
+    if((isDone(t.id) || isFailed(t.id)) && !showDone && !selected.has(t.id)) return false;  // 完了・失敗は既定で隠す
     return true;
   };
   const byName = (a,b) => a.name.localeCompare(b.name);
@@ -1410,6 +1767,7 @@ function renderMarkers(){
     const color = colorForSelIndex(idx);
     const label = selLabel(idx);
     for(const m of (t.byMap[curMap] || [])){
+      if(objHidden(m.obj)) continue;   // 達成済みの目標は隠す（「完了も表示」で再表示）
       if(!onFloor(m.pos)) continue;
       const ll = spreadPos(gpos(m.pos), seen);
       const popup =
@@ -1507,11 +1865,18 @@ function b64urlDec(s){
   return decodeURIComponent(escape(atob(s)));
 }
 function buildShare(){
-  const payload = { v:1, m:curMap, l:plvl, s:[...selected], d:[...done], p:customPins, x:exits };
+  const payload = { v:1, g:MODE, m:curMap, l:plvl, s:[...selected], d:[...done], p:customPins, x:exits };
   return b64urlEnc(JSON.stringify(payload));
 }
 function applyShare(code){
   const p = JSON.parse(b64urlDec(code.trim()));
+  // 別モードで作られた共有コードは、そのモードに切り替えてから(リロード後に)読み込む
+  if(p.g && MODES.includes(p.g) && p.g !== MODE){
+    try{ localStorage.setItem("eft_qm_mode", p.g); }catch(e){}
+    location.hash = "#s=" + code.trim();
+    location.reload();
+    return "switch";
+  }
   if(Array.isArray(p.s)){ selected = new Set(p.s); saveSel(); }
   if(Array.isArray(p.d)){ done = new Set(p.d); saveDone(); }
   if(p.l){ plvl = p.l; try{ localStorage.setItem(LEVEL_KEY, String(plvl)); }catch(e){} }
@@ -1534,11 +1899,127 @@ function sharePrompt(){
   const mm = code.match(/#s=([^\s&]+)/);
   if(mm) code = mm[1];
   try{
-    applyShare(code);
+    if(applyShare(code) === "switch") return;   // 別モードのコード: 切替リロード後に読み込まれる
     renderTabs(); renderQuestList(); renderProgress(); updateSelInfo();
     loadMap();
     alert(T("shareLoadedAlert"));
   }catch(e){ alert(T("shareLoadFailedAlert", e.message)); }
+}
+
+/* ---------- TarkovTracker バックアップ取込（ブラウザ内だけで処理。API不使用） ----------
+   形式: {_format:"tarkovtracker-backup", _version:1|2, currentGameMode, pvp/pve/seasonal:{level,
+          taskCompletions:{taskId:{complete,failed}|bool}, taskObjectives:{objId:{complete,count}}}}
+   taskId / objId は tarkov.dev と同じID。 */
+let ttParsed = null;   // {modes:{pvp:{level,complete[],failed[],objs[]}}, cur}
+function ttParse(text){
+  let j;
+  try{ j = JSON.parse(String(text).replace(/^﻿/, "")); }catch(e){ throw new Error(T("ttErrJson")); }
+  if(!j || typeof j !== "object" || j._format !== "tarkovtracker-backup") throw new Error(T("ttErrFormat"));
+  const modes = {};
+  for(const m of ["pvp", "pve", "seasonal"]){
+    const p = j[m];
+    if(!p || typeof p !== "object") continue;
+    const tc = (p.taskCompletions && typeof p.taskCompletions === "object") ? p.taskCompletions : {};
+    const to = (p.taskObjectives && typeof p.taskObjectives === "object") ? p.taskObjectives : {};
+    const complete = [], failedIds = [], objs = [];
+    for(const id in tc){
+      const v = tc[id];
+      const c = (typeof v === "boolean") ? { complete:v } : (v || {});
+      if(c.failed === true) failedIds.push(id);            // 失敗が優先
+      else if(c.complete === true) complete.push(id);
+    }
+    for(const id in to) if(to[id] && to[id].complete === true) objs.push(id);
+    modes[m] = { level: parseInt(p.level, 10) || 0, complete, failed: failedIds, objs };
+  }
+  if(!Object.keys(modes).length) throw new Error(T("ttErrEmpty"));
+  const cur = modes[j.currentGameMode] ? j.currentGameMode : Object.keys(modes)[0];
+  return { modes, cur };
+}
+function ttMode(){
+  const r = document.querySelector('#ttmodes input[name="ttmode"]:checked');
+  return r ? r.value : (ttParsed && ttParsed.cur);
+}
+function ttRenderPreview(){
+  const box = document.getElementById("ttopts"), runBtn = document.getElementById("ttrun");
+  if(!ttParsed){ box.classList.add("hidden"); runBtn.classList.add("hidden"); return; }
+  const key = ttMode(), m = ttParsed.modes[key];
+  const known = new Set(TASKS.map(t => t.id));
+  document.getElementById("ttsum").innerHTML =
+    T("ttSummary", m.level, m.complete.length, m.complete.filter(id => known.has(id)).length, m.failed.length, m.objs.length) +
+    "<br>" + T("ttTarget", T(MODE === "pvp" ? "modePvp" : MODE === "pve" ? "modePve" : "modeSeasonal"));
+  document.getElementById("ttlevellabel").textContent = T("ttLevelLabel", m.level || "-");
+  document.getElementById("ttlevel").disabled = !(m.level > 0);
+  box.classList.remove("hidden"); runBtn.classList.remove("hidden");
+}
+function ttLoadText(text){
+  const msg = document.getElementById("ttmsg");
+  msg.textContent = ""; msg.className = "";
+  if(!String(text).trim()){ ttParsed = null; ttRenderPreview(); return; }
+  try{
+    ttParsed = ttParse(text);
+    // モード選択（複数あるときだけ表示）
+    const names = { pvp:T("ttModePvp"), pve:T("ttModePve"), seasonal:T("ttModeSeasonal") };
+    const keys = Object.keys(ttParsed.modes);
+    const mb = document.getElementById("ttmodes");
+    mb.innerHTML = keys.length > 1
+      ? `<span class="muted">${T("ttModeLabel")}</span>` + keys.map(k =>
+          `<label class="chk"><input type="radio" name="ttmode" value="${k}" ${k === (keys.includes(MODE) ? MODE : ttParsed.cur) ? "checked" : ""} /> ${names[k]}</label>`).join("")
+      : "";
+    mb.querySelectorAll("input").forEach(r => r.onchange = ttRenderPreview);
+    ttRenderPreview();
+  }catch(e){
+    ttParsed = null; ttRenderPreview();
+    msg.className = "tt-err"; msg.textContent = e.message;
+  }
+}
+function ttRefreshAll(){
+  renderQuestList(); renderProgress(); renderTabs(); refreshFloors(); renderPrep(); renderLegend(); updateSelInfo();
+}
+function ttApply(){
+  if(!ttParsed) return;
+  const m = ttParsed.modes[ttMode()];
+  const overwrite = document.querySelector('input[name="ttmerge"]:checked').value === "overwrite";
+  const applyLevel = document.getElementById("ttlevel").checked && m.level > 0;
+  const known = new Set(TASKS.map(t => t.id));
+  // 元に戻す用スナップショット（1世代）
+  try{ localStorage.setItem(TTUNDO_KEY, JSON.stringify({ done:[...done], failed:[...failed], objs:[...doneObjs], lvl:plvl })); }catch(e){}
+  const newDone = m.complete.filter(id => known.has(id));
+  const newFailed = m.failed.filter(id => known.has(id));
+  if(overwrite){ done = new Set(newDone); failed = new Set(newFailed); doneObjs = new Set(m.objs); }
+  else{ newDone.forEach(id => done.add(id)); newFailed.forEach(id => failed.add(id)); m.objs.forEach(id => doneObjs.add(id)); }
+  for(const id of failed) done.delete(id);   // 失敗と完了が両方付いたら失敗を優先
+  saveDone(); saveIdSet(FAILED_KEY, failed); saveIdSet(OBJDONE_KEY, doneObjs);
+  if(applyLevel){
+    plvl = Math.min(79, m.level);
+    try{ localStorage.setItem(LEVEL_KEY, String(plvl)); }catch(e){}
+    document.getElementById("lvlin").value = plvl;
+  }
+  ttRefreshAll();
+  const msg = document.getElementById("ttmsg");
+  msg.className = "tt-ok"; msg.textContent = T("ttDoneMsg", newDone.length, newFailed.length, m.objs.length);
+  document.getElementById("ttundo").classList.remove("hidden");
+}
+function ttUndo(){
+  let s = null;
+  try{ s = JSON.parse(localStorage.getItem(TTUNDO_KEY)); }catch(e){}
+  if(!s) return;
+  done = new Set(s.done || []); failed = new Set(s.failed || []); doneObjs = new Set(s.objs || []);
+  saveDone(); saveIdSet(FAILED_KEY, failed); saveIdSet(OBJDONE_KEY, doneObjs);
+  if(s.lvl){ plvl = s.lvl; try{ localStorage.setItem(LEVEL_KEY, String(plvl)); }catch(e){} document.getElementById("lvlin").value = plvl; }
+  ttRefreshAll();
+  try{ localStorage.removeItem(TTUNDO_KEY); }catch(e){}
+  const msg = document.getElementById("ttmsg");
+  msg.className = "tt-ok"; msg.textContent = T("ttUndoneMsg");
+  document.getElementById("ttundo").classList.add("hidden");
+}
+function ttOpen(){
+  const dlg = document.getElementById("ttdlg");
+  document.getElementById("ttpaste").value = ""; document.getElementById("ttfile").value = "";
+  ttParsed = null; ttRenderPreview();
+  const msg = document.getElementById("ttmsg"); msg.textContent = ""; msg.className = "";
+  let hasUndo = false; try{ hasUndo = !!localStorage.getItem(TTUNDO_KEY); }catch(e){}
+  document.getElementById("ttundo").classList.toggle("hidden", !hasUndo);
+  if(typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
 }
 
 /* ---------- レイド前チェック（鍵 / 回収 / 持ち込み） ---------- */
@@ -1736,6 +2217,7 @@ function setupFloors(md, keep){
   for(const id of selected){
     const t = TASKS.find(x => x.id === id); if(!t) continue;
     for(const m of (t.byMap[curMap] || [])){
+      if(objHidden(m.obj)) continue;
       const fi = floorIndexOf(m.pos ? m.pos.y : null, md.floors);
       if(fi >= 0) counts[fi]++;
     }
@@ -1914,9 +2396,10 @@ async function init(){
     }catch(e){
       if(!usedCache){
         // 同梱スナップショットにフォールバック
-        if(window.__EFT_SNAPSHOT__ && window.__EFT_SNAPSHOT__.data){
-          applyData(window.__EFT_SNAPSHOT__.data);
-          const snapTs = Date.parse(window.__EFT_SNAPSHOT__.generated) || Date.now();
+        const snap = await loadSnapshot();
+        if(snap && snap.data){
+          applyData(snap.data);
+          const snapTs = Date.parse(snap.generated) || Date.now();
           setDataInfo(snapTs, true);
           usedCache = true;
         }else{
@@ -1930,7 +2413,7 @@ async function init(){
   const hm = (location.hash || "").match(/[#&]s=([^\s&]+)/);
   if(hm){
     try{
-      applyShare(hm[1]);
+      if(applyShare(hm[1]) === "switch") return;   // 別モードのコード: リロード後に読み込まれる
       renderTabs(); renderQuestList(); renderProgress(); updateSelInfo();
     }catch(e){ console.warn("共有コード読み込み失敗", e); }
   }
@@ -1963,7 +2446,7 @@ document.getElementById("selnone").onclick = () => {
   selected.clear(); saveSel(); renderTabs(); renderQuestList(); refreshFloors(); renderLegend(); renderPrep(); updateSelInfo();
 };
 document.getElementById("kappaonly").onchange = (e) => { opts.kappaOnly = e.target.checked; saveOpts(); renderQuestList(); };
-document.getElementById("showdone").onchange = (e) => { showDone = e.target.checked; renderQuestList(); };
+document.getElementById("showdone").onchange = (e) => { showDone = e.target.checked; renderQuestList(); renderTabs(); refreshFloors(); };
 document.getElementById("lvlin").onchange = (e) => {
   plvl = Math.max(1, Math.min(79, parseInt(e.target.value,10) || 1));
   e.target.value = plvl;
@@ -1973,7 +2456,74 @@ document.getElementById("lvlin").onchange = (e) => {
 document.getElementById("bright").oninput = (e) => { view.bright = parseFloat(e.target.value); applyView(); saveView(); };
 document.getElementById("contrast").oninput = (e) => { view.contrast = parseFloat(e.target.value); applyView(); saveView(); };
 document.getElementById("brightreset").onclick = () => { view = { bright:1, contrast:1 }; applyView(); saveView(); };
-document.getElementById("guideclose").onclick = () => {
+// 使い方ダイアログ
+document.getElementById("helpBtn").onclick = () => {
+  const dlg = document.getElementById("helpdlg");
+  if(typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+};
+document.getElementById("helpclose").onclick = () => document.getElementById("helpdlg").close();
+document.getElementById("helpdlg").addEventListener("click", e => { if(e.target.id === "helpdlg") e.target.close(); });   // 外側クリックで閉じる
+// ご意見・不具合報告（受付先: Googleフォーム。回答はフォームの持ち主だけが見られる／送る側はログイン不要）
+// 質問IDは公開フォームの HTML から読み取ったもの。フォームの質問を作り直したら FEEDBACK_FORM を更新する。
+const FEEDBACK_FORM = {
+  action: "https://docs.google.com/forms/d/e/1FAIpQLSd9lrM1_0zNKqiCC6ZIbWwE4Q1ZONoLMr2ZQALr__h6pisHzA/formResponse",
+  open:   "https://forms.gle/2mLbU6EbMtXWq7FM9",
+  entry:  { type:"entry.628211291", msg:"entry.66753766", env:"entry.1216307841" },
+  // 選択式の選択肢はフォーム側の表記と完全一致が必要(表示言語に関係なく常にこの文字を送る)
+  types:  { idea:"要望 / Feature request", bug:"不具合 / Bug", other:"その他 / Other" },
+};
+let fbType = "idea", fbBusy = false, fbLast = 0;
+function fbInfoText(){
+  const di = document.getElementById("datainfo").textContent;
+  return `mode: ${MODE}\nlang: ${LANG}\ndata: ${di}\nbrowser: ${navigator.userAgent}`;
+}
+function fbRenderTypes(){
+  const box = document.getElementById("fbtypes");
+  box.innerHTML = ["idea", "bug", "other"].map(k =>
+    `<label class="chk"><input type="radio" name="fbtype" value="${k}" ${k === fbType ? "checked" : ""} /> ${T(k === "idea" ? "fbTypeIdea" : k === "bug" ? "fbTypeBug" : "fbTypeOther")}</label>`).join("");
+  box.querySelectorAll("input").forEach(r => r.onchange = () => { fbType = r.value; });
+}
+function fbOpen(){
+  const dlg = document.getElementById("fbdlg");
+  fbRenderTypes();
+  document.getElementById("fbinfo").textContent = fbInfoText();
+  document.getElementById("fbmsgout").textContent = "";
+  document.getElementById("fbdirect").href = FEEDBACK_FORM.open;
+  if(typeof dlg.showModal === "function"){ if(!dlg.open) dlg.showModal(); } else dlg.setAttribute("open", "");
+}
+document.getElementById("fbLink").onclick = (e) => { e.preventDefault(); fbOpen(); };
+document.getElementById("helpfb").onclick = () => { document.getElementById("helpdlg").close(); fbOpen(); };
+document.getElementById("fbclose").onclick = () => document.getElementById("fbdlg").close();
+document.getElementById("fbdlg").addEventListener("click", e => { if(e.target.id === "fbdlg") e.target.close(); });
+document.getElementById("fbsend").onclick = async () => {
+  const out = document.getElementById("fbmsgout"), btn = document.getElementById("fbsend");
+  const msg = document.getElementById("fbmsg").value.trim();
+  if(!msg){ out.className = "tt-err"; out.textContent = T("fbEmpty"); return; }
+  if(fbBusy) return;
+  if(Date.now() - fbLast < 30000){ out.className = "tt-err"; out.textContent = T("fbWait"); return; }   // 連打防止
+  fbBusy = true; btn.disabled = true; out.className = "muted"; out.textContent = T("fbSending");
+  const fd = new URLSearchParams();
+  fd.set(FEEDBACK_FORM.entry.type, FEEDBACK_FORM.types[fbType]);
+  fd.set(FEEDBACK_FORM.entry.msg, msg);
+  fd.set(FEEDBACK_FORM.entry.env, fbInfoText());
+  try{
+    // Googleフォームは CORS ヘッダを返さないため no-cors で送る(結果は読めないが送信は行われる)
+    await fetch(FEEDBACK_FORM.action, { method:"POST", mode:"no-cors", headers:{ "Content-Type":"application/x-www-form-urlencoded" }, body: fd.toString() });
+    fbLast = Date.now();
+    document.getElementById("fbmsg").value = "";
+    out.className = "tt-ok"; out.textContent = T("fbSent");
+  }catch(e){
+    out.className = "tt-err"; out.textContent = T("fbSendErr");
+  }finally{ fbBusy = false; btn.disabled = false; }
+};
+document.getElementById("fbcopy").onclick = async () => {
+  const out = document.getElementById("fbmsgout");
+  const msg = document.getElementById("fbmsg").value.trim();
+  if(!msg){ out.className = "tt-err"; out.textContent = T("fbEmpty"); return; }
+  const text = `[${FEEDBACK_FORM.types[fbType]}]\n${msg}\n\n---\n${fbInfoText()}`;
+  try{ await navigator.clipboard.writeText(text); out.className = "tt-ok"; out.textContent = T("fbCopied"); }
+  catch(e){ window.prompt("Copy:", text); }
+};document.getElementById("guideclose").onclick = () => {
   document.getElementById("guide").classList.add("hidden");
   try{ localStorage.setItem(GUIDE_KEY, "1"); }catch(e){}
 };
@@ -2002,6 +2552,20 @@ document.getElementById("exNone").onclick = () => { exits.picks[exKey()] = {}; s
 })();
 document.getElementById("sharemake").onclick = shareCreate;
 document.getElementById("shareload").onclick = sharePrompt;
+// TarkovTracker 取込
+document.getElementById("ttimport").onclick = ttOpen;
+document.getElementById("ttclose").onclick = () => document.getElementById("ttdlg").close();
+document.getElementById("ttrun").onclick = ttApply;
+document.getElementById("ttundo").onclick = ttUndo;
+document.getElementById("ttpaste").addEventListener("input", (e) => ttLoadText(e.target.value));
+document.getElementById("ttfile").addEventListener("change", (e) => {
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => { document.getElementById("ttpaste").value = ""; ttLoadText(String(rd.result || "")); };
+  rd.onerror = () => { const m = document.getElementById("ttmsg"); m.className = "tt-err"; m.textContent = T("ttErrJson"); };
+  rd.readAsText(f);
+});
 (() => {
   const sect = document.getElementById("layersSect");
   try{ if(localStorage.getItem("eft_qm_layers_open_v1") === "1") sect.open = true; }catch(e){}

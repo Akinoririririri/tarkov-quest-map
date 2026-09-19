@@ -32,6 +32,8 @@
   #titlebar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
   #titlebar h1{font-size:15px;margin:0;padding:0;border:0;color:var(--accent2);letter-spacing:.04em}
   #langToggle{font-size:11px;padding:3px 9px;flex:0 0 auto}
+  #toast{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);z-index:1200;background:#000d;color:var(--text);border:1px solid var(--accent);border-radius:6px;padding:8px 14px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .2s}
+  #toast.show{opacity:1}
   #helpBtn{font-size:11px;padding:3px 9px;flex:0 0 auto;border-color:var(--accent);color:var(--accent2)}
   #helpdlg{background:var(--panel);color:var(--text);border:1px solid var(--accent);border-radius:10px;padding:0;width:min(640px,94vw);max-height:90vh}
   #helpdlg::backdrop{background:#000b}
@@ -111,7 +113,7 @@
   #tabs{display:flex;flex-wrap:wrap;gap:3px;padding:8px;background:var(--panel);border-bottom:1px solid var(--line)}
   #tabs button.active{background:var(--accent);color:#1b1b1b;border-color:var(--accent);font-weight:600}
   #tabs button .badge{display:inline-block;min-width:16px;padding:0 4px;margin-left:5px;border-radius:8px;background:#000a;color:var(--accent2);font-size:10px}
-  #floorbar{display:flex;gap:4px;align-items:center;padding:6px 8px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:11px}
+  #floorbar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:6px 8px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:11px}
   #floorbar .flabel{color:var(--dim);margin-right:4px}
   #floorbar button{padding:4px 9px;font-size:11px}
   #floorbar button.active{background:var(--accent2);color:#1b1b1b;border-color:var(--accent2);font-weight:700}
@@ -140,6 +142,52 @@
   #raidtimer .clock.danger{color:#e6564e}
   #raidtimer button{padding:3px 8px;font-size:11px}
 
+  /* ストーリー章 */
+  #storyList{max-height:46vh;overflow-y:auto;border:1px solid var(--line);border-radius:4px}
+  #storyList details.stch{border-bottom:1px solid #2c2c2c}
+  #storyList details.stch:last-child{border-bottom:0}
+  #storyList summary{padding:7px 8px;cursor:pointer;font-size:12px;display:flex;gap:8px;align-items:center;user-select:none}
+  #storyList .stn{flex:1;font-weight:700}
+  #storyList .stc{font-size:10px;color:var(--dim)}
+  #storyList .stc.ok{color:var(--ok)}
+  #storyList .stbody{padding:2px 8px 8px}
+  #storyList .stbtns{display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap;align-items:center}
+  #storyList .stbtns button{font-size:10px;padding:2px 7px}
+  #storyList .stobj{display:flex;gap:6px;align-items:flex-start;font-size:11px;padding:2px 0;line-height:1.45;cursor:pointer}
+  #storyList .stobj.opt{color:var(--dim)}
+  #storyList .stobj.done .tx{text-decoration:line-through;color:var(--dim)}
+  #storyList .stopt{font-size:9px;border:1px solid var(--line);border-radius:3px;padding:0 3px;color:var(--dim);flex:0 0 auto}
+  .quest .qstory{font-size:11px;cursor:help;margin-left:4px}
+
+  /* ---------- タブレット / 狭い画面 / タッチ操作 ---------- */
+  #menuBtn,#sbShade,.narrow-only{display:none}
+  @media (max-width:1100px){
+    #sidebar{width:300px;min-width:300px}
+  }
+  @media (max-width:820px){
+    /* サイドバーを左からスライドするメニューにして、地図を画面いっぱいに使う */
+    #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:1500;width:min(88vw,380px);min-width:0;transform:translateX(-104%);transition:transform .2s;box-shadow:4px 0 18px #000a}
+    #app.sb-open #sidebar{transform:none}
+    #sbShade{display:block;position:fixed;inset:0;z-index:1400;background:#0008;opacity:0;pointer-events:none;transition:opacity .2s}
+    #app.sb-open #sbShade{opacity:1;pointer-events:auto}
+    #menuBtn{display:block;position:absolute;right:10px;top:10px;z-index:650;padding:9px 14px;font-size:13px;box-shadow:0 2px 8px #0008}
+    .narrow-only{display:inline-block}
+    #supportBtn{display:none}
+    #tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    #tabs button{flex:0 0 auto}
+    #raidtimer{left:54px}
+  }
+  @media (pointer:coarse){
+    button{min-height:36px}
+    select,input[type=search]{min-height:38px;font-size:14px}
+    .quest{padding:9px 14px 9px 22px}
+    .quest input,label.chk input{width:20px;height:20px}
+    #floorbar button,#tabs button{min-height:34px}
+    #exList .exrow{padding:8px}
+    #prep .pitem{padding:6px 14px}
+    #modeBtns button{min-height:38px}
+  }
+
   /* 初回ガイド */
   #guide{position:absolute;inset:0;z-index:1100;background:#000b;display:flex;align-items:center;justify-content:center;padding:24px}
   #guide .card{background:var(--panel);border:1px solid var(--accent);border-radius:10px;max-width:440px;padding:20px 22px;line-height:1.7;font-size:13px}
@@ -153,6 +201,7 @@
   #ttdlg .tt-err{color:#e6564e}
   #ttdlg .tt-ok{color:#6db36d}
   #ttdlg .tt-btns{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+  .quest .qwarn{color:#e0a53a;font-size:11px;cursor:help;margin-left:4px}
   .quest .qfail{color:#e6564e;font-size:10px;border:1px solid #e6564e;border-radius:3px;padding:0 4px;margin-left:4px}
   #guide h3{margin:0 0 10px;color:var(--accent2);font-size:15px}
   #guide ol{margin:0 0 14px;padding-left:20px}
@@ -185,12 +234,14 @@
 </head>
 <body>
 <div id="app">
+  <div id="sbShade"></div>
   <!-- ===== サイドバー ===== -->
   <aside id="sidebar">
     <div id="titlebar">
       <h1 id="appTitle" data-i18n="appTitle">タルコフ クエストマップ</h1>
       <div class="row" style="flex-wrap:nowrap;gap:6px">
         <button id="helpBtn" class="hbtn" data-i18n="helpBtn">使い方</button>
+        <button id="sbClose" class="narrow-only" data-i18n-title="closeMenu" title="閉じる">✕</button>
         <button id="langToggle" title="Language / 言語">EN</button>
       </div>
     </div>
@@ -280,6 +331,14 @@
       </div>
     </details>
 
+    <details class="sect" id="storySect">
+      <summary data-i18n="storySection">ストーリー</summary>
+      <div class="inner">
+        <div class="muted" data-i18n="storyHint"></div>
+        <div id="storyList"></div>
+      </div>
+    </details>
+
     <div id="prep"></div>
     <div id="questlist"></div>
   </aside>
@@ -318,6 +377,7 @@
     <div id="tabs"></div>
     <div id="floorbar" class="hidden"></div>
     <div id="mapwrap">
+      <button id="menuBtn" class="primary" data-i18n="menuBtn">☰ メニュー</button>
       <div id="map"></div>
       <a id="supportBtn" href="https://ko-fi.com/tarkovquestmap" target="_blank" rel="noopener" data-i18n-title="supportBtnTitle">
         <span class="main" data-i18n="supportBtn">☕ Support</span>
@@ -492,7 +552,11 @@ const STR = {
     modeHintPvp:"通常のPvPキャラ。完了・レベルなどの進行状況はモードごとに別保存です。",
     modeHintPve:"PvEキャラ。PvE専用のクエスト・脱出地点・ボスのデータに切り替わります（進行状況はPvPと別保存）。",
     modeHintSeasonal:"シーズン用キャラ（PvP・ワイプあり）。通常クエストはPvPと同じデータです。季節限定のKord Breachクエストはデータ未対応。進行状況は別保存。",
-    ttTarget:(n)=>`取り込み先: <b>${n}</b>（いま選んでいるゲームモード）`,
+    ttTarget:(n,cur)=>cur ? `取り込み先: <b>${n}</b>（いま表示中のモード）` : `取り込み先: <b>${n}</b>（いま表示中のモードとは別。切り替えると反映されます）`,
+    ttOtherMode:(n)=>`「${n}」モードに保存しました。上の切替ボタンで ${n} にすると反映されます。`,
+    ttEmptyProfile:"この取込元には進捗が入っていません。上の「取り込むモード」で、進捗が入っているモードを選んでください。",
+    menuBtn:"☰ メニュー", closeMenu:"閉じる",
+    jumpTitle:"地図で表示（選択して、そのマップ・階のピンへ移動）", jumpNoPins:"表示できるピンがありません（座標データなし、または達成済み）",
     helpBtn:"使い方", helpTitle:"使い方", helpClose:"閉じる",
     fbLink:"💬 ご意見・不具合報告", fbBtn:"ご意見・不具合報告", fbTitle:"ご意見・不具合報告",
     fbIntro:"欲しい機能・困ったこと・不具合をお知らせください。内容は<b>開発者だけが見られます</b>（公開されません）。ログインや名前・メールアドレスは不要です。個人情報は書かないでください。返信できない場合があります。",
@@ -522,6 +586,7 @@ const STR = {
 <details><summary>3. 地図の見方</summary><div><ul>
 <li><b>階ボタン</b>（地図の上）: 複数階のマップで階を切り替える。上の階を見るときは、1階が薄く下敷きで出るので位置がつかみやすい。ボタンの数字は、その階にある選択クエストのピン数。</li>
 <li><b>ピンの色と文字</b>: クエストごとに色と記号（A・B・C…）が付く。左のクエスト一覧の同じ記号と対応している。</li>
+<li><b>📍ボタン</b>（クエスト一覧の各行）: 押すと、そのクエストを選択して、必要ならマップと階を切り替え、ピンが見える位置へ地図を移動する（ピンの周りに輪が一瞬出る）。</li>
 <li><b>凡例</b>: 地図の左下の「凡例 ▼」で、記号や色の意味が見られる。</li>
 <li><b>表示レイヤー</b>: 左の「表示レイヤー・共有」で、トランジット・危険地帯・施錠ドア・スイッチ・ボス・スポーンの表示を切り替える。</li>
 <li><b>巡回ルート番号</b>: チェックすると、ピンに①②③…と回る順番の番号が付き、最短順に線でつながる。</li>
@@ -532,6 +597,8 @@ const STR = {
 <details><summary>4. クエスト一覧のマークと完了管理</summary><div><ul>
 <li><span class="k">★</span> … Kappa（Kappa container）の入手に必要なクエスト。「Kappaのみ ★」で絞り込める。</li>
 <li><span class="k">○ / ✓</span> … クリックで完了にする／戻す。完了したクエストは一覧から自動で隠れ、「完了も表示」で見られる。</li>
+<li><span class="k">⚠</span> … 失敗条件があるクエスト（マウスを乗せる／クエストを選ぶと内容が出る）。特に<b>排他クエスト</b>（片方を完了すると他方が失敗する）の名前も出る。</li>
+<li><span class="k">✗排他で不可</span> … 排他の相手をすでに完了しているので、もう受けられないクエスト。一覧から隠れ、「今すぐ受注できる」にも出ない。</li>
 <li><span class="k">✗失敗</span> … 失敗したクエスト（TarkovTracker取込で付く）。一覧から隠れ、「今すぐ受注できる」にも出ない。</li>
 <li><b>Lv</b> 欄に自分のレベルを入れると、「<b>▶ 今すぐ受注できる</b>」に、前提クエストを終えていてレベルも足りているクエストが出る。</li>
 <li>フレンドと協力して遊ぶとき、<b>自分で選んだクエスト</b>と<b>共有リンクで受け取ったクエスト</b>は、完了済みでも隠れず「✓済」の表示で残る。</li>
@@ -547,21 +614,30 @@ const STR = {
 <p>マップ上部の<b>レイドタイマー</b>で、そのマップの制限時間が数えられます（残り5分で黄、2分で赤）。</p>
 </div></details>
 
-<details><summary>7. TarkovTracker取込</summary><div>
+<details><summary>7. ストーリー章</summary><div>
+<p>トレーダー系のクエストとは別に、ストーリー章（Tour / Falling Skies / Batya / The Unheard / Blue Fire / They Are Already Here / Accidental Witness / The Labyrinth / The Ticket / Boreas）の<b>目標チェックリスト</b>があります。左の <b>「ストーリー」</b> を開くと、章ごとに目標が並びます。</p>
+<ul>
+<li>チェックを入れて進み具合を記録できます（モードごとに別保存）。「主要な目標を全部完了」「全部解除」ボタンもあります。</li>
+<li>ストーリーの目標は<b>座標データがないため、地図にはピンが出ません</b>。説明はゲーム表記の英語です。</li>
+<li>トレーダー系クエストのうち、ストーリーの目標が条件になっているものには <span class="k">📖</span> が付きます（未達成は名前が出る／達成済みは ✓）。</li>
+<li>TarkovTracker取込で、章の完了も反映されます。</li>
+</ul></div></details>
+
+<details><summary>8. TarkovTracker取込</summary><div>
 <p>すでに TarkovTracker に進行状況を記録している人向け。完了クエスト・失敗クエスト・達成済みの目標・レベルを、まとめて反映できます。</p>
 <ol>
 <li>TarkovTracker（tarkovtracker.org）の設定画面で、バックアップ（エクスポート）の <b>.json</b> を保存する。</li>
 <li>このツールの「表示レイヤー・共有」を開き、<b>TarkovTracker取込</b> を押してファイルを選ぶ（貼り付けでも可）。</li>
 <li>内容を確認して<b>取り込む</b>。「追加のみ／上書き」を選べて、直後なら「元に戻す」もできる。</li>
 </ol>
-<p>ファイルはブラウザの中だけで処理され、どこにも送信されません。取込先は<b>いま選んでいるゲームモード</b>です。使っていない人は無視して大丈夫（クエストは ○/✓ で手動でも管理できます）。</p>
+<p>ファイルはブラウザの中だけで処理され、どこにも送信されません。取込先は、ファイルの中から選んだ<b>取込元のモードと同じモード</b>です（PvEの進捗はPvEに保存。いま表示中のモードと違えば、切り替えると反映されます）。使っていない人は無視して大丈夫（クエストは ○/✓ で手動でも管理できます）。</p>
 </div></details>
 
-<details><summary>8. 共有リンク</summary><div>
+<details><summary>9. 共有リンク</summary><div>
 <p>「共有リンク作成」で、いまの状態（モード・選んだクエスト・完了・レベル・カスタムピン・マップ・脱出地点）をURLにしてコピーできます。フレンドがそのURLを開く、または「コード読込」に貼り付けると同じ状態になります。失敗クエストと達成済みの目標は共有されません。</p>
 </div></details>
 
-<details><summary>9. データ更新・困ったとき</summary><div><ul>
+<details><summary>10. データ更新・困ったとき</summary><div><ul>
 <li><b>データ更新</b>: ワイプ後や新クエスト追加時に押す。クエスト・脱出地点・ボス位置などを最新にする（1日1回は自動で更新）。</li>
 <li>データが読めないとき: ネットを確認して「データ更新」。取得できない場合は同梱のデータで動き、「⚠古い」と表示されます。</li>
 <li>地図が真っ黒: 画像サーバーが混んでいます。少し待って再読み込み。</li>
@@ -572,13 +648,20 @@ const STR = {
 
 <p class="muted">このツールはゲームに一切アクセスしません（メモリ読取り・注入なし）。tarkov.dev の公開データと地図を使っています（地図: CC BY-NC-SA 4.0）。</p>`,
     ttModeLabel:"取り込むモード:", ttModePvp:"PvP", ttModePve:"PvE", ttModeSeasonal:"Seasonal",
-    ttSummary:(lv,c,cKnown,f,o)=>`レベル <b>${lv||"-"}</b> ／ 完了クエスト <b>${c}</b> 件（このツールで認識 ${cKnown} 件）／ 失敗 <b>${f}</b> 件 ／ 達成済みの目標 <b>${o}</b> 件`,
+    ttSummary:(lv,c,cKnown,f,o,s)=>`レベル <b>${lv||"-"}</b> ／ 完了クエスト <b>${c}</b> 件（このツールで認識 ${cKnown} 件）／ 失敗 <b>${f}</b> 件 ／ 達成済みの目標 <b>${o}</b> 件 ／ ストーリーの目標 <b>${s}</b> 件`,
+    storySection:"ストーリー", storyHint:"ストーリー章の目標チェックリストです（座標データがないため地図には出ません）。目標の説明はゲーム表記の英語です。",
+    storyNone:"ストーリーのデータを取得できませんでした（「データ更新」を押してください）。", storyOptional:"任意",
+    storyDoneAll:"主要な目標を全部完了", storyClear:"全部解除", storyReqLabel:"ストーリーの目標が条件:",
     ttMerge:"追加のみ（今の完了マークは残す）", ttOverwrite:"上書き（TarkovTracker と同じ状態にする）",
     ttLevelLabel:lv=>`レベルも反映する（Lv ${lv}）`,
     ttRun:"取り込む", ttClose:"閉じる", ttUndoBtn:"直前の取り込みを元に戻す",
-    ttDoneMsg:(c,f,o)=>`取り込みました: 完了 ${c} 件 ／ 失敗 ${f} 件 ／ 目標 ${o} 件`,
+    ttDoneMsg:(c,f,o,s)=>`取り込みました: 完了 ${c} 件 ／ 失敗 ${f} 件 ／ 目標 ${o} 件 ／ ストーリー ${s} 件`,
     ttUndoneMsg:"元に戻しました。",
-    failBadge:"✗失敗",
+    failBadge:"✗失敗", lockedBadge:"✗排他で不可",
+    failExclusive:(n)=>`次のクエストを完了すると、このクエストは失敗します: ${n}`,
+    failGenShoot:"特定の相手を倒すと失敗する条件があります", failGenStanding:"トレーダーの信頼度の条件で失敗する場合があります",
+    failGenPlant:"アイテム設置に関する失敗条件があります", failGenUse:"アイテム使用に関する失敗条件があります",
+    failGenExtract:"死亡またはレイド離脱（脱出以外）で失敗する条件があります", failGenVisit:"失敗条件があります", failGenOther:"失敗条件があります",
     prepHeader:mjp=>`レイド前チェック — ${mjp}`,
     prepEmpty:"このマップで持ち込む鍵・回収アイテムはありません（座標ピンのみ）。",
     prepKeys:"🔑 持ち込む鍵", prepBring:"📤 持ち込み（設置・マーカー用）", prepCollect:"📥 現地で回収",
@@ -682,7 +765,11 @@ const STR = {
     modeHintPvp:"Regular PvP character. Progress (completed quests, level…) is saved separately per mode.",
     modeHintPve:"PvE character. Switches to the PvE-specific quests, extracts and boss data (progress saved separately from PvP).",
     modeHintSeasonal:"Seasonal PvP character (wiped each season). Regular quests use the same data as PvP; seasonal-only Kord Breach quests are not covered yet. Progress saved separately.",
-    ttTarget:(n)=>`Import into: <b>${n}</b> (the game mode currently selected)`,
+    ttTarget:(n,cur)=>cur ? `Import into: <b>${n}</b> (the mode currently shown)` : `Import into: <b>${n}</b> (different from the mode shown now; it takes effect when you switch)`,
+    ttOtherMode:(n)=>`Saved to the "${n}" mode. Switch to ${n} with the mode buttons above to see it.`,
+    ttEmptyProfile:"This source has no progress in it. Choose a mode that has progress under \"Import mode\" above.",
+    menuBtn:"☰ Menu", closeMenu:"Close",
+    jumpTitle:"Show on map (selects it and jumps to its pins on the right map & floor)", jumpNoPins:"No pins to show (no coordinates, or already completed)",
     helpBtn:"Help", helpTitle:"How to use", helpClose:"Close",
     fbLink:"💬 Feedback / bug report", fbBtn:"Feedback / bug report", fbTitle:"Feedback / bug report",
     fbIntro:"Tell us about a feature you want, a problem, or a bug. Only the <b>developer can see</b> what you send (it is not public). No login, name or email is needed. Please don't include personal info. Replies may not always be possible.",
@@ -712,6 +799,7 @@ const STR = {
 <details><summary>3. Reading the map</summary><div><ul>
 <li><b>Floor buttons</b> (above the map): switch floors on multi-level maps. When viewing an upper floor, the 1st floor is drawn faintly underneath for orientation. The number on each button is the count of your selected pins on that floor.</li>
 <li><b>Pin colors and letters</b>: each quest gets a color and a letter (A, B, C…), matching the same letter in the quest list.</li>
+<li><b>📍 button</b> (on each quest row): selects the quest, switches to the right map and floor if needed, and moves the map to its pins (a ring flashes around them).</li>
 <li><b>Legend</b>: "Legend ▼" at the bottom-left explains the symbols and colors.</li>
 <li><b>Layers</b>: in "Display layers / Share", toggle transits, hazards, locked doors, switches, bosses and spawns.</li>
 <li><b>Route numbers</b>: when enabled, pins get ①②③… in a shortest-path order joined by a line.</li>
@@ -722,6 +810,8 @@ const STR = {
 <details><summary>4. Quest list marks &amp; completion</summary><div><ul>
 <li><span class="k">★</span> … a quest required for the Kappa container. "Kappa only ★" filters to them.</li>
 <li><span class="k">○ / ✓</span> … click to mark a quest complete / undo. Completed quests hide from the list automatically; "Show completed" brings them back.</li>
+<li><span class="k">⚠</span> … a quest with a fail condition (hover, or select the quest, to see it). Includes <b>mutually exclusive quests</b> (completing one fails the other) by name.</li>
+<li><span class="k">✗ locked out</span> … you already completed an exclusive counterpart, so this quest can no longer be taken. Hidden from the list and from "Available now".</li>
 <li><span class="k">✗ failed</span> … a failed quest (set by the TarkovTracker import). Hidden from the list and from "Available now".</li>
 <li>Enter your level in <b>Lv</b> and the "<b>▶ Available now</b>" section lists quests whose prerequisites are done and whose level requirement you meet.</li>
 <li>When playing co-op, quests <b>you selected yourself</b> or <b>received via a share link</b> stay visible with a "✓ done" badge even if completed.</li>
@@ -737,21 +827,30 @@ const STR = {
 <p>The <b>raid timer</b> above the map counts down the map's time limit (yellow at 5 min left, red at 2 min).</p>
 </div></details>
 
-<details><summary>7. TarkovTracker import</summary><div>
+<details><summary>7. Story chapters</summary><div>
+<p>Besides the trader quests, there is an <b>objective checklist</b> for the story chapters (Tour / Falling Skies / Batya / The Unheard / Blue Fire / They Are Already Here / Accidental Witness / The Labyrinth / The Ticket / Boreas). Open <b>"Story"</b> in the sidebar to see each chapter's objectives.</p>
+<ul>
+<li>Check objectives to record your progress (saved separately per mode). There are also "Complete all main objectives" and "Clear all" buttons.</li>
+<li>Story objectives have <b>no coordinate data, so no pins appear on the map</b>. Descriptions are in English as shown in-game.</li>
+<li>Trader quests that require a story objective get a <span class="k">📖</span> mark (unmet ones list the requirement; ✓ when met).</li>
+<li>The TarkovTracker import also applies chapter completion.</li>
+</ul></div></details>
+
+<details><summary>8. TarkovTracker import</summary><div>
 <p>For people who already track progress on TarkovTracker: apply completed quests, failed quests, completed objectives and your level in one go.</p>
 <ol>
 <li>In TarkovTracker (tarkovtracker.org) settings, save the backup (export) <b>.json</b>.</li>
 <li>Open "Display layers / Share" here, press <b>Import TarkovTracker</b> and choose the file (or paste it).</li>
 <li>Check the summary, then <b>Import</b>. You can choose "Add only / Overwrite", and undo right after.</li>
 </ol>
-<p>The file is processed only inside your browser and is never sent anywhere. It imports into the <b>game mode currently selected</b>. If you don't use TarkovTracker, ignore this — you can track completion manually with ○/✓.</p>
+<p>The file is processed only inside your browser and is never sent anywhere. It saves into the <b>same mode as the profile you pick</b> in the file (PvE progress goes to PvE; if that differs from the mode shown now, it takes effect when you switch). If you don't use TarkovTracker, ignore this — you can track completion manually with ○/✓.</p>
 </div></details>
 
-<details><summary>8. Share links</summary><div>
+<details><summary>9. Share links</summary><div>
 <p>"Create share link" copies the current state (mode, selected quests, completions, level, custom pins, map, extract picks) as a URL. A friend who opens it, or pastes it into "Load code", gets the same state. Failed quests and completed objectives are not shared.</p>
 </div></details>
 
-<details><summary>9. Refreshing data &amp; troubleshooting</summary><div><ul>
+<details><summary>10. Refreshing data &amp; troubleshooting</summary><div><ul>
 <li><b>Refresh data</b>: press it after a wipe or when new quests are added. It updates quests, extracts, boss spawns, etc. (it also refreshes automatically about once a day).</li>
 <li>If data won't load: check your connection and press "Refresh data". If it can't be fetched, the bundled data is used and "⚠ stale" is shown.</li>
 <li>Map is black: the image server is busy — wait a moment and reload.</li>
@@ -762,13 +861,20 @@ const STR = {
 
 <p class="muted">This tool never touches the game (no memory reading or injection). It uses public tarkov.dev data and maps (maps: CC BY-NC-SA 4.0).</p>`,
     ttModeLabel:"Game mode:", ttModePvp:"PvP", ttModePve:"PvE", ttModeSeasonal:"Seasonal",
-    ttSummary:(lv,c,cKnown,f,o)=>`Level <b>${lv||"-"}</b> / completed quests <b>${c}</b> (${cKnown} recognized here) / failed <b>${f}</b> / completed objectives <b>${o}</b>`,
+    ttSummary:(lv,c,cKnown,f,o,s)=>`Level <b>${lv||"-"}</b> / completed quests <b>${c}</b> (${cKnown} recognized here) / failed <b>${f}</b> / completed objectives <b>${o}</b> / story objectives <b>${s}</b>`,
+    storySection:"Story", storyHint:"Objective checklist for the story chapters (no map pins — there is no coordinate data). Descriptions are in English as shown in-game.",
+    storyNone:"Could not load the story data (press Refresh data).", storyOptional:"optional",
+    storyDoneAll:"Complete all main objectives", storyClear:"Clear all", storyReqLabel:"Requires story objective:",
     ttMerge:"Add only (keep my current completions)", ttOverwrite:"Overwrite (match TarkovTracker exactly)",
     ttLevelLabel:lv=>`Also apply level (Lv ${lv})`,
     ttRun:"Import", ttClose:"Close", ttUndoBtn:"Undo last import",
-    ttDoneMsg:(c,f,o)=>`Imported: ${c} completed / ${f} failed / ${o} objectives`,
+    ttDoneMsg:(c,f,o,s)=>`Imported: ${c} completed / ${f} failed / ${o} objectives / ${s} story objectives`,
     ttUndoneMsg:"Restored.",
-    failBadge:"✗ failed",
+    failBadge:"✗ failed", lockedBadge:"✗ locked out",
+    failExclusive:(n)=>`This quest fails if you complete: ${n}`,
+    failGenShoot:"Has a fail condition about killing certain targets", failGenStanding:"May fail depending on trader standing",
+    failGenPlant:"Has a fail condition about placing items", failGenUse:"Has a fail condition about using items",
+    failGenExtract:"Fails if you die or leave the raid (other than extracting)", failGenVisit:"Has a fail condition", failGenOther:"Has a fail condition",
     prepHeader:mjp=>`Pre-raid checklist — ${mjp}`,
     prepEmpty:"No keys or pickup items needed on this map (pins only).",
     prepKeys:"🔑 Keys to bring", prepBring:"📤 To bring (plant/mark)", prepCollect:"📥 Find on site",
@@ -977,6 +1083,8 @@ function scaledBounds(b, f){
    tarkov.dev 本体サイトが実際に使っているフラットJSON。
    GraphQL API (api.tarkov.dev) が長期障害でも、こちらは稼働している。 */
 const JD_BASE = "https://json.tarkov.dev/";
+// ストーリー章のデータ: TarkovTracker チームが公開している補助データ(MIT)。座標が無いので地図には出さず、チェックリストとして使う
+const OVERLAY_URL = "https://cdn.jsdelivr.net/gh/tarkovtracker-org/tarkov-data-overlay@main/dist/overlay.json";
 
 /* 目標タイプ → 表示ラベル（説明用。ゲーム固有名詞ではないので言語切替対象） */
 const OBJ_TYPE_KEY = {
@@ -1031,7 +1139,7 @@ async function jdFetch(path){
   return r.json();
 }
 
-const CACHE_KEY = "eft_qm_cache_v4_" + LANG + (DATA_SRC === "pve" ? "_pve" : "");   // v4: 1.1.5.0 ライトハウス改修で更新／言語別・データ元別に分離(条件文が言語焼き込みのため)
+const CACHE_KEY = "eft_qm_cache_v6_" + LANG + (DATA_SRC === "pve" ? "_pve" : "");   // v5: 失敗条件(failConditions)を追加 / v4: 1.1.5.0 ライトハウス改修で更新／言語別・データ元別に分離(条件文が言語焼き込みのため)
 const SEL_KEY   = MK("eft_qm_selected_v1");
 const OPT_KEY   = "eft_qm_opts_v1";
 const MAP_KEY   = "eft_qm_lastmap_v1";
@@ -1046,7 +1154,7 @@ const CACHE_TTL = 1000*60*60*24; // 24h
 const ITEM_ICON = id => "https://assets.tarkov.dev/" + id + "-icon.webp";
 
 async function fetchData(){
-  const [tasksR, enR, jaR, mapsR, mapsEnR, tradersR, tradersEnR, itemsEnR] = await Promise.all([
+  const [tasksR, enR, jaR, mapsR, mapsEnR, tradersR, tradersEnR, itemsEnR, overlayR] = await Promise.all([
     jdFetch(DATA_SRC + "/tasks"),
     jdFetch(DATA_SRC + "/tasks_en"),
     jdFetch(DATA_SRC + "/tasks_ja").catch(() => ({ data:{} })),
@@ -1055,6 +1163,7 @@ async function fetchData(){
     jdFetch(DATA_SRC + "/traders"),
     jdFetch(DATA_SRC + "/traders_en").catch(() => ({ data:{} })),
     jdFetch(DATA_SRC + "/items_en").catch(() => ({ data:{} })),
+    fetch(OVERLAY_URL, { cache:"no-cache" }).then(r => r.ok ? r.json() : null).catch(() => null),   // 取得できなくてもツールは動く(ストーリー欄だけ空)
   ]);
 
   const en  = (enR && enR.data) || {};
@@ -1192,6 +1301,19 @@ async function fetchData(){
       map: { normalizedName: mid2nn[nk.map] },
       keys: (nk.keys || []).map(mkItem),
     }));
+    // 失敗条件: 排他クエスト(このクエスト自体は、指定クエストを完了すると失敗する) と 文章の条件
+    const failConditions = [], seenFailTask = new Set();
+    for(const c of (t.failConditions || [])){
+      if(c.type === "taskStatus"){
+        if(c.task && !seenFailTask.has(c.task) && (c.status || []).includes("complete")){ seenFailTask.add(c.task); failConditions.push({ type:"task", id:c.task }); }
+      }else{
+        const k = c.description;
+        let txt = LANG === "ja" ? (has(ja, k) ? ja[k] : (has(en, k) ? en[k] : "")) : (has(en, k) ? en[k] : "");
+        txt = String(txt).trim();
+        if(/^[0-9a-f]{24}$/.test(txt)) txt = "";
+        failConditions.push({ type:c.type || "other", text:txt });
+      }
+    }
     tasks.push({
       id: t.id,
       name: tEN(t.name),
@@ -1202,12 +1324,32 @@ async function fetchData(){
       trader: { name: tid2name[t.trader] || "?" },
       map: t.map ? { normalizedName: mid2nn[t.map] } : null,
       taskRequirements: (t.taskRequirements || []).map(r => ({ id: r.task, status: r.status || ["complete"] })),
-      objectives, neededKeys,
+      objectives, neededKeys, failConditions,
     });
   }
 
   if(!tasks.length) throw new Error(T("noTaskData"));
-  return { maps, tasks };
+
+  // ストーリー章: 章ごとの目標リスト + 「ストーリー目標が条件」のトレーダー系クエスト
+  let story = null;
+  if(overlayR && overlayR.storyChapters && typeof overlayR.storyChapters === "object"){
+    const chapters = Object.values(overlayR.storyChapters)
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .map(c => ({
+        id: c.id, name: c.name, wiki: c.wikiLink || null,
+        objectives: (c.objectives || []).map(o => ({ id:o.id, type:o.type === "optional" ? "optional" : "main", text:o.description || "" })),
+      }));
+    const taskReqs = {};
+    for(const tid of Object.keys(overlayR.tasks || {})){
+      for(const r of ((overlayR.tasks[tid] || {}).otherRequirements || [])){
+        if(r && r.type === "storyObjective" && r.storyChapter && r.objective){
+          (taskReqs[tid] = taskReqs[tid] || []).push({ chapter:r.storyChapter.id, chapterName:r.storyChapter.name, obj:r.objective.id, text:r.objective.name || "" });
+        }
+      }
+    }
+    if(chapters.length) story = { chapters, taskReqs };
+  }
+  return { maps, tasks, story };
 }
 // 同梱スナップショット(オフライン用)。PvP/Seasonal は data-snapshot.js、PvE は必要になったときだけ data-snapshot-pve.js を読む
 function loadSnapshot(){
@@ -1234,7 +1376,8 @@ function saveCache(data){
 }
 
 /* ---------- 状態 ---------- */
-let DATA = null;                 // { maps, tasks }
+let DATA = null;                 // { maps, tasks, story }
+let STORY = null;                // { chapters:[{id,name,wiki,objectives[]}], taskReqs:{taskId:[{chapter,chapterName,obj,text}]} }
 let TASKS = [];                  // 整形済みタスク
 let EXTRACTS = {};               // normalizedName -> [{name,faction,position}]
 let TRANSITS = {};               // normalizedName -> [{description,position}]
@@ -1259,11 +1402,15 @@ function loadIdSet(k){ try{ const a = JSON.parse(localStorage.getItem(k)); retur
 function saveIdSet(k, s){ try{ localStorage.setItem(k, JSON.stringify([...s])); }catch(e){} }
 let failed = loadIdSet(FAILED_KEY);     // 失敗したクエストID
 let doneObjs = loadIdSet(OBJDONE_KEY);  // 達成済みの目標ID（地図から隠す）
+const STORY_KEY = MK("eft_qm_story_v1");
+let storyDone = loadIdSet(STORY_KEY);   // 達成済みのストーリー目標ID（キャラ=モードごとに別）
 const isFailed = id => failed.has(id);
+// 排他クエスト: このクエストを失敗させる相手を、すでに完了している（= 実質もう受けられない）
+const lockedOut = t => (t.fails || []).some(f => f.type === "task" && done.has(f.id));
 const objHidden = o => !showDone && !!o && doneObjs.has(o.id);
 // 前提クエスト完了 かつ レベル達成 で受注可能
 function isAvailable(t){
-  if(failed.has(t.id)) return false;
+  if(failed.has(t.id) || lockedOut(t)) return false;
   if(t.lvl && plvl < t.lvl) return false;
   return (t.req || []).every(rid => done.has(rid));
 }
@@ -1451,6 +1598,8 @@ function prepTasks(rawTasks){
       map: t.map ? canonMap(t.map.normalizedName) : null,
       mapName: (t.map && MAPBY[canonMap(t.map.normalizedName)]) ? MAPBY[canonMap(t.map.normalizedName)].jp : null,
       byMap, noCoord, keysByMap, bringByMap, collectByMap,
+      fails: t.failConditions || [],
+      storyReq: (STORY && STORY.taskReqs && STORY.taskReqs[t.id]) || [],
       allMaps: [...new Set([...Object.keys(byMap), ...Object.keys(noCoord)])],
     };
   });
@@ -1468,13 +1617,44 @@ function buildChain(){
     }
   }
 }
+// 失敗条件の表示（⚠）。排他クエスト名と、条件の文章
+// ストーリー目標が条件のクエスト（📖）
+function escH(s){ return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); }
+function storyReqLines(t){
+  return (t.storyReq || []).map(r => `${storyDone.has(r.obj) ? "✓" : "…"} ${r.chapterName}: ${r.text}`);
+}
+function storyReqHtml(t){
+  const l = storyReqLines(t);
+  return l.length ? `<div style="color:#7aa7c9;font-size:11px">📖 ${T("storyReqLabel")}<br>${l.map(escH).join("<br>")}</div>` : "";
+}
+function storyChip(t){
+  const l = storyReqLines(t);
+  if(!l.length) return "";
+  const unmet = t.storyReq.some(r => !storyDone.has(r.obj));
+  return ` <span class="qstory" title="${escH(T("storyReqLabel") + " " + l.join(" / "))}">📖${unmet ? "" : "✓"}</span>`;
+}
+const FAIL_GENERIC = { shoot:"failGenShoot", traderStanding:"failGenStanding", plantItem:"failGenPlant", useItem:"failGenUse", extract:"failGenExtract", visit:"failGenVisit" };
+function failLines(t){
+  const lines = [];
+  const ex = (t.fails || []).filter(f => f.type === "task").map(f => NAME_OF[f.id]).filter(Boolean);
+  if(ex.length) lines.push(T("failExclusive", ex.join(", ")));
+  for(const f of (t.fails || [])){
+    if(f.type === "task") continue;
+    lines.push(f.text || T(FAIL_GENERIC[f.type] || "failGenOther"));
+  }
+  return lines;
+}
+function failHtml(t){
+  const l = failLines(t);
+  return l.length ? `<div style="color:#c98a2b;font-size:11px">⚠ ${l.join("<br>⚠ ")}</div>` : "";
+}
 function chainHtml(t){
   const prereq = (t.req || []).map(id => NAME_OF[id]).filter(Boolean);
   const next = (NEXT_OF[t.id] || []).map(id => NAME_OF[id]).filter(Boolean);
   let s = "";
   if(prereq.length) s += `<div style="color:#888;font-size:11px">${T("prereqLabel")}${prereq.join(", ")}</div>`;
   if(next.length)   s += `<div style="color:#888;font-size:11px">${T("nextLabel")}${next.slice(0,4).join(", ")}${next.length>4?T("andMore"):""}</div>`;
-  return s;
+  return s + failHtml(t) + storyReqHtml(t);
 }
 
 /* ---------- 色 ---------- */
@@ -1498,6 +1678,7 @@ function renderTabs(){
     if(md.n === curMap) b.className = "active";
     if(counts[md.n]) b.innerHTML += ` <span class="badge">${counts[md.n]}</span>`;
     b.onclick = () => {
+      document.getElementById("app").classList.remove("sb-open");
       curMap = md.n; localStorage.setItem(MAP_KEY, curMap);
       loadMap(); renderTabs();
       if(opts.mapFilter === "__cur__") renderQuestList();
@@ -1521,7 +1702,9 @@ function questRow(t){
   info.style.flex = "1"; info.style.minWidth = "0";
   const where = t.mapName ? t.mapName : (t.allMaps.length ? t.allMaps.map(m=>MAPBY[m]?MAPBY[m].jp:m).join(", ") : T("multipleOrNone"));
   const badge = ((dn && selected.has(t.id)) ? ` <span style="color:#6db36d">${T("doneBadge")}</span>` : "") +
-                (isFailed(t.id) ? ` <span class="qfail">${T("failBadge")}</span>` : "");
+                (isFailed(t.id) ? ` <span class="qfail">${T("failBadge")}</span>` : (lockedOut(t) ? ` <span class="qfail">${T("lockedBadge")}</span>` : "")) +
+                (failLines(t).length ? ` <span class="qwarn" title="${failLines(t).join(" / ").replace(/"/g, "'")}">⚠</span>` : "") +
+                storyChip(t);
   info.innerHTML = `<div class="qn">${t.name}${badge}</div><div class="meta">${t.trader} ・ ${T("lvLabel")}${t.lvl||"-"} ・ ${where}</div>` +
     (selected.has(t.id) ? chainHtml(t) : "");
   const doneBtn = document.createElement("button");
@@ -1533,8 +1716,66 @@ function questRow(t){
     dn ? done.delete(t.id) : done.add(t.id);
     saveDone(); renderQuestList(); renderProgress(); refreshFloors(); renderPrep();
   };
-  row.appendChild(cb); row.appendChild(info); row.appendChild(doneBtn);
+  const jumpBtn = document.createElement("button");
+  jumpBtn.textContent = "📍";
+  jumpBtn.title = T("jumpTitle");
+  jumpBtn.style.cssText = "flex:0 0 auto;padding:1px 5px;font-size:11px;";
+  jumpBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); focusQuest(t); };
+  row.appendChild(cb); row.appendChild(info); row.appendChild(jumpBtn); row.appendChild(doneBtn);
   return row;
+}
+
+/* ---------- 一覧の 📍 → そのクエストのピンへ地図を移動 ----------
+   未選択なら選択に加え、必要ならマップタブ・階を切り替え、ピンが収まるようにズームする。 */
+let toastTimer = null;
+function toast(msg){
+  let el = document.getElementById("toast");
+  if(!el){ el = document.createElement("div"); el.id = "toast"; document.getElementById("map").parentElement.appendChild(el); }
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+}
+async function focusQuest(t){
+  document.getElementById("app").classList.remove("sb-open");   // 狭い画面ではメニューを閉じて地図を見せる
+  const shown = m => !objHidden(m.obj);
+  const cnt = mn => MAPBY[mn] ? (t.byMap[mn] || []).filter(shown).length : 0;
+  const cands = Object.keys(t.byMap).filter(mn => cnt(mn) > 0);
+  if(!cands.length){ toast(T("jumpNoPins")); return; }
+  // 表示するマップ: 今のマップにピンがあればそのまま。無ければ絞り込み中のマップ → ピン最多のマップ
+  let target = curMap;
+  if(!cnt(curMap)){
+    const fm = effMapFilter();
+    target = (fm && cands.includes(fm)) ? fm : cands.sort((a, b) => cnt(b) - cnt(a))[0];
+  }
+  const wasSelected = selected.has(t.id);
+  if(!wasSelected){ selected.add(t.id); saveSel(); }
+  if(target !== curMap){
+    curMap = target; try{ localStorage.setItem(MAP_KEY, curMap); }catch(e){}
+    await loadMap();                // 内部で階の自動選択・ピン描画まで行う
+  }else if(!wasSelected){
+    refreshFloors();
+  }
+  const md = MAPBY[curMap];
+  // このクエストのピンが最も多い階へ切り替え
+  if(md.floors){
+    const fc = md.floors.map(() => 0);
+    for(const m of t.byMap[curMap].filter(shown)){ const fi = floorIndexOf(m.pos ? m.pos.y : null, md.floors); if(fi >= 0) fc[fi]++; }
+    let best = curFloor == null ? 0 : curFloor;
+    fc.forEach((c, i) => { if(c > (fc[best] || 0)) best = i; });
+    if(best !== curFloor) showFloor(md, best);
+  }
+  renderTabs(); renderQuestList(); renderLegend(); renderPrep(); updateSelInfo();
+  // ピンが収まる範囲へズーム（1点だけのときは寄りすぎないよう上限あり）
+  const onFloor = pos => !md.floors || curFloor == null || floorIndexOf(pos ? pos.y : null, md.floors) === curFloor;
+  const pts = t.byMap[curMap].filter(m => shown(m) && onFloor(m.pos)).map(m => gpos(m.pos));
+  if(!pts.length || !map) return;
+  const maxZ = map.getBoundsZoom(toBounds(md.b)) + 2.5;
+  map.fitBounds(L.latLngBounds(pts), { padding:[90, 90], maxZoom: maxZ, animate: true });
+  // 場所が分かるよう、ピンの周りに輪を一瞬だけ出す
+  const ring = L.layerGroup().addTo(map);
+  pts.forEach(ll => L.circleMarker(ll, { radius:20, color:"#fff", weight:2, fill:false, opacity:.9 }).addTo(ring));
+  const mapRef = map;
+  setTimeout(() => { if(map === mapRef) map.removeLayer(ring); }, 1800);
 }
 
 // 現在のマップ絞り込み対象 ("" = すべて, "__cur__" = 表示中のマップに追従)
@@ -1550,7 +1791,7 @@ function renderQuestList(){
     if(opts.kappaOnly && !t.kappa) return false;
     if(fmap && !t.allMaps.includes(fmap)) return false;
     if(q && !t.name.toLowerCase().includes(q)) return false;
-    if((isDone(t.id) || isFailed(t.id)) && !showDone && !selected.has(t.id)) return false;  // 完了・失敗は既定で隠す
+    if((isDone(t.id) || isFailed(t.id) || lockedOut(t)) && !showDone && !selected.has(t.id)) return false;  // 完了・失敗は既定で隠す
     return true;
   };
   const byName = (a,b) => a.name.localeCompare(b.name);
@@ -1658,7 +1899,7 @@ function spreadPos(ll, seen){
 }
 
 function renderMarkers(){
-  if(!map) return;
+  if(!map || !markerLayer || !extractLayer) return;   // 地図の読み込み途中は何もしない
   markerLayer.clearLayers();
   extractLayer.clearLayers();
 
@@ -1929,11 +2170,31 @@ function ttParse(text){
       else if(c.complete === true) complete.push(id);
     }
     for(const id in to) if(to[id] && to[id].complete === true) objs.push(id);
-    modes[m] = { level: parseInt(p.level, 10) || 0, complete, failed: failedIds, objs };
+    // ストーリー章: 章ごとの complete と 目標ごとの complete（章が完了なら主要な目標を全部完了扱い）
+    const sc = (p.storyChapters && typeof p.storyChapters === "object") ? p.storyChapters : {};
+    const story = [];
+    for(const cid in sc){
+      const c = sc[cid] || {};
+      const ob = (c.objectives && typeof c.objectives === "object") ? c.objectives : {};
+      for(const oid in ob) if(ob[oid] && ob[oid].complete === true) story.push(oid);
+      if(c.complete === true && typeof STORY !== "undefined" && STORY){
+        const ch = STORY.chapters.find(x => x.id === cid);
+        if(ch) ch.objectives.forEach(o => { if(o.type === "main") story.push(o.id); });
+      }
+    }
+    modes[m] = { level: parseInt(p.level, 10) || 0, complete, failed: failedIds, objs, story: [...new Set(story)] };
   }
   if(!Object.keys(modes).length) throw new Error(T("ttErrEmpty"));
   const cur = modes[j.currentGameMode] ? j.currentGameMode : Object.keys(modes)[0];
   return { modes, cur };
+}
+const ttHasData = m => !!(m.complete.length || m.failed.length || m.objs.length || m.story.length);
+// 取込元の初期選択: 進捗が入っているプロファイルを優先（表示中のモード → TarkovTracker側の現在のモード → 最初に進捗があるもの）
+function ttDefaultKey(){
+  const ms = ttParsed.modes, ks = Object.keys(ms);
+  if(ms[MODE] && ttHasData(ms[MODE])) return MODE;
+  if(ms[ttParsed.cur] && ttHasData(ms[ttParsed.cur])) return ttParsed.cur;
+  return ks.find(k => ttHasData(ms[k])) || (ms[MODE] ? MODE : ttParsed.cur);
 }
 function ttMode(){
   const r = document.querySelector('#ttmodes input[name="ttmode"]:checked');
@@ -1945,8 +2206,9 @@ function ttRenderPreview(){
   const key = ttMode(), m = ttParsed.modes[key];
   const known = new Set(TASKS.map(t => t.id));
   document.getElementById("ttsum").innerHTML =
-    T("ttSummary", m.level, m.complete.length, m.complete.filter(id => known.has(id)).length, m.failed.length, m.objs.length) +
-    "<br>" + T("ttTarget", T(MODE === "pvp" ? "modePvp" : MODE === "pve" ? "modePve" : "modeSeasonal"));
+    T("ttSummary", m.level, m.complete.length, m.complete.filter(id => known.has(id)).length, m.failed.length, m.objs.length, m.story.length) +
+    "<br>" + T("ttTarget", modeName(key), key === MODE) +
+    (ttHasData(m) ? "" : `<br><span class="tt-err">${T("ttEmptyProfile")}</span>`);
   document.getElementById("ttlevellabel").textContent = T("ttLevelLabel", m.level || "-");
   document.getElementById("ttlevel").disabled = !(m.level > 0);
   box.classList.remove("hidden"); runBtn.classList.remove("hidden");
@@ -1963,7 +2225,7 @@ function ttLoadText(text){
     const mb = document.getElementById("ttmodes");
     mb.innerHTML = keys.length > 1
       ? `<span class="muted">${T("ttModeLabel")}</span>` + keys.map(k =>
-          `<label class="chk"><input type="radio" name="ttmode" value="${k}" ${k === (keys.includes(MODE) ? MODE : ttParsed.cur) ? "checked" : ""} /> ${names[k]}</label>`).join("")
+          `<label class="chk"><input type="radio" name="ttmode" value="${k}" ${k === ttDefaultKey() ? "checked" : ""} /> ${names[k]}</label>`).join("")
       : "";
     mb.querySelectorAll("input").forEach(r => r.onchange = ttRenderPreview);
     ttRenderPreview();
@@ -1972,47 +2234,112 @@ function ttLoadText(text){
     msg.className = "tt-err"; msg.textContent = e.message;
   }
 }
-function ttRefreshAll(){
-  renderQuestList(); renderProgress(); renderTabs(); refreshFloors(); renderPrep(); renderLegend(); updateSelInfo();
+/* ---------- ストーリー章のチェックリスト（座標が無いので地図には出さない） ---------- */
+let storyOpen = new Set();
+function saveStory(){ saveIdSet(STORY_KEY, storyDone); renderStory(); renderQuestList(); }
+function renderStory(){
+  const box = document.getElementById("storyList");
+  if(!box) return;
+  const st = box.scrollTop;
+  if(!STORY || !STORY.chapters || !STORY.chapters.length){
+    box.innerHTML = `<div class="muted" style="padding:8px">${T("storyNone")}</div>`;
+    return;
+  }
+  box.innerHTML = "";
+  for(const c of STORY.chapters){
+    const main = c.objectives.filter(o => o.type === "main");
+    const nDone = main.filter(o => storyDone.has(o.id)).length;
+    const all = main.length > 0 && nDone === main.length;
+    const det = document.createElement("details");
+    det.className = "stch";
+    det.open = storyOpen.has(c.id);
+    det.addEventListener("toggle", () => { det.open ? storyOpen.add(c.id) : storyOpen.delete(c.id); });
+    const rows = c.objectives.map(o => {
+      const dn = storyDone.has(o.id), opt = o.type === "optional";
+      return `<label class="stobj${opt ? " opt" : ""}${dn ? " done" : ""}"><input type="checkbox" data-oid="${escH(o.id)}" ${dn ? "checked" : ""}>` +
+             `<span class="tx">${escH(o.text)}</span>${opt ? `<span class="stopt">${T("storyOptional")}</span>` : ""}</label>`;
+    }).join("");
+    det.innerHTML =
+      `<summary><span class="stn">${escH(c.name)}</span><span class="stc${all ? " ok" : ""}">${nDone}/${main.length}${all ? " ✓" : ""}</span></summary>` +
+      `<div class="stbody"><div class="stbtns"><button data-act="all">${T("storyDoneAll")}</button><button data-act="none">${T("storyClear")}</button>` +
+      (c.wiki ? `<a class="muted" href="${escH(c.wiki)}" target="_blank" rel="noopener">Wiki ↗</a>` : "") + `</div>${rows}</div>`;
+    det.querySelectorAll("input[data-oid]").forEach(inp => {
+      inp.onchange = () => { inp.checked ? storyDone.add(inp.dataset.oid) : storyDone.delete(inp.dataset.oid); saveStory(); };
+    });
+    det.querySelector('button[data-act="all"]').onclick = () => { main.forEach(o => storyDone.add(o.id)); saveStory(); };
+    det.querySelector('button[data-act="none"]').onclick = () => { c.objectives.forEach(o => storyDone.delete(o.id)); saveStory(); };
+    box.appendChild(det);
+  }
+  box.scrollTop = st;
 }
+
+function ttRefreshAll(){
+  renderStory(); renderQuestList(); renderProgress(); renderTabs(); refreshFloors(); renderPrep(); renderLegend(); updateSelInfo();
+}
+// 取込先は「選んだ取込元のモード」と同じモードの保存領域（PvPの中身をPvEへ混ぜない）。表示中のモードと違えば、切り替えたときに反映される
+const tkey = (base, mode) => mode === "pvp" ? base : base + "_" + mode;
+function ttStateLoad(mode){
+  const k = b => tkey(b, mode);
+  let lvl = 0; try{ lvl = parseInt(localStorage.getItem(k("eft_qm_level_v1")), 10) || 0; }catch(e){}
+  return { done: loadIdSet(k("eft_qm_done_v1")), failed: loadIdSet(k("eft_qm_failed_v1")), objs: loadIdSet(k("eft_qm_objdone_v1")), story: loadIdSet(k("eft_qm_story_v1")), lvl };
+}
+function ttStateSave(mode, st){
+  const k = b => tkey(b, mode);
+  saveIdSet(k("eft_qm_done_v1"), st.done); saveIdSet(k("eft_qm_failed_v1"), st.failed);
+  saveIdSet(k("eft_qm_objdone_v1"), st.objs); saveIdSet(k("eft_qm_story_v1"), st.story);
+  if(st.lvl){ try{ localStorage.setItem(k("eft_qm_level_v1"), String(st.lvl)); }catch(e){} }
+}
+const modeName = k => T(k === "pvp" ? "modePvp" : k === "pve" ? "modePve" : "modeSeasonal");
 function ttApply(){
   if(!ttParsed) return;
-  const m = ttParsed.modes[ttMode()];
+  const target = ttMode();
+  const m = ttParsed.modes[target];
+  const same = target === MODE;
   const overwrite = document.querySelector('input[name="ttmerge"]:checked').value === "overwrite";
   const applyLevel = document.getElementById("ttlevel").checked && m.level > 0;
+  const st = ttStateLoad(target);
+  // 元に戻す用スナップショット（1世代・取込先のモードごと）
+  try{ localStorage.setItem(tkey("eft_qm_tt_undo_v1", target), JSON.stringify({ done:[...st.done], failed:[...st.failed], objs:[...st.objs], story:[...st.story], lvl:st.lvl })); }catch(e){}
+  // 表示中のモードへ取り込むときは、そのデータにあるIDだけ。別モードへは、そちらのデータが今は手元に無いのでそのまま入れる
   const known = new Set(TASKS.map(t => t.id));
-  // 元に戻す用スナップショット（1世代）
-  try{ localStorage.setItem(TTUNDO_KEY, JSON.stringify({ done:[...done], failed:[...failed], objs:[...doneObjs], lvl:plvl })); }catch(e){}
-  const newDone = m.complete.filter(id => known.has(id));
-  const newFailed = m.failed.filter(id => known.has(id));
-  if(overwrite){ done = new Set(newDone); failed = new Set(newFailed); doneObjs = new Set(m.objs); }
-  else{ newDone.forEach(id => done.add(id)); newFailed.forEach(id => failed.add(id)); m.objs.forEach(id => doneObjs.add(id)); }
-  for(const id of failed) done.delete(id);   // 失敗と完了が両方付いたら失敗を優先
-  saveDone(); saveIdSet(FAILED_KEY, failed); saveIdSet(OBJDONE_KEY, doneObjs);
-  if(applyLevel){
-    plvl = Math.min(79, m.level);
-    try{ localStorage.setItem(LEVEL_KEY, String(plvl)); }catch(e){}
-    document.getElementById("lvlin").value = plvl;
+  const newDone = same ? m.complete.filter(id => known.has(id)) : m.complete;
+  const newFailed = same ? m.failed.filter(id => known.has(id)) : m.failed;
+  const knownStory = (same && STORY) ? new Set(STORY.chapters.flatMap(c => c.objectives.map(o => o.id))) : null;
+  const newStory = knownStory ? m.story.filter(id => knownStory.has(id)) : m.story;
+  if(overwrite){
+    st.done = new Set(newDone); st.failed = new Set(newFailed); st.objs = new Set(m.objs);
+    if(newStory.length) st.story = new Set(newStory);   // ファイルにストーリー情報が無いときは、手動のチェックを消さない
+  }else{
+    newDone.forEach(id => st.done.add(id)); newFailed.forEach(id => st.failed.add(id));
+    m.objs.forEach(id => st.objs.add(id)); newStory.forEach(id => st.story.add(id));
   }
-  ttRefreshAll();
+  for(const id of st.failed) st.done.delete(id);   // 失敗と完了が両方付いたら失敗を優先
+  if(applyLevel) st.lvl = Math.min(79, m.level);
+  ttStateSave(target, st);
+  if(same){
+    done = st.done; failed = st.failed; doneObjs = st.objs; storyDone = st.story;
+    if(applyLevel){ plvl = st.lvl; document.getElementById("lvlin").value = plvl; }
+    ttRefreshAll();
+  }
   const msg = document.getElementById("ttmsg");
-  msg.className = "tt-ok"; msg.textContent = T("ttDoneMsg", newDone.length, newFailed.length, m.objs.length);
-  document.getElementById("ttundo").classList.remove("hidden");
+  msg.className = "tt-ok";
+  msg.textContent = T("ttDoneMsg", newDone.length, newFailed.length, m.objs.length, newStory.length) + (same ? "" : " " + T("ttOtherMode", modeName(target)));
+  if(same) document.getElementById("ttundo").classList.remove("hidden");
 }
 function ttUndo(){
   let s = null;
   try{ s = JSON.parse(localStorage.getItem(TTUNDO_KEY)); }catch(e){}
   if(!s) return;
   done = new Set(s.done || []); failed = new Set(s.failed || []); doneObjs = new Set(s.objs || []);
-  saveDone(); saveIdSet(FAILED_KEY, failed); saveIdSet(OBJDONE_KEY, doneObjs);
+  if(Array.isArray(s.story)) storyDone = new Set(s.story);
+  saveDone(); saveIdSet(FAILED_KEY, failed); saveIdSet(OBJDONE_KEY, doneObjs); saveIdSet(STORY_KEY, storyDone);
   if(s.lvl){ plvl = s.lvl; try{ localStorage.setItem(LEVEL_KEY, String(plvl)); }catch(e){} document.getElementById("lvlin").value = plvl; }
   ttRefreshAll();
   try{ localStorage.removeItem(TTUNDO_KEY); }catch(e){}
   const msg = document.getElementById("ttmsg");
   msg.className = "tt-ok"; msg.textContent = T("ttUndoneMsg");
   document.getElementById("ttundo").classList.add("hidden");
-}
-function ttOpen(){
+}function ttOpen(){
   const dlg = document.getElementById("ttdlg");
   document.getElementById("ttpaste").value = ""; document.getElementById("ttfile").value = "";
   ttParsed = null; ttRenderPreview();
@@ -2320,7 +2647,10 @@ function showOverlay(on, html){
 /* ---------- 起動 ---------- */
 function applyData(data){
   DATA = data;
+  // ストーリー章のデータが取れなかった/古いキャッシュに無いときは、同梱スナップショットの分を使う(章の内容はモードに依らない)
+  STORY = data.story || (window.__EFT_SNAPSHOT__ && window.__EFT_SNAPSHOT__.data && window.__EFT_SNAPSHOT__.data.story) || null;
   TASKS = prepTasks(data.tasks);
+  renderStory();
   EXTRACTS = {}; TRANSITS = {}; HAZARDS = {}; LOCKS = {}; SWITCHES = {}; BOSSES = {}; SPAWNS = {}; MAPMETA = {};
   for(const m of data.maps){
     const mn = canonMap(m.normalizedName);
@@ -2523,7 +2853,15 @@ document.getElementById("fbcopy").onclick = async () => {
   const text = `[${FEEDBACK_FORM.types[fbType]}]\n${msg}\n\n---\n${fbInfoText()}`;
   try{ await navigator.clipboard.writeText(text); out.className = "tt-ok"; out.textContent = T("fbCopied"); }
   catch(e){ window.prompt("Copy:", text); }
-};document.getElementById("guideclose").onclick = () => {
+};
+
+// 狭い画面ではサイドバーがメニュー(ドロワー)になる
+const appEl = document.getElementById("app");
+const closeDrawer = () => appEl.classList.remove("sb-open");
+document.getElementById("menuBtn").onclick = () => appEl.classList.add("sb-open");
+document.getElementById("sbShade").onclick = closeDrawer;
+document.getElementById("sbClose").onclick = closeDrawer;
+document.getElementById("guideclose").onclick = () => {
   document.getElementById("guide").classList.add("hidden");
   try{ localStorage.setItem(GUIDE_KEY, "1"); }catch(e){}
 };

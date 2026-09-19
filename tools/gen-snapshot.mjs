@@ -7,7 +7,7 @@ const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 const inlineJs = scripts[scripts.length - 1][1];
 async function gen(mode, out){
 const lines = inlineJs.split("\n");
-const endIdx = lines.findIndex(l => /return \{ maps, tasks \};/.test(l));
+const endIdx = lines.findIndex(l => /return \{ maps, tasks(, story)? \};/.test(l));
 const a = lines.findIndex(l => /^let LANG = /.test(l));
 const t0 = lines.findIndex(l => /^function applyStaticI18n/.test(l));
 const c0 = lines.findIndex(l => /^const canonMap = /.test(l));
